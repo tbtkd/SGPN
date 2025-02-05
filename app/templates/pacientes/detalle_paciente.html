@@ -1,0 +1,241 @@
+{% extends "base/base.html" %}
+
+{% block title %}Detalle del Paciente{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/detalle_paciente_grid.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="table-container">
+    <h2 align = "center">Detalle del Paciente</h2>
+    <div class="paciente-detalle">
+        <p><strong>Nombre:</strong> {{ paciente['nombre'] }}</p>
+        <p><strong>Apellido Paterno:</strong> {{ paciente['apellido_paterno'] }}</p>
+        <p><strong>Apellido Materno:</strong> {{ paciente['apellido_materno'] }}</p>
+        <p><strong>Fecha de Nacimiento:</strong> {{ paciente['fecha_nacimiento'] }}</p>
+        <p><strong>Teléfono:</strong> {{ paciente['telefono'] }}</p>
+        <p><strong>Correo:</strong> {{ paciente['correo'] }}</p>
+        <p><strong>Ciudad:</strong> {{ paciente['ciudad'] }}</p>
+        <p><strong>Estatus:</strong> {{ paciente['status'] }}</p>
+        <p><strong>Última Dieta:</strong> {{ ultima_valoracion['ultima_dieta'] if ultima_valoracion else 'No registrada' }}</p>
+        <p><strong>Último Pago:</strong> {{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-plus-circle"></i> Nueva Valoración Antropométrica
+        </a>
+        <a href="{{ url_for('valoracion.lista_valoraciones', paciente_id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-weight"></i> Ver Valoraciones Antropométricas
+        </a>
+        <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-notes-medical"></i> Capturar/Actualizar Historial Clínico
+        </a>
+        <button type="button" id="btnOpenExcelModal" class="action-button">
+            <i class="fas fa-file-excel"></i> Cargar Excel
+        </button>
+    </div>
+
+    <!-- Excel Upload Modal -->
+    <div id="modalCargarExcel" class="modal">
+        <div class="modal-upload">
+            <div class="modal-upload__header">
+                <h2 class="modal-upload__title">Cargar Archivo Excel</h2>
+                <button class="modal-upload__close">&times;</button>
+            </div>
+            <div class="modal-upload__content">
+                <form id="formCargarExcel" enctype="multipart/form-data" class="file-upload" method="POST">
+                    <input type="file" 
+                           name="excel_file" 
+                           accept=".xls,.xlsx" 
+                           class="file-upload__input" 
+                           required>
+                    <button type="submit" class="upload-button">
+                        <i class="fas fa-upload"></i> Cargar
+                    </button>
+                </form>
+                <div id="resultadoCarga" class="upload-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="valoracion-grid">
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-calendar"></i> Registrar Fecha Pago</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <form action="{{ url_for('pacientes.registrar_pago_paciente', id=paciente['id']) }}" method="POST">
+                        <div class="form-group">
+                            <label for="ultima_dieta" class="form-label">Registrar Pago:</label>
+                            <input type="date" id="fecha_pago" name="fecha_pago" class="form-input" required>
+                        </div>
+                        <button type="submit" class="form-button">Registrar Pago</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-apple-alt"></i> Registrar Última Dieta</h3>
+                <div class="valoracion-card__content">
+                    <div class="data-item">
+                        <form action="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" method="POST">
+                            <div class="form-group">
+                                <label for="ultima_dieta" class="form-label">Última Dieta:</label>
+                                <input type="text" id="ultima_dieta" name="ultima_dieta" class="form-input" maxlength="8" required>
+                            </div>
+                            <button type="submit" class="form-button">Registrar Dieta</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="valoracion-grid">
+        {% if historial %}   
+            <!-- Sección de Actividad Física -->
+            <div class="valoracion-card">
+                <h3 class="valoracion-card__title"> <i class="fas fa-running"></i>  Actividad Física</h3>
+                <div class="valoracion-card__content">
+                    <div class="data-item">
+                        <span class="data-label">Tipo de Actividad:</span>
+                        <span class="data-value">{{ historial['tipo_actividad_fisica'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Frecuencia:</span>
+                        <span class="data-value">{{ historial['frecuencia_actividad_fisica'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Tiempo:</span>
+                        <span class="data-value">{{ historial['tiempo_actividad_fisica'] or 'No registrado' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Alimentación -->
+            <div class="valoracion-card">
+                <h3 class="valoracion-card__title"><i class="fas fa-utensils"></i> Alimentación</h3>
+                <div class="valoracion-card__content">
+                    <div class="data-item">
+                        <span class="data-label">Número de Comidas Diarias:</span>
+                        <span class="data-value">{{ historial['numero_comidas_diarias'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Alimentos que Consume Normalmente:</span>
+                        <span class="data-value">{{ historial['alimentos_normales'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Alimentos que No le Gustan:</span>
+                        <span class="data-value">{{ historial['alimentos_no_gustados'] or 'No registrado' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Historial Médico -->
+            <div class="valoracion-card">
+                <h3 class="valoracion-card__title"><i class="fas fa-notes-medical"></i> Historial Médico</h3>
+                <div class="valoracion-card__content">
+                    <div class="data-item">
+                        <span class="data-label">Cirugías:</span>
+                        <span class="data-value">{{ historial['cirugias'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Padecimientos:</span>
+                        <span class="data-value">{{ historial['padecimientos'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Medicamentos:</span>
+                        <span class="data-value">{{ historial['medicamentos'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Suplementos:</span>
+                        <span class="data-value">{{ historial['suplementos'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Enfermedades Previas:</span>
+                        <span class="data-value">{{ historial['enfermedades_previas'] or 'No registrado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Enfermedades Actuales:</span>
+                        <span class="data-value">{{ historial['enfermedades_actuales'] or 'No registrado' }}</span>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="no-data">No hay historial clínico registrado.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="module">
+import { initModal } from "{{ url_for('static', filename='js/components/modal.js') }}";
+
+document.addEventListener('DOMContentLoaded', () => {
+    initModal();
+    
+    // Agregar evento al botón de abrir modal
+    const btnOpenModal = document.getElementById('btnOpenExcelModal');
+    if (btnOpenModal) {
+        btnOpenModal.addEventListener('click', () => {
+            openExcelModal();
+        });
+    }
+    
+    // Configurar el formulario de carga
+    const formCargarExcel = document.getElementById('formCargarExcel');
+    const resultadoCarga = document.getElementById('resultadoCarga');
+    
+    if (formCargarExcel) {
+        const pacienteId = '{{ paciente["id"] }}';
+        
+        formCargarExcel.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+            resultadoCarga.className = 'upload-message';
+            resultadoCarga.textContent = 'Procesando archivo...';
+            
+            const formData = new FormData(this);
+            
+            fetch(`/pacientes/${pacienteId}/cargar-excel`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.registros_duplicados > 0 && data.registros_procesados === 0) {
+                        resultadoCarga.className = 'upload-message warning';
+                        resultadoCarga.textContent = 'Los registros del archivo ya han sido procesados anteriormente.';
+                    } else if (data.registros_procesados > 0) {
+                        resultadoCarga.className = 'upload-message success';
+                        resultadoCarga.textContent = data.message;
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                } else {
+                    resultadoCarga.className = 'upload-message error';
+                    resultadoCarga.textContent = 'Error al cargar el archivo: ' + data.message;
+                }
+            })
+            .catch(error => {
+                resultadoCarga.className = 'upload-message error';
+                resultadoCarga.textContent = 'Error al cargar el archivo: ' + error;
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-upload"></i> Cargar';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

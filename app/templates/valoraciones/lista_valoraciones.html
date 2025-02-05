@@ -1,0 +1,52 @@
+{% extends "base/base.html" %}
+
+{% block title %}Valoraciones Antropométricas - {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}{% endblock %}
+
+{% block content %}
+<div class="table-container">
+    <header class="valoracion-header">
+        <h2 align="center" >Valoración Antropométrica</h2>
+        <h3>Paciente: {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</h3>
+    </header>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="table__header">Fecha</th>
+                <th class="table__header">Número de Cita</th>
+                <th class="table__header">Peso (kg)</th>
+                <th class="table__header">IMC</th>
+                <th class="table__header">% Grasa</th>
+                <th class="table__header">Tensión arterial</th>
+                <th class="table__header">Frecuencia cardíaca</th>
+                <th class="table__header">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for valoracion in valoraciones %}
+            <tr>
+                <td class="table__cell">{{ valoracion['fecha'] }}</td>
+                <td class="table__cell text-center">{{ valoracion['numero_cita'] }}</td>
+                <td class="table__cell text-right">{{ valoracion['peso'] }}</td>
+                <td class="table__cell text-right">{{ valoracion['imc'] }}</td>
+                <td class="table__cell text-right">{{ valoracion['porcentaje_grasa'] }}%</td>
+                <td class="table__cell text-center">{{ valoracion['tension_arterial'] }}</td>
+                <td class="table__cell text-right">{{ valoracion['frecuencia_cardiaca'] }} lpm</td>
+                <td class="table__cell">
+                    <a href="{{ url_for('valoracion.detalle_valoracion', valoracion_id=valoracion['id']) }}" 
+                        class="action-button">
+                        Ver Detalles
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="valoracion-actions">
+        <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-arrow-left"></i> Volver al Paciente
+        </a>
+    </div>
+</div>
+{% endblock %}
+

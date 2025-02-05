@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Pacientes{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_tables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_buttons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_tabs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_sidebar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container" x-data="{ menuOpen: false }">
+        <nav class="sidebar">
+            <div class="sidebar__header">
+                <img src="{{ url_for('static', filename='img/logos/logo.png') }}" 
+                        alt="Sistema de Pacientes" 
+                        class="sidebar__logo"
+                        onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/logos/default-logo.png') }}'">
+            </div>
+            <ul class="sidebar__list">
+                <li class="sidebar__item">
+                    <a href="{{ url_for('main.index') }}" class="sidebar__link">
+                        <i class="fas fa-th-large sidebar__icon"></i> Inicio
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="{{ url_for('pacientes.nuevo_paciente') }}" class="sidebar__link">
+                        <i class="fas fa-user-plus sidebar__icon"></i> Alta Pacientes
+                    </a>
+                </li>
+                <li class="sidebar__item" x-data="{ open: false }">
+                    <a @click="open = !open" class="sidebar__link sidebar__dropdown">
+                        <i class="fas fa-users sidebar__icon"></i> Pacientes
+                        <i class="fas fa-chevron-down sidebar__icon-arrow" 
+                           :class="{ 'rotate-180': open }"></i>
+                    </a>
+                    <ul x-show="open" class="sidebar__submenu">
+                        <li class="sidebar__item">
+                            <a href="{{ url_for('pacientes.lista_pacientes_activos') }}" class="sidebar__link">
+                                <i class="fas fa-user-check sidebar__icon"></i> Pacientes Activos
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a href="{{ url_for('pacientes.lista_pacientes_inactivos') }}" class="sidebar__link">
+                                <i class="fas fa-user-times sidebar__icon"></i> Pacientes Inactivos
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="footer-content">
+                    <p>Emmora</p>
+                    <p>&copy; 2025. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </nav>
+        <main class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert--{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+

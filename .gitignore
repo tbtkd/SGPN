@@ -1,0 +1,12 @@
+# Agregar estas líneas al archivo existente
+logs/*
+!logs/.gitkeep
+*.pyc
+*.pyo
+__pycache__/
+ejecutable/
+.env
+Spacientes
+Spacientes.exe
+output/
+output/

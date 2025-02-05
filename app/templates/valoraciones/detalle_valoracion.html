@@ -1,0 +1,188 @@
+{% extends "base/base.html" %}
+
+{% block title %}Detalle de Valoración Antropométrica{% endblock %}
+
+{% block content %}
+<div class="valoracion-container">
+    <header class="valoracion-header">
+        <h2 align="center">Detalle de Valoración Antropométrica</h2>
+        <h3>Paciente: {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</h3>
+    </header>
+
+    <div class="valoracion-grid">
+        <!-- Sección de Medidas Básicas -->
+        <div class="valoracion-card">
+            <h4 class="valoracion-card__title">Información General</h4>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Número de cita:</span>
+                    <span class="data-value">{{ valoracion['numero_cita'] }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Fecha:</span>
+                    <span class="data-value">{{ valoracion['fecha'] }}</span>
+                </div>
+            </div>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Última Dieta:</span>
+                    <span class="data-value">{{ valoracion['ultima_dieta'] or 'No registrada' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Medidas Corporales -->
+        <div class="valoracion-card">
+            <h4 class="valoracion-card__title">Medidas Corporales</h4>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Estatura:</span>
+                    <span class="data-value">{{ valoracion['estatura'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Peso:</span>
+                    <span class="data-value">{{ valoracion['peso'] }} kg</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">IMC:</span>
+                    <span class="data-value">{{ valoracion['imc'] }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">% Grasa:</span>
+                    <span class="data-value">{{ valoracion['grasa'] }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Signos Vitales -->
+        <div class="valoracion-card">
+            <h4 class="valoracion-card__title">Signos Vitales</h4>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Tensión arterial:</span>
+                    <span class="data-value">{{ valoracion['tension_arterial'] }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Frecuencia cardíaca:</span>
+                    <span class="data-value">{{ valoracion['frecuencia_cardiaca'] }} lpm</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Medidas Específicas -->
+        <div class="valoracion-card">
+            <h4 class="valoracion-card__title">Medidas Específicas</h4>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Cintura:</span>
+                    <span class="data-value">{{ valoracion['cintura'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Tórax:</span>
+                    <span class="data-value">{{ valoracion['torax'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Brazo:</span>
+                    <span class="data-value">{{ valoracion['brazo'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Cadera:</span>
+                    <span class="data-value">{{ valoracion['cadera'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Pierna:</span>
+                    <span class="data-value">{{ valoracion['pierna'] }} cm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Pantorrilla:</span>
+                    <span class="data-value">{{ valoracion['pantorrilla'] }} cm</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Plicometría -->
+        <div class="valoracion-card">
+            <h4 class="valoracion-card__title">Plicometría</h4>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Bícep:</span>
+                    <span class="data-value">{{ valoracion['bicep'] }} mm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Trícep:</span>
+                    <span class="data-value">{{ valoracion['tricep'] }} mm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Suprailiaco:</span>
+                    <span class="data-value">{{ valoracion['suprailiaco'] }} mm</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Subescapular:</span>
+                    <span class="data-value">{{ valoracion['subescapular'] }} mm</span>
+                </div>
+                {% if valoracion['femoral'] %}
+                <div class="data-item">
+                    <span class="data-label">Femoral:</span>
+                    <span class="data-value">{{ valoracion['femoral'] }} mm</span>
+                </div>
+                {% endif %}
+                <div class="data-item">
+                    <span class="data-label">% Grasa total:</span>
+                    <span class="data-value">{{ valoracion['porcentaje_grasa'] }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Valoraciones -->
+    <div class="valoracion-history">
+        <h3>Historial de Valoraciones</h3>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="table__header">Fecha</th>
+                        <th class="table__header">Peso (kg)</th>
+                        <th class="table__header">IMC</th>
+                        <th class="table__header">% Grasa</th>
+                        <th class="table__header">Tensión arterial</th>
+                        <th class="table__header">Frecuencia cardíaca</th>
+                        <th class="table__header">Ver Información</th>
+                        <!--<th class="table__header">Actualizar Información</th>-->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for val in historial_valoraciones %}
+                    <tr class="{{ 'current-row' if val['id'] == valoracion['id'] else '' }}">
+                        <td class="table__cell">{{ val['fecha'] }}</td>
+                        <td class="table__cell text-right">{{ val['peso'] }}</td>
+                        <td class="table__cell text-right">{{ val['imc'] }}</td>
+                        <td class="table__cell text-right">{{ val['porcentaje_grasa'] }}%</td>
+                        <td class="table__cell text-center">{{ val['tension_arterial'] }}</td>
+                        <td class="table__cell text-right">{{ val['frecuencia_cardiaca'] }} lpm</td>
+                        <td class="table__cell">
+                            <a href="{{ url_for('valoracion.detalle_valoracion', valoracion_id=val['id']) }}" 
+                                class="action-button">Seleccionar</a>
+                        </td>
+                        <!--<td class="table__cell">
+                            <a href="{{ url_for('valoracion.editar_valoracion', valoracion_id=valoracion['id']) }}" 
+                                class="action-button">Actualizar</a>
+                        </td>-->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="valoracion-actions">
+        <a href="{{ url_for('valoracion.lista_valoraciones', paciente_id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-arrow-left"></i> Volver a la lista
+        </a>
+        <!--<a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="action-button">
+            <i class="fas fa-plus"></i> Nueva Valoración
+        </a>-->
+    </div>
+</div>
+{% endblock %}
+

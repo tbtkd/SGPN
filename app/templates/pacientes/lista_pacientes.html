@@ -1,0 +1,54 @@
+{% extends "base/base.html" %}
+
+{% block title %}Lista de Pacientes{% endblock %}
+
+{% block content %}
+
+
+<div class="table-container">
+    <header class="valoracion-header">
+        <h2 align = "center">Lista de Pacientes {{ "Activos" if tipo_lista == "activos" else "Inactivos" }}</h2>
+        <form action="{{ url_for('pacientes.lista_pacientes_' + tipo_lista) }}" method="get" class="search-form">
+            <input type="text" name="busqueda" placeholder="Buscar pacientes..." value="{{ busqueda }}">
+            <button type="submit">Buscar</button>
+        </form>
+    </header>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="table__header">Nombre</th>
+                <th class="table__header">Apellidos</th>
+                <th class="table__header">Correo</th>
+                <th class="table__header">Ciudad</th>
+                <th class="table__header">Estatus</th>
+                <th class="table__header">Último Pago</th>
+                <th class="table__header">Detalle del paciente</th>
+                <th class="table__header">Actualizar paciente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paciente in pacientes %}
+            <tr>
+                <td class="table__cell">{{ paciente['nombre'] }}</td>
+                <td class="table__cell">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
+                <td class="table__cell">{{ paciente['correo'] }}</td>
+                <td class="table__cell">{{ paciente['ciudad'] }}</td>
+                <td class="table__cell">{{ paciente['status'] }}</td>
+                <td class="table__cell">{{ paciente['ultimo_pago'] if paciente['ultimo_pago'] else 'No registrado' }}</td>
+                <td class="table__cell">
+                    <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">Consultar</a>
+
+                    <!--<a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">Historial Clínico</a>
+                    <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="action-button">Nueva Valoración</a>-->
+                </td>
+                <td class="table__cell">
+                    <a href="{{ url_for('pacientes.editar_paciente', id=paciente['id']) }}" class="action-button">Actualizar Paciente</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

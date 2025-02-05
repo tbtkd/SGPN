@@ -1,0 +1,158 @@
+{% extends "base/base.html" %}
+
+{% block title %}Nueva Valoración Antropométrica - {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}{% endblock %}
+
+{% block content %}
+<h2 align="center">Nueva Valoración Antropométrica para {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}</h2>
+<div class="form-container">
+    <div class="form-container">
+        <!-- Formulario con pestañas -->
+        <form id="formValoracion" method="POST">
+            <div x-data="{ activeTab: 'antropometrica' }">
+                <!-- Pestañas -->
+                <div class="form-tabs">
+                    <button type="button" @click="activeTab = 'antropometrica'" :class="{ 'active': activeTab === 'antropometrica' }" class="form-tab">
+                        Antropométrica
+                    </button>
+                    <button type="button" @click="activeTab = 'plicometria'" :class="{ 'active': activeTab === 'plicometria' }" class="form-tab">
+                        Plicometría
+                    </button>
+                    <button type="button" @click="activeTab = 'bioimpedancia'" :class="{ 'active': activeTab === 'bioimpedancia' }" class="form-tab">
+                        Datos de Bioimpedancia
+                    </button>
+                </div>
+
+                <!-- Contenido de la pestaña Antropométrica -->
+                <div x-show="activeTab === 'antropometrica'" class="form-section" :class="{ 'active': activeTab === 'antropometrica' }">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="numero_cita" class="form-label">Número de cita:</label>
+                            <input type="number" id="numero_cita" name="numero_cita" class="form-input" placeholder="Ingrese el número de cita" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha" class="form-label">Fecha:</label>
+                            <input type="date" id="fecha" name="fecha" class="form-input" placeholder="Ingrese la fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="estatura" class="form-label">Estatura (cm):</label>
+                            <input type="number" id="estatura" name="estatura" step="0.01" class="form-input" required oninput="calcularIMC()" placeholder="Ej: 170.0" value="{{ valoracion.estatura if valoracion else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="peso" class="form-label">Peso (kg):</label>
+                            <input type="number" id="peso" name="peso" step="0.01" class="form-input" required oninput="calcularIMC()" placeholder="Ej: 70.5" value="{{ valoracion.peso if valoracion else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="cintura" class="form-label">Cintura (cm):</label>
+                            <input type="number" id="cintura" name="cintura" step="0.1" class="form-input" required placeholder="Ej: 70.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="torax" class="form-label">Tórax (cm):</label>
+                            <input type="number" id="torax" name="torax" step="0.1" class="form-input" required placeholder="Ej: 70.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="brazo" class="form-label">Brazo (cm):</label>
+                            <input type="number" id="brazo" name="brazo" step="0.1" class="form-input" required placeholder="Ej: 30.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cadera" class="form-label">Cadera (cm):</label>
+                            <input type="number" id="cadera" name="cadera" step="0.1" class="form-input" required placeholder="Ej: 30.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="pierna" class="form-label">Pierna (cm):</label>
+                            <input type="number" id="pierna" name="pierna" step="0.1" class="form-input" required placeholder="Ej: 30.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="pantorrilla" class="form-label">Pantorrilla (cm):</label>
+                            <input type="number" id="pantorrilla" name="pantorrilla" step="0.1" class="form-input" required placeholder="Ej: 30.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="tension_arterial" class="form-label">Tensión arterial:</label>
+                            <input type="text" id="tension_arterial" name="tension_arterial" class="form-input" required placeholder="Ej: 120/80" value="{{ valoracion.tension_arterial if valoracion else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="frecuencia_cardiaca" class="form-label">Frecuencia cardíaca (lpm):</label>
+                            <input type="number" id="frecuencia_cardiaca" name="frecuencia_cardiaca" class="form-input" required placeholder="Ej: 70" value="{{ valoracion.frecuencia_cardiaca if valoracion else '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de la pestaña Plicometría -->
+                <div x-show="activeTab === 'plicometria'" class="form-section" :class="{ 'active': activeTab === 'plicometria' }">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bicep" class="form-label">Bícep (mm):</label>
+                            <input type="number" id="bicep" name="bicep" step="0.1" class="form-input" placeholder="Ej: 30.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tricep" class="form-label">Trícep (mm):</label>
+                            <input type="number" id="tricep" name="tricep" step="0.1" class="form-input" placeholder="Ej: 30.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="suprailiaco" class="form-label">Suprailiaco (mm):</label>
+                            <input type="number" id="suprailiaco" name="suprailiaco" step="0.1" class="form-input" placeholder="Ej: 30.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subescapular" class="form-label">Subescapular (mm):</label>
+                            <input type="number" id="subescapular" name="subescapular" step="0.1" class="form-input" placeholder="Ej: 30.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="femoral" class="form-label">Femoral (mm) (solo para mujeres):</label>
+                            <input type="number" id="femoral" name="femoral" step="0.1" class="form-input" placeholder="Ej: 30.5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de la pestaña Datos de Bioimpedancia -->
+                <div x-show="activeTab === 'bioimpedancia'" class="form-section" :class="{ 'active': activeTab === 'bioimpedancia' }">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="grasa" class="form-label">Grasa (%):</label>
+                            <input type="number" id="grasa" name="grasa" step="0.1" class="form-input" placeholder="Ej: 20.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="imc" class="form-label">IMC:</label>
+                            <input type="number" id="imc" name="imc" step="0.01" class="form-input" required readonly placeholder="Calculado automáticamente">
+                        </div>
+                        <div class="form-group">
+                            <label for="porcentaje_grasa" class="form-label">Grasa Total:</label>
+                            <input type="text" id="porcentaje_grasa" name="porcentaje_grasa" step="0.1" class="form-input" placeholder="Ej: 20.5" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+            <!-- Botón de guardar -->
+            <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">
+                <i class="fas fa-arrow-left"></i> Volver al Paciente
+            </a>
+            <button type="submit" class="action-button">Guardar Valoración</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { validarFormularioValoracion } from "{{ url_for('static', filename='js/validaciones/valoracionValidacion.js') }}";
+    // El path ya está correcto, no necesita cambios
+</script>
+<script>
+    function calcularIMC() {
+        const peso = document.getElementById('peso').value;
+        const estatura = document.getElementById('estatura').value;
+        const imcInput = document.getElementById('imc');
+        
+        if (peso && estatura) {
+            // Convertir estatura de cm a metros
+            const estaturaMetros = estatura / 100;
+            // Calcular IMC: peso / (estatura en metros)²
+            const imc = peso / (estaturaMetros * estaturaMetros);
+            // Mostrar IMC con 2 decimales
+            imcInput.value = imc.toFixed(2);
+        } else {
+            imcInput.value = '';
+        }
+    }
+</script>
+{% endblock %}
