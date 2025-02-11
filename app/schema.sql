@@ -67,3 +67,13 @@ CREATE TABLE IF NOT EXISTS valoracion_antropometrica (
     ultima_dieta TEXT,
     FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
 );
+
+CREATE TABLE IF NOT EXISTS citas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    paciente_id INTEGER NOT NULL,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    estado TEXT DEFAULT 'pendiente',
+    FOREIGN KEY (paciente_id) REFERENCES pacientes (id) ON DELETE CASCADE
+);
+
