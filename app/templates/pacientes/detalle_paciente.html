@@ -64,15 +64,15 @@
         </div>
     </div>
 
-    <!-- Modal para registrar próxima cita -->
+    <!-- Modal para registrar o actualizar próxima cita -->
     <div id="modalRegistrarCita" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Registrar Próxima Cita</h2>
+                <h2 id="modalTitle">Registrar Próxima Cita</h2>
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
+                <form id="citaForm" action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
                     <div class="form-group">
                         <label for="proxima_cita_fecha" class="form-label">Fecha de Próxima Cita:</label>
                         <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" required>
@@ -88,6 +88,23 @@
                     </div>
                     <button type="submit" class="form-button">Registrar Cita</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para actualizar cita -->
+    <div id="modalConfirmarActualizar" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirmar Actualización</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Ya existe una cita registrada para este día. ¿Desea actualizar la cita existente?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btnActualizar" class="form-button">Actualizar</button>
+                <button id="btnCancelar" class="form-button">No, continuar</button>
             </div>
         </div>
     </div>
@@ -284,24 +301,60 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modalRegistrarCita');
+    const modalConfirmarActualizar = document.getElementById('modalConfirmarActualizar');
     const btnOpenModal = document.getElementById('btnOpenModal');
-    const spanClose = document.getElementsByClassName('close')[0];
+    const spanCloseRegistrar = modal.getElementsByClassName('close')[0];
+    const spanCloseActualizar = modalConfirmarActualizar.getElementsByClassName('close')[0];
 
-    // Abrir el modal
-    btnOpenModal.onclick = function() {
-        modal.style.display = 'block';
+    // Cerrar el modal de registrar cita
+    spanCloseRegistrar.onclick = function() {
+        modal.style.display = 'none';
     }
 
-    // Cerrar el modal
-    spanClose.onclick = function() {
-        modal.style.display = 'none';
+    // Cerrar el modal de confirmar actualización
+    spanCloseActualizar.onclick = function() {
+        modalConfirmarActualizar.style.display = 'none';
     }
 
     // Cerrar el modal si se hace clic fuera de él
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = 'none';
+        } else if (event.target == modalConfirmarActualizar) {
+            modalConfirmarActualizar.style.display = 'none';
         }
+    }
+
+    // Manejar el evento de clic en "Registrar Cita"
+    btnOpenModal.onclick = function() {
+        const fechaSeleccionada = document.getElementById('proxima_cita_fecha').value;
+        const pacienteId = '{{ paciente["id"] }}';
+
+        // Verificar si ya existe una cita en la fecha seleccionada
+        fetch(`/pacientes/${pacienteId}/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+            .then(response => response.json())
+            .then(horasOcupadas => {
+                if (horasOcupadas.length > 0) {
+                    // Si hay horas ocupadas, mostrar el modal de confirmación
+                    modalConfirmarActualizar.style.display = 'block';
+                } else {
+                    // Si no hay citas, abrir el modal de registrar cita
+                    modal.style.display = 'block';
+                }
+            });
+    }
+
+    // Manejar la confirmación de actualización
+    document.getElementById('btnActualizar').onclick = function() {
+        const horaExistente = '{{ cita[2] }}'; // Asegúrate de que el índice sea correcto para la hora
+        document.getElementById('proxima_cita_hora').value = horaExistente; // Establecer la hora existente
+        modal.style.display = 'block'; // Abrir el modal para registrar la cita
+        modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
+    }
+
+    // Manejar la cancelación
+    document.getElementById('btnCancelar').onclick = function() {
+        modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
     }
 });
 </script>
