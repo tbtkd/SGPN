@@ -9,6 +9,8 @@ from app.models.historial_clinico import HistorialClinico
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 import sqlite3
 from app.db import query_db
+from app import db
+from app.models import Cita  # Asegúrate de tener un modelo Cita definido
 
 pacientes = Blueprint('pacientes', __name__, url_prefix='/pacientes')
 
@@ -292,3 +294,23 @@ def cargar_excel(id):
     
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error al procesar el archivo: {str(e)}'})
+
+@pacientes.route('/<int:id>/registrar_proxima_cita', methods=['POST'])
+def registrar_proxima_cita(id):
+    fecha = request.form.get('proxima_cita_fecha')
+    hora = request.form.get('proxima_cita_hora')
+
+    # Validar que la hora esté en el rango permitido
+    if not (9 <= int(hora.split(':')[0]) <= 19):  # 9 AM a 7 PM
+        flash('La hora debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
+
+    # Verificar si ya existe una cita con la misma fecha y hora
+    if Cita.existe_cita(id, fecha, hora):
+        flash('Ya existe una cita registrada para esta fecha y hora.', 'error')
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
+
+    # Si no existe, crear la nueva cita
+    nueva_cita_id = Cita.crear(id, fecha, hora)
+    flash('Cita registrada exitosamente.', 'success')
+    return redirect(url_for('pacientes.detalle_paciente', id=id))

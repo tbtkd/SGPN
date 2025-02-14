@@ -33,6 +33,9 @@
         <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">
             <i class="fas fa-notes-medical"></i> Capturar/Actualizar Historial Clínico
         </a>
+        <!--<a href="#" id="btnOpenModal" class="action-button">
+            <i class="fas fa-calendar-plus"></i> Registrar Próxima Cita
+        </a>-->
         <button type="button" id="btnOpenExcelModal" class="action-button">
             <i class="fas fa-file-excel"></i> Cargar Excel
         </button>
@@ -48,15 +51,43 @@
             <div class="modal-upload__content">
                 <form id="formCargarExcel" enctype="multipart/form-data" class="file-upload" method="POST">
                     <input type="file" 
-                           name="excel_file" 
-                           accept=".xls,.xlsx" 
-                           class="file-upload__input" 
-                           required>
+                            name="excel_file" 
+                            accept=".xls,.xlsx" 
+                            class="file-upload__input" 
+                            required>
                     <button type="submit" class="upload-button">
                         <i class="fas fa-upload"></i> Cargar
                     </button>
                 </form>
                 <div id="resultadoCarga" class="upload-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para registrar próxima cita -->
+    <div id="modalRegistrarCita" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Registrar Próxima Cita</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
+                    <div class="form-group">
+                        <label for="proxima_cita_fecha" class="form-label">Fecha de Próxima Cita:</label>
+                        <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proxima_cita_hora" class="form-label">Hora de Próxima Cita:</label>
+                        <select id="proxima_cita_hora" name="proxima_cita_hora" class="form-input" required>
+                            <option value="" disabled selected>Seleccione una hora</option>
+                            {% for hour in range(9, 20) %}
+                                <option value="{{ '{:02d}:00'.format(hour) }}">{{ '{:02d}:00'.format(hour) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="form-button">Registrar Cita</button>
+                </form>
             </div>
         </div>
     </div>
@@ -89,6 +120,17 @@
                             <button type="submit" class="form-button">Registrar Dieta</button>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-calendar-alt"></i> Registrar Próxima Cita</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <a href="#" id="btnOpenModal" class="form-button">
+                        <i class="fas fa-calendar-plus"></i> Registrar Próxima Cita
+                    </a>
                 </div>
             </div>
         </div>
@@ -235,6 +277,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitButton.innerHTML = '<i class="fas fa-upload"></i> Cargar';
             });
         });
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modalRegistrarCita');
+    const btnOpenModal = document.getElementById('btnOpenModal');
+    const spanClose = document.getElementsByClassName('close')[0];
+
+    // Abrir el modal
+    btnOpenModal.onclick = function() {
+        modal.style.display = 'block';
+    }
+
+    // Cerrar el modal
+    spanClose.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    // Cerrar el modal si se hace clic fuera de él
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
     }
 });
 </script>

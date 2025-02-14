@@ -76,4 +76,3 @@ CREATE TABLE IF NOT EXISTS citas (
     estado TEXT DEFAULT 'pendiente',
     FOREIGN KEY (paciente_id) REFERENCES pacientes (id) ON DELETE CASCADE
 );
-
