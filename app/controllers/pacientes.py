@@ -8,7 +8,7 @@ from app.models.pago import Pago
 from app.models.historial_clinico import HistorialClinico
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 import sqlite3
-from app.db import query_db
+from app.db import query_db, get_db
 from app import db
 from app.models import Cita  # Asegúrate de tener un modelo Cita definido
 
@@ -314,3 +314,12 @@ def registrar_proxima_cita(id):
     nueva_cita_id = Cita.crear(id, fecha, hora)
     flash('Cita registrada exitosamente.', 'success')
     return redirect(url_for('pacientes.detalle_paciente', id=id))
+
+@pacientes.route('/<int:id>/disponibilidad_horas', methods=['GET'])
+def disponibilidad_horas(id):
+    fecha = request.args.get('fecha')
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT hora FROM citas WHERE paciente_id = ? AND fecha = ?', (id, fecha))
+    horas_ocupadas = [row[0] for row in cursor.fetchall()]
+    return jsonify(horas_ocupadas)

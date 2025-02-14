@@ -305,4 +305,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+
+<script>
+document.getElementById('proxima_cita_fecha').addEventListener('change', function() {
+    const fechaSeleccionada = this.value;
+    const pacienteId = '{{ paciente["id"] }}';
+    
+    fetch(`/pacientes/${pacienteId}/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+        .then(response => response.json())
+        .then(horasOcupadas => {
+            const selectHora = document.getElementById('proxima_cita_hora');
+            const opciones = selectHora.querySelectorAll('option');
+
+            // Habilitar todas las opciones primero
+            opciones.forEach(option => {
+                option.style.display = 'block'; // Mostrar todas las opciones
+                option.disabled = false; // Habilitar todas las opciones
+            });
+
+            // Ocultar o deshabilitar las horas ocupadas
+            horasOcupadas.forEach(hora => {
+                opciones.forEach(option => {
+                    if (option.value === hora) {
+                        option.style.display = 'none'; // Ocultar la opción
+                        option.disabled = true; // Deshabilitar la opción
+                    }
+                });
+            });
+        });
+});
+</script>
 {% endblock %}
