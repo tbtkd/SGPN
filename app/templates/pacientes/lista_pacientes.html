@@ -22,7 +22,6 @@
                 <th class="table__header">Correo</th>
                 <th class="table__header">Ciudad</th>
                 <th class="table__header">Estatus</th>
-                <th class="table__header">Último Pago</th>
                 <th class="table__header">Detalle del paciente</th>
                 <th class="table__header">Actualizar paciente</th>
             </tr>
@@ -34,8 +33,7 @@
                 <td class="table__cell">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
                 <td class="table__cell">{{ paciente['correo'] }}</td>
                 <td class="table__cell">{{ paciente['ciudad'] }}</td>
-                <td class="table__cell">{{ paciente['status'] }}</td>
-                <td class="table__cell">{{ paciente['ultimo_pago'] if paciente['ultimo_pago'] else 'No registrado' }}</td>
+                <td class="table__cell">{{ paciente['status'] }}</td>             
                 <td class="table__cell">
                     <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">Consultar</a>
 
