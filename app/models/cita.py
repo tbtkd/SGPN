@@ -1,5 +1,6 @@
 import sqlite3
-from app.db import get_db
+from app.db import get_db, query_db
+from datetime import datetime
 
 class Cita:
     def __init__(self, paciente_id, fecha, hora, estado='pendiente'):
@@ -32,4 +33,14 @@ class Cita:
         db = get_db()
         cursor = db.cursor()
         cursor.execute('SELECT * FROM citas WHERE id = ?', (cita_id,))
-        return cursor.fetchone()  # Devuelve la cita si existe 
+        return cursor.fetchone()  # Devuelve la cita si existe
+
+    @staticmethod
+    def obtener_siguiente_cita(paciente_id):
+        # Consulta para obtener la próxima cita del paciente
+        result = query_db('''
+            SELECT fecha FROM citas 
+            WHERE paciente_id = ? AND fecha > ? 
+            ORDER BY fecha ASC LIMIT 1
+        ''', [paciente_id, datetime.now()], one=True)
+        return result['fecha'] if result else None 

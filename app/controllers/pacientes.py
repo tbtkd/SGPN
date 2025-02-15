@@ -10,7 +10,8 @@ from app.models.valoracion_antropometrica import ValoracionAntropometrica
 import sqlite3
 from app.db import query_db, get_db
 from app import db
-from app.models import Cita  # Asegúrate de tener un modelo Cita definido
+from app.models import Cita  # Asegúrate de tener un modelo Cita
+from app.models.cita import Cita  # Asegúrate de importar la clase Cita
 
 pacientes = Blueprint('pacientes', __name__, url_prefix='/pacientes')
 
@@ -110,12 +111,22 @@ def detalle_paciente(id):
     if cita_id:
         cita = Cita.obtener_por_id(cita_id)  # Asegúrate de tener un método para obtener la cita por ID
 
+    # Obtener la siguiente cita
+    siguiente_cita_str = Cita.obtener_siguiente_cita(id)  # Llama a la función para obtener la siguiente cita
+    if siguiente_cita_str:
+        siguiente_cita = datetime.combine(siguiente_cita_str, datetime.min.time())  # Convertir a datetime.datetime
+    else:
+        siguiente_cita = None
+
+    today = datetime.now()  # Mantener como datetime.datetime
     return render_template('pacientes/detalle_paciente.html', 
                             paciente=paciente, 
                             ultimo_pago=ultimo_pago,
                             historial=historial,
                             ultima_valoracion=ultima_valoracion,
-                            cita=cita)  # Pasar la cita al template
+                            cita=cita,
+                            siguiente_cita=siguiente_cita,
+                            today=today)  # Pasar la cita al template
 
 @pacientes.route('/<int:id>/editar', methods=['GET', 'POST'])
 def editar_paciente(id):

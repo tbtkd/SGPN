@@ -20,7 +20,21 @@
         <p><strong>Ciudad:</strong> {{ paciente['ciudad'] }}</p>
         <p><strong>Estatus:</strong> {{ paciente['status'] }}</p>
         <p><strong>Última Dieta:</strong> {{ ultima_valoracion['ultima_dieta'] if ultima_valoracion else 'No registrada' }}</p>
-        <p><strong>Último Pago:</strong> {{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>
+        <!--<p><strong>Último Pago:</strong> {{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>-->
+        <div>
+            <label>Último pago:</label>
+            <span>{{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</span>
+        </div>
+        <div>
+            <label>Fecha de la siguiente cita:</label>
+            <span>
+                {% if siguiente_cita and siguiente_cita > today %}
+                    {{ siguiente_cita.strftime('%Y-%m-%d') }}
+                {% else %}
+                    ----
+                {% endif %}
+            </span>
+        </div>
     </div>
 
     <div class="action-buttons">
