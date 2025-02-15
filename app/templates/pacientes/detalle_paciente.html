@@ -141,101 +141,108 @@
         
         <div class="valoracion-card">
             <h3 class="valoracion-card__title"><i class="fas fa-apple-alt"></i> Registrar Última Dieta</h3>
-                <div class="valoracion-card__content">
-                    <div class="data-item">
-                        <form action="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" method="POST">
-                            <div class="form-group">
-                                <label for="ultima_dieta" class="form-label">Última Dieta:</label>
-                                <input type="text" id="ultima_dieta" name="ultima_dieta" class="form-input" maxlength="8" required>
-                            </div>
-                            <button type="submit" class="form-button">Registrar Dieta</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="valoracion-card">
-            <h3 class="valoracion-card__title"><i class="fas fa-calendar-alt"></i> Registrar Próxima Cita</h3>
             <div class="valoracion-card__content">
                 <div class="data-item">
-                    <a href="#" id="btnOpenModal" class="form-button">
-                        <i class="fas fa-calendar-plus"></i> Registrar Próxima Cita
-                    </a>
+                    <form action="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" method="POST">
+                        <div class="form-group">
+                            <label for="ultima_dieta" class="form-label">Última Dieta:</label>
+                            <input type="text" id="ultima_dieta" name="ultima_dieta" class="form-input" maxlength="8" required>
+                        </div>
+                        <button type="submit" class="form-button">Registrar Dieta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-apple-alt"></i> Registrar Próxima Cita</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <form>
+                        <div class="form-group">
+                            <label for="ultima_dieta" class="form-label">Última Dieta:</label>
+                            <a href="#" id="btnOpenModal" class="form-button">
+                                <i class="fas fa-calendar-plus"></i> Registrar Próxima Cita
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="valoracion-grid">
+    {% if historial %}   
+        <!-- Sección de Actividad Física -->
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"> <i class="fas fa-running"></i>  Actividad Física</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Tipo de Actividad:</span>
+                    <span class="data-value">{{ historial['tipo_actividad_fisica'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Frecuencia:</span>
+                    <span class="data-value">{{ historial['frecuencia_actividad_fisica'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Tiempo:</span>
+                    <span class="data-value">{{ historial['tiempo_actividad_fisica'] or 'No registrado' }}</span>
                 </div>
             </div>
         </div>
 
-        <div class="valoracion-grid">
-        {% if historial %}   
-            <!-- Sección de Actividad Física -->
-            <div class="valoracion-card">
-                <h3 class="valoracion-card__title"> <i class="fas fa-running"></i>  Actividad Física</h3>
-                <div class="valoracion-card__content">
-                    <div class="data-item">
-                        <span class="data-label">Tipo de Actividad:</span>
-                        <span class="data-value">{{ historial['tipo_actividad_fisica'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Frecuencia:</span>
-                        <span class="data-value">{{ historial['frecuencia_actividad_fisica'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Tiempo:</span>
-                        <span class="data-value">{{ historial['tiempo_actividad_fisica'] or 'No registrado' }}</span>
-                    </div>
+        <!-- Sección de Alimentación -->
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-utensils"></i> Alimentación</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Número de Comidas Diarias:</span>
+                    <span class="data-value">{{ historial['numero_comidas_diarias'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Alimentos que Consume Normalmente:</span>
+                    <span class="data-value">{{ historial['alimentos_normales'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Alimentos que No le Gustan:</span>
+                    <span class="data-value">{{ historial['alimentos_no_gustados'] or 'No registrado' }}</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Sección de Alimentación -->
-            <div class="valoracion-card">
-                <h3 class="valoracion-card__title"><i class="fas fa-utensils"></i> Alimentación</h3>
-                <div class="valoracion-card__content">
-                    <div class="data-item">
-                        <span class="data-label">Número de Comidas Diarias:</span>
-                        <span class="data-value">{{ historial['numero_comidas_diarias'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Alimentos que Consume Normalmente:</span>
-                        <span class="data-value">{{ historial['alimentos_normales'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Alimentos que No le Gustan:</span>
-                        <span class="data-value">{{ historial['alimentos_no_gustados'] or 'No registrado' }}</span>
-                    </div>
+        <!-- Sección de Historial Médico -->
+        <div class="valoracion-card">
+            <h3 class="valoracion-card__title"><i class="fas fa-notes-medical"></i> Historial Médico</h3>
+            <div class="valoracion-card__content">
+                <div class="data-item">
+                    <span class="data-label">Cirugías:</span>
+                    <span class="data-value">{{ historial['cirugias'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Padecimientos:</span>
+                    <span class="data-value">{{ historial['padecimientos'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Medicamentos:</span>
+                    <span class="data-value">{{ historial['medicamentos'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Suplementos:</span>
+                    <span class="data-value">{{ historial['suplementos'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Enfermedades Previas:</span>
+                    <span class="data-value">{{ historial['enfermedades_previas'] or 'No registrado' }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">Enfermedades Actuales:</span>
+                    <span class="data-value">{{ historial['enfermedades_actuales'] or 'No registrado' }}</span>
                 </div>
             </div>
-
-            <!-- Sección de Historial Médico -->
-            <div class="valoracion-card">
-                <h3 class="valoracion-card__title"><i class="fas fa-notes-medical"></i> Historial Médico</h3>
-                <div class="valoracion-card__content">
-                    <div class="data-item">
-                        <span class="data-label">Cirugías:</span>
-                        <span class="data-value">{{ historial['cirugias'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Padecimientos:</span>
-                        <span class="data-value">{{ historial['padecimientos'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Medicamentos:</span>
-                        <span class="data-value">{{ historial['medicamentos'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Suplementos:</span>
-                        <span class="data-value">{{ historial['suplementos'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Enfermedades Previas:</span>
-                        <span class="data-value">{{ historial['enfermedades_previas'] or 'No registrado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Enfermedades Actuales:</span>
-                        <span class="data-value">{{ historial['enfermedades_actuales'] or 'No registrado' }}</span>
-                    </div>
-                </div>
-            </div>
+        </div>
         {% else %}
             <p class="no-data">No hay historial clínico registrado.</p>
         {% endif %}
