@@ -1,12 +1,27 @@
-# Agregar estas líneas al archivo existente
-logs/*
-!logs/.gitkeep
+# Python
+__pycache__/
 *.pyc
 *.pyo
-__pycache__/
-ejecutable/
+*.py[cod]
+
+# Entornos virtuales
+venv/
+.venv/
+
+# Variables de entorno
 .env
+
+# Bases de datos SQLite
+*.db
+*.sqlite3
+pacientes.db_*
+
+# Logs (conservar .gitkeep)
+logs/*
+!logs/.gitkeep
+
+# Build / ejecutables
+ejecutable/
+output/
 Spacientes
 Spacientes.exe
-output/
-output/

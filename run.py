@@ -26,7 +26,7 @@ if __name__ == '__main__':
         debug=True,  # Habilita el modo de depuración
         use_reloader=True  # Habilita la recarga automática
         
-        #debug=debug_mode,
+        #debug=debug_mode,>
         #use_reloader=debug_mode,
         #extra_files=[  # Monitorear cambios en archivos estáticos y templates
             #'app/static/css/',

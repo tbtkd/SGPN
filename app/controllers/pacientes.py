@@ -9,9 +9,7 @@ from app.models.historial_clinico import HistorialClinico
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 import sqlite3
 from app.db import query_db, get_db
-from app import db
-from app.models import Cita  # Asegúrate de tener un modelo Cita
-from app.models.cita import Cita  # Asegúrate de importar la clase Cita
+from app.models.cita import Cita
 
 pacientes = Blueprint('pacientes', __name__, url_prefix='/pacientes')
 
@@ -324,21 +322,19 @@ def registrar_proxima_cita(id):
         flash('La hora debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Verificar si ya existe una cita en la misma fecha
-    cita_existente = Cita.existe_cita(id, fecha, None)  # None para ignorar la hora
+    # Verificar si ya existe una cita en la misma fecha y hora
+    cita_existente = Cita.existe_cita(id, fecha, hora)  # Verificar si existe una cita con la misma fecha y hora
     if cita_existente:
-        print(f"ID de cita existente: {cita_existente}")  # Mensaje de depuración
-        cita = Cita.obtener_por_id(cita_existente[0])  # Asegúrate de que esta línea esté correcta
-        if cita:  # Verificar que cita no sea None
-            flash('Ya existe una cita registrada para este día. ¿Desea actualizar la cita existente?', 'warning')
-            return redirect(url_for('pacientes.detalle_paciente', id=id, cita_id=cita[0]))  # Pasa el ID de la cita
-        else:
-            flash('Error al obtener la cita existente.', 'error')
-            return redirect(url_for('pacientes.detalle_paciente', id=id))
+        # Si existe, actualizar la cita existente
+        cursor = get_db().cursor()
+        cursor.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_existente[0]))
+        get_db().commit()
+        flash('Cita actualizada correctamente.', 'success')  # Mensaje de actualización
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
 
     # Si no existe, crear la nueva cita
     nueva_cita_id = Cita.crear(id, fecha, hora)
-    flash('Cita registrada exitosamente.', 'success')
+    flash('Nueva cita registrada exitosamente.', 'success')  # Mensaje de nueva cita
     return redirect(url_for('pacientes.detalle_paciente', id=id))
 
 @pacientes.route('/<int:id>/actualizar_cita/<int:cita_id>', methods=['POST'])
@@ -363,12 +359,18 @@ def actualizar_cita(id, cita_id):
             flash('No se puede actualizar una cita que ya ha pasado.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Verificar si el nuevo horario está disponible
-    if Cita.existe_cita(id, fecha, hora):
-        flash('No se puede actualizar la cita, ya existe una cita registrada para esta fecha y hora.', 'error')
+    # Verificar si ya existe una cita en la misma fecha
+    cita_existente = Cita.existe_cita(id, fecha, hora)  # Verificar si existe una cita con la misma fecha y hora
+    if cita_existente:
+        # Liberar horarios ocupados
+        cursor.execute('DELETE FROM citas WHERE paciente_id = ? AND fecha = ?', (id, fecha))
+        db.commit()
+        flash('Cita actualizada correctamente. Se han liberado los horarios ocupados.', 'success')  # Mensaje de actualización
+        # Crear la nueva cita
+        nueva_cita_id = Cita.crear(id, fecha, hora)
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Actualizar la cita
+    # Si no existe, actualizar la cita
     cursor.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_id))
     db.commit()
 
