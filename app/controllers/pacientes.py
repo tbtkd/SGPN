@@ -314,14 +314,27 @@ def cargar_excel(id):
 
 @pacientes.route('/<int:id>/registrar_proxima_cita', methods=['POST'])
 def registrar_proxima_cita(id):
-    fecha = request.form.get('proxima_cita_fecha')
-    hora = request.form.get('proxima_cita_hora')
+    fecha = request.form.get('proxima_cita_fecha', '').strip()
+    hora = request.form.get('proxima_cita_hora', '').strip()
 
-    # Validar que la hora esté en el rango permitido
-    if not (9 <= int(hora.split(':')[0]) <= 19):  # 9 AM a 7 PM
-        flash('La hora debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
+    if not fecha or not hora:
+        flash('La fecha y la hora de la cita son campos obligatorios.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
+    # Validar formato y conversión segura de la hora
+    try:
+        partes = hora.split(':')
+        if len(partes) < 2:
+            raise ValueError
+        hora_int = int(partes[0])
+    except (ValueError, AttributeError):
+        flash('El formato de la hora proporcionada es inválido.', 'error')
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
+
+    if not (9 <= hora_int <= 19):  # 9 AM a 7 PM
+        flash('La hora de la cita debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
+        
     # Verificar si ya existe una cita en la misma fecha y hora
     cita_existente = Cita.existe_cita(id, fecha, hora)  # Verificar si existe una cita con la misma fecha y hora
     if cita_existente:

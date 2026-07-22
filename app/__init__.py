@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from app.db import init_db
 from app.config import config
+from app.core.error_handlers import register_error_handlers
 
 def create_app(config_name=None):
     """
@@ -45,5 +46,8 @@ def create_app(config_name=None):
     app.register_blueprint(pacientes_blueprint)
     app.register_blueprint(historial_blueprint)
     app.register_blueprint(valoracion_blueprint)
+    
+    # REGISTRO DE MANEJADORES GLOBALES DE ERROR
+    register_error_handlers(app)
     
     return app
