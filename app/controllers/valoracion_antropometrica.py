@@ -29,14 +29,25 @@ def nueva_valoracion(paciente_id):
         return redirect(url_for('pacientes.lista_pacientes'))
 
     if request.method == 'POST':
-        # 1. Validar presencia de campos obligatorios mínimos en el Backend
-        campos_requeridos = ['numero_cita', 'fecha', 'estatura', 'peso', 'imc', 'grasa']
+        # 1. Validar presencia de campos obligatorios en el Backend
+        campos_requeridos = [
+            'numero_cita', 'fecha', 'estatura', 'peso', 'cintura', 'torax', 
+            'brazo', 'cadera', 'pierna', 'pantorrilla', 'tension_arterial', 
+            'frecuencia_cardiaca', 'bicep', 'tricep', 'suprailiaco', 
+            'subescapular', 'grasa', 'imc', 'porcentaje_grasa'
+        ]
+        
+        errores = []
         for campo in campos_requeridos:
-            if not request.form.get(campo):
-                flash(f"El campo '{campo.replace('_', ' ').capitalize()}' es obligatorio.", 'error')
-                return render_template('valoraciones/nueva_valoracion.html', paciente=paciente)
+            if not request.form.get(campo) or request.form.get(campo).strip() == "":
+                errores.append(f"El campo '{campo.replace('_', ' ').capitalize()}' es obligatorio.")
+        
+        if errores:
+            for error in errores:
+                flash(error, 'error')
+            return render_template('valoraciones/nueva_valoracion.html', paciente=paciente, form_data=request.form)
 
-        # 2. Casteo seguro de tipos
+        # 2. Casteo seguro de tipos con manejo de excepciones detallado
         try:
             datos = {
                 'numero_cita': safe_int(request.form['numero_cita']),
@@ -45,24 +56,27 @@ def nueva_valoracion(paciente_id):
                 'peso': safe_float(request.form['peso']),
                 'imc': safe_float(request.form['imc']),
                 'grasa': safe_float(request.form['grasa']),
-                'cintura': safe_float(request.form.get('cintura')),
-                'torax': safe_float(request.form.get('torax')),
-                'brazo': safe_float(request.form.get('brazo')),
-                'cadera': safe_float(request.form.get('cadera')),
-                'pierna': safe_float(request.form.get('pierna')),
-                'pantorrilla': safe_float(request.form.get('pantorrilla')),
-                'tension_arterial': request.form.get('tension_arterial', '').strip(),
-                'frecuencia_cardiaca': safe_int(request.form.get('frecuencia_cardiaca'), None) if request.form.get('frecuencia_cardiaca') else None,
-                'bicep': safe_float(request.form.get('bicep')),
-                'tricep': safe_float(request.form.get('tricep')),
-                'suprailiaco': safe_float(request.form.get('suprailiaco')),
-                'subescapular': safe_float(request.form.get('subescapular')),
+                'cintura': safe_float(request.form['cintura']),
+                'torax': safe_float(request.form['torax']),
+                'brazo': safe_float(request.form['brazo']),
+                'cadera': safe_float(request.form['cadera']),
+                'pierna': safe_float(request.form['pierna']),
+                'pantorrilla': safe_float(request.form['pantorrilla']),
+                'tension_arterial': request.form['tension_arterial'].strip(),
+                'frecuencia_cardiaca': safe_int(request.form['frecuencia_cardiaca']),
+                'bicep': safe_float(request.form['bicep']),
+                'tricep': safe_float(request.form['tricep']),
+                'suprailiaco': safe_float(request.form['suprailiaco']),
+                'subescapular': safe_float(request.form['subescapular']),
                 'femoral': safe_float(request.form.get('femoral'), None) if request.form.get('femoral') else None,
                 'porcentaje_grasa': safe_float(request.form['porcentaje_grasa'])
             }
+        except ValueError as e:
+            flash(f"Error de formato: Algunos campos numéricos contienen valores inválidos.", 'error')
+            return render_template('valoraciones/nueva_valoracion.html', paciente=paciente, form_data=request.form)
         except Exception as e:
-            flash(f"Error en el formato de los datos numéricos: {str(e)}", 'error')
-            return render_template('valoraciones/nueva_valoracion.html', paciente=paciente)
+            flash(f"Ocurrió un error inesperado al procesar los datos: {str(e)}", 'error')
+            return render_template('valoraciones/nueva_valoracion.html', paciente=paciente, form_data=request.form)
 
         exito, mensaje = ValoracionAntropometrica.crear(paciente_id, datos)
         if exito:

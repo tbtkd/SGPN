@@ -16,6 +16,8 @@ venv/
 .roo/
 .continue/
 .cursor/
+.node_modules/
+node_modules/
 *.log
 
 
