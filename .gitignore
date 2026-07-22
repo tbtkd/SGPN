@@ -8,6 +8,17 @@ __pycache__/
 venv/
 .venv/
 
+# Configuración del entorno de VS Code
+.vscode/
+
+# Historial y configuraciones locales de Plugins de IA (Roo Code / Cline / Continue / Cursor)
+.cline/
+.roo/
+.continue/
+.cursor/
+*.log
+
+
 # Variables de entorno
 .env
 
@@ -25,3 +36,5 @@ ejecutable/
 output/
 Spacientes
 Spacientes.exe
+
+
