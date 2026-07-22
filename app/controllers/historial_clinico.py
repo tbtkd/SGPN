@@ -14,19 +14,26 @@ def ver_crear_historial(paciente_id):
     historial = HistorialClinico.obtener_por_paciente_id(paciente_id)
 
     if request.method == 'POST':
+        # Validación defensiva en backend
+        campos_obligatorios = ['tipo_actividad_fisica', 'frecuencia_actividad_fisica', 'tiempo_actividad_fisica', 'numero_comidas_diarias']
+        for campo in campos_obligatorios:
+            if not request.form.get(campo):
+                flash(f'El campo {campo.replace("_", " ").capitalize()} es obligatorio.', 'error')
+                return redirect(url_for('historial_clinico.ver_crear_historial', paciente_id=paciente_id))
+
         datos = {
-            'cirugias': request.form['cirugias'],
+            'cirugias': request.form.get('cirugias', ''),
             'padecimientos': ','.join(request.form.getlist('padecimientos')),
-            'medicamentos': request.form['medicamentos'],
-            'suplementos': request.form['suplementos'],
-            'enfermedades_previas': request.form['enfermedades_previas'],
-            'enfermedades_actuales': request.form['enfermedades_actuales'],
+            'medicamentos': request.form.get('medicamentos', ''),
+            'suplementos': request.form.get('suplementos', ''),
+            'enfermedades_previas': request.form.get('enfermedades_previas', ''),
+            'enfermedades_actuales': request.form.get('enfermedades_actuales', ''),
             'tipo_actividad_fisica': request.form['tipo_actividad_fisica'],
             'frecuencia_actividad_fisica': request.form['frecuencia_actividad_fisica'],
             'tiempo_actividad_fisica': request.form['tiempo_actividad_fisica'],
             'numero_comidas_diarias': request.form['numero_comidas_diarias'],
-            'alimentos_normales': request.form['alimentos_normales'],
-            'alimentos_no_gustados': request.form['alimentos_no_gustados']
+            'alimentos_normales': request.form.get('alimentos_normales', ''),
+            'alimentos_no_gustados': request.form.get('alimentos_no_gustados', '')
         }
 
         if historial:
@@ -50,4 +57,3 @@ def ver_crear_historial(paciente_id):
 def lista_historiales():
     historiales = HistorialClinico.obtener_todos()
     return render_template('historiales/lista_historiales.html', historiales=historiales)
-
