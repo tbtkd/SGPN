@@ -344,8 +344,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manejar el evento de clic en "Registrar Cita"
     btnOpenModal.onclick = function() {
-        // Abrir el modal directamente para permitir la selección de fecha
-        modal.style.display = 'block';
+        const fechaSeleccionada = document.getElementById('proxima_cita_fecha').value;
+        
+        // Si el usuario ya seleccionó una fecha, verificar disponibilidad
+        if (fechaSeleccionada) {
+            fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+                .then(response => response.json())
+                .then(horasOcupadas => {
+                    if (horasOcupadas.length > 0) {
+                        modalConfirmarActualizar.style.display = 'block';
+                    } else {
+                        modal.style.display = 'block';
+                    }
+                });
+        } else {
+            // Si no hay fecha, abrir el modal para que la seleccione
+            modal.style.display = 'block';
+        }
     }
 
     // Manejar la confirmación de actualización

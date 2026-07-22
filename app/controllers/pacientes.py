@@ -342,14 +342,32 @@ def registrar_proxima_cita(id):
         flash('La hora de la cita debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
         
-    # Verificar si el horario está disponible globalmente
-    if not Cita.es_horario_disponible(fecha, hora):
-        flash('El horario seleccionado ya no está disponible.', 'error')
-        return redirect(url_for('pacientes.detalle_paciente', id=id))
-
-    # Si no existe, crear la nueva cita
-    nueva_cita_id = Cita.crear(id, fecha, hora)
-    flash('Nueva cita registrada exitosamente.', 'success')
+    # Verificar si ya existe una cita para este paciente
+    cita_existente = Cita.obtener_siguiente_cita(id)
+    
+    if cita_existente:
+        # Actualizar la cita existente
+        cita_id = cita_existente['id']
+        
+        # Verificar si el horario está disponible globalmente (excluyendo la cita actual)
+        if not Cita.es_horario_disponible(fecha, hora, excluir_cita_id=cita_id):
+            flash('El horario seleccionado ya no está disponible.', 'error')
+            return redirect(url_for('pacientes.detalle_paciente', id=id))
+            
+        db = get_db()
+        db.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_id))
+        db.commit()
+        flash('Cita actualizada exitosamente.', 'success')
+    else:
+        # Verificar si el horario está disponible globalmente
+        if not Cita.es_horario_disponible(fecha, hora):
+            flash('El horario seleccionado ya no está disponible.', 'error')
+            return redirect(url_for('pacientes.detalle_paciente', id=id))
+            
+        # Crear la nueva cita
+        Cita.crear(id, fecha, hora)
+        flash('Nueva cita registrada exitosamente.', 'success')
+        
     return redirect(url_for('pacientes.detalle_paciente', id=id))
 
 @pacientes.route('/<int:id>/actualizar_cita/<int:cita_id>', methods=['POST'])
