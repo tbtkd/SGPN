@@ -29,6 +29,18 @@ class Cita:
         return cursor.fetchone()  # Devuelve el ID de la cita si existe, o None si no existe
 
     @staticmethod
+    def es_horario_disponible(fecha, hora, excluir_cita_id=None):
+        db = get_db()
+        cursor = db.cursor()
+        query = 'SELECT id FROM citas WHERE fecha = ? AND hora = ?'
+        params = [fecha, hora]
+        if excluir_cita_id:
+            query += ' AND id != ?'
+            params.append(excluir_cita_id)
+        cursor.execute(query, params)
+        return cursor.fetchone() is None
+
+    @staticmethod
     def obtener_por_id(cita_id):
         db = get_db()
         cursor = db.cursor()
@@ -39,8 +51,8 @@ class Cita:
     def obtener_siguiente_cita(paciente_id):
         # Consulta para obtener la próxima cita del paciente
         result = query_db('''
-            SELECT fecha FROM citas 
-            WHERE paciente_id = ? AND fecha > ? 
-            ORDER BY fecha ASC LIMIT 1
-        ''', [paciente_id, datetime.now()], one=True)
-        return result['fecha'] if result else None 
+            SELECT id, fecha, hora FROM citas 
+            WHERE paciente_id = ? AND fecha >= ? 
+            ORDER BY fecha ASC, hora ASC LIMIT 1
+        ''', [paciente_id, datetime.now().strftime('%Y-%m-%d')], one=True)
+        return result if result else None

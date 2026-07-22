@@ -20,7 +20,6 @@
         <p><strong>Ciudad:</strong> {{ paciente['ciudad'] }}</p>
         <p><strong>Estatus:</strong> {{ paciente['status'] }}</p>
         <p><strong>Última Dieta:</strong> {{ ultima_valoracion['ultima_dieta'] if ultima_valoracion else 'No registrada' }}</p>
-        <!--<p><strong>Último Pago:</strong> {{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>-->
         <div>
             <label>Último pago:</label>
             <span>{{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</span>
@@ -29,7 +28,7 @@
             <label>Fecha de la siguiente cita:</label>
             <span>
                 {% if siguiente_cita and siguiente_cita > today %}
-                    {{ siguiente_cita.strftime('%Y-%m-%d') }}
+                    {{ siguiente_cita.strftime('%Y-%m-%d %H:%M') }}
                 {% else %}
                     ----
                 {% endif %}
@@ -47,9 +46,6 @@
         <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">
             <i class="fas fa-notes-medical"></i> Capturar/Actualizar Historial Clínico
         </a>
-        <!--<a href="#" id="btnOpenModal" class="action-button">
-            <i class="fas fa-calendar-plus"></i> Registrar Próxima Cita
-        </a>-->
         <button type="button" id="btnOpenExcelModal" class="action-button">
             <i class="fas fa-file-excel"></i> Cargar Excel
         </button>
@@ -89,7 +85,7 @@
                 <form id="citaForm" action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
                     <div class="form-group">
                         <label for="proxima_cita_fecha" class="form-label">Fecha de Próxima Cita:</label>
-                        <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" required>
+                        <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" min="{{ today.strftime('%Y-%m-%d') }}" required>
                     </div>
                     <div class="form-group">
                         <label for="proxima_cita_hora" class="form-label">Hora de Próxima Cita:</label>
@@ -348,27 +344,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manejar el evento de clic en "Registrar Cita"
     btnOpenModal.onclick = function() {
-        const fechaSeleccionada = document.getElementById('proxima_cita_fecha').value;
-        const pacienteId = '{{ paciente["id"] }}';
-
-        // Verificar si ya existe una cita en la fecha seleccionada
-        fetch(`/pacientes/${pacienteId}/disponibilidad_horas?fecha=${fechaSeleccionada}`)
-            .then(response => response.json())
-            .then(horasOcupadas => {
-                if (horasOcupadas.length > 0) {
-                    // Si hay horas ocupadas, mostrar el modal de confirmación
-                    modalConfirmarActualizar.style.display = 'block';
-                } else {
-                    // Si no hay citas, abrir el modal de registrar cita
-                    modal.style.display = 'block';
-                }
-            });
+        // Abrir el modal directamente para permitir la selección de fecha
+        modal.style.display = 'block';
     }
 
     // Manejar la confirmación de actualización
     document.getElementById('btnActualizar').onclick = function() {
-        const horaExistente = '{{ cita[2] }}'; // Asegúrate de que el índice sea correcto para la hora
-        document.getElementById('proxima_cita_hora').value = horaExistente; // Establecer la hora existente
+        const horaExistente = '{{ cita[2] if cita else "" }}';
+        if (horaExistente) {
+            document.getElementById('proxima_cita_hora').value = horaExistente;
+        }
         modal.style.display = 'block'; // Abrir el modal para registrar la cita
         modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
     }
@@ -383,9 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.getElementById('proxima_cita_fecha').addEventListener('change', function() {
     const fechaSeleccionada = this.value;
-    const pacienteId = '{{ paciente["id"] }}';
     
-    fetch(`/pacientes/${pacienteId}/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+    fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
         .then(response => response.json())
         .then(horasOcupadas => {
             const selectHora = document.getElementById('proxima_cita_hora');

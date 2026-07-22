@@ -107,16 +107,18 @@ def detalle_paciente(id):
     cita_id = request.args.get('cita_id', None)
     cita = None
     if cita_id:
-        cita = Cita.obtener_por_id(cita_id)  # Asegúrate de tener un método para obtener la cita por ID
+        cita = Cita.obtener_por_id(cita_id)
 
     # Obtener la siguiente cita
-    siguiente_cita_str = Cita.obtener_siguiente_cita(id)  # Llama a la función para obtener la siguiente cita
-    if siguiente_cita_str:
-        siguiente_cita = datetime.combine(siguiente_cita_str, datetime.min.time())  # Convertir a datetime.datetime
-    else:
-        siguiente_cita = None
+    siguiente_cita_data = Cita.obtener_siguiente_cita(id)
+    siguiente_cita = None
+    if siguiente_cita_data:
+        # siguiente_cita_data es un dict con 'fecha' y 'hora'
+        fecha_str = siguiente_cita_data['fecha']
+        hora_str = siguiente_cita_data['hora']
+        siguiente_cita = datetime.strptime(f"{fecha_str} {hora_str}", '%Y-%m-%d %H:%M')
 
-    today = datetime.now()  # Mantener como datetime.datetime
+    today = datetime.now()
     return render_template('pacientes/detalle_paciente.html', 
                             paciente=paciente, 
                             ultimo_pago=ultimo_pago,
@@ -124,7 +126,7 @@ def detalle_paciente(id):
                             ultima_valoracion=ultima_valoracion,
                             cita=cita,
                             siguiente_cita=siguiente_cita,
-                            today=today)  # Pasar la cita al template
+                            today=today)
 
 @pacientes.route('/<int:id>/editar', methods=['GET', 'POST'])
 def editar_paciente(id):
@@ -321,6 +323,11 @@ def registrar_proxima_cita(id):
         flash('La fecha y la hora de la cita son campos obligatorios.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
+    # Validar que la fecha no sea anterior a hoy
+    if datetime.strptime(fecha, '%Y-%m-%d').date() < datetime.now().date():
+        flash('No se pueden agendar citas en fechas anteriores al día de hoy.', 'error')
+        return redirect(url_for('pacientes.detalle_paciente', id=id))
+
     # Validar formato y conversión segura de la hora
     try:
         partes = hora.split(':')
@@ -335,19 +342,14 @@ def registrar_proxima_cita(id):
         flash('La hora de la cita debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
         
-    # Verificar si ya existe una cita en la misma fecha y hora
-    cita_existente = Cita.existe_cita(id, fecha, hora)  # Verificar si existe una cita con la misma fecha y hora
-    if cita_existente:
-        # Si existe, actualizar la cita existente
-        cursor = get_db().cursor()
-        cursor.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_existente[0]))
-        get_db().commit()
-        flash('Cita actualizada correctamente.', 'success')  # Mensaje de actualización
+    # Verificar si el horario está disponible globalmente
+    if not Cita.es_horario_disponible(fecha, hora):
+        flash('El horario seleccionado ya no está disponible.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
     # Si no existe, crear la nueva cita
     nueva_cita_id = Cita.crear(id, fecha, hora)
-    flash('Nueva cita registrada exitosamente.', 'success')  # Mensaje de nueva cita
+    flash('Nueva cita registrada exitosamente.', 'success')
     return redirect(url_for('pacientes.detalle_paciente', id=id))
 
 @pacientes.route('/<int:id>/actualizar_cita/<int:cita_id>', methods=['POST'])
@@ -372,15 +374,9 @@ def actualizar_cita(id, cita_id):
             flash('No se puede actualizar una cita que ya ha pasado.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Verificar si ya existe una cita en la misma fecha
-    cita_existente = Cita.existe_cita(id, fecha, hora)  # Verificar si existe una cita con la misma fecha y hora
-    if cita_existente:
-        # Liberar horarios ocupados
-        cursor.execute('DELETE FROM citas WHERE paciente_id = ? AND fecha = ?', (id, fecha))
-        db.commit()
-        flash('Cita actualizada correctamente. Se han liberado los horarios ocupados.', 'success')  # Mensaje de actualización
-        # Crear la nueva cita
-        nueva_cita_id = Cita.crear(id, fecha, hora)
+    # Verificar si el horario está disponible globalmente (excluyendo la cita actual)
+    if not Cita.es_horario_disponible(fecha, hora, excluir_cita_id=cita_id):
+        flash('El horario seleccionado ya no está disponible.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
     # Si no existe, actualizar la cita
@@ -390,11 +386,12 @@ def actualizar_cita(id, cita_id):
     flash('Cita actualizada exitosamente.', 'success')
     return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-@pacientes.route('/<int:id>/disponibilidad_horas', methods=['GET'])
-def disponibilidad_horas(id):
+@pacientes.route('/disponibilidad_horas', methods=['GET'])
+def disponibilidad_horas():
     fecha = request.args.get('fecha')
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT hora FROM citas WHERE paciente_id = ? AND fecha = ?', (id, fecha))
+    # Obtener horas ocupadas por CUALQUIER paciente en esa fecha
+    cursor.execute('SELECT hora FROM citas WHERE fecha = ?', (fecha,))
     horas_ocupadas = [row[0] for row in cursor.fetchall()]
     return jsonify(horas_ocupadas)
