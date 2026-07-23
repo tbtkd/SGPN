@@ -26,7 +26,8 @@ SistemaPacientes/
 │   ├── controllers/  # Lógica de negocio y rutas
 │   ├── models/       # Modelos de datos (ORM/SQL)
 │   ├── static/       # Archivos estáticos (JS, CSS)
-│   └── templates/    # Plantillas HTML (Jinja2)
+│   ├── templates/    # Plantillas HTML (Jinja2)
+│   └── utils/        # Módulos de utilidad y helpers
 ├── docs/             # Documentación técnica
 ├── config.py         # Configuraciones
 └── run.py            # Script de inicio

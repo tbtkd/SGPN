@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.models.paciente import Paciente
 from app.models.historial_clinico import HistorialClinico
+from app.utils.helpers import validar_campos
 
 historial_clinico = Blueprint('historial_clinico', __name__, url_prefix='/historial-clinico')
 
@@ -16,10 +17,12 @@ def ver_crear_historial(paciente_id):
     if request.method == 'POST':
         # Validación defensiva en backend
         campos_obligatorios = ['tipo_actividad_fisica', 'frecuencia_actividad_fisica', 'tiempo_actividad_fisica', 'numero_comidas_diarias']
-        for campo in campos_obligatorios:
-            if not request.form.get(campo):
-                flash(f'El campo {campo.replace("_", " ").capitalize()} es obligatorio.', 'error')
-                return redirect(url_for('historial_clinico.ver_crear_historial', paciente_id=paciente_id))
+        errores = validar_campos(request.form, campos_obligatorios)
+        
+        if errores:
+            for error in errores:
+                flash(error, 'error')
+            return redirect(url_for('historial_clinico.ver_crear_historial', paciente_id=paciente_id))
 
         datos = {
             'cirugias': request.form.get('cirugias', ''),

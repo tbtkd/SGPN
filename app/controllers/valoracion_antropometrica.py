@@ -1,25 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 from app.models.paciente import Paciente
+from app.utils.helpers import safe_float, safe_int, validar_campos
 
 valoracion = Blueprint('valoracion', __name__, url_prefix='/valoraciones')
-
-# Helpers para conversión segura
-def safe_float(val, default=0.0):
-    if val is None or str(val).strip() == "":
-        return default
-    try:
-        return float(val)
-    except ValueError:
-        return default
-
-def safe_int(val, default=0):
-    if val is None or str(val).strip() == "":
-        return default
-    try:
-        return int(val)
-    except ValueError:
-        return default
 
 @valoracion.route('/paciente/<int:paciente_id>/nueva', methods=['GET', 'POST'])
 def nueva_valoracion(paciente_id):
@@ -37,10 +21,7 @@ def nueva_valoracion(paciente_id):
             'subescapular', 'grasa', 'imc', 'porcentaje_grasa'
         ]
         
-        errores = []
-        for campo in campos_requeridos:
-            if not request.form.get(campo) or request.form.get(campo).strip() == "":
-                errores.append(f"El campo '{campo.replace('_', ' ').capitalize()}' es obligatorio.")
+        errores = validar_campos(request.form, campos_requeridos)
         
         if errores:
             for error in errores:
