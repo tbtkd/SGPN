@@ -180,7 +180,8 @@ class Paciente:
         return query_db('''
             SELECT p.id, p.nombre, p.apellido_paterno
             FROM pacientes p
-            WHERE p.id NOT IN (
+            WHERE p.status = 'activo'
+            AND p.id NOT IN (
                 SELECT paciente_id 
                 FROM valoracion_antropometrica 
                 WHERE fecha >= date('now', ? || ' days')
