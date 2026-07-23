@@ -2,123 +2,86 @@
 
 {% block title %}Detalle del Paciente{% endblock %}
 
-{% block head %}
-{{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/components/detalle_paciente_grid.css') }}">
-{% endblock %}
-
 {% block content %}
-<div class="table-container">
-    <h2 align = "center">Detalle del Paciente</h2>
-    <div class="paciente-detalle">
-        <p><strong>Nombre:</strong> {{ paciente['nombre'] }}</p>
-        <p><strong>Apellido Paterno:</strong> {{ paciente['apellido_paterno'] }}</p>
-        <p><strong>Apellido Materno:</strong> {{ paciente['apellido_materno'] }}</p>
-        <p><strong>Fecha de Nacimiento:</strong> {{ paciente['fecha_nacimiento'] }}</p>
-        <p><strong>Teléfono:</strong> {{ paciente['telefono'] }}</p>
-        <p><strong>Correo:</strong> {{ paciente['correo'] }}</p>
-        <p><strong>Ciudad:</strong> {{ paciente['ciudad'] }}</p>
-        <p><strong>Estatus:</strong> {{ paciente['status'] }}</p>
-        <p><strong>Última Dieta:</strong> {{ ultima_valoracion['ultima_dieta'] if ultima_valoracion else 'No registrada' }}</p>
-        <div>
-            <label>Último pago:</label>
-            <span>{{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</span>
-        </div>
-        <div>
-            <label>Fecha de la siguiente cita:</label>
-            <span>
-                {% if siguiente_cita and siguiente_cita > today %}
-                    {{ siguiente_cita.strftime('%Y-%m-%d %H:%M') }}
-                {% else %}
-                    ----
-                {% endif %}
-            </span>
+<div class="max-w-6xl mx-auto">
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Detalle del Paciente</h1>
+    </div>
+
+    <!-- Información Principal -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Nombre</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['nombre'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Apellido Paterno</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['apellido_paterno'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Apellido Materno</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['apellido_materno'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Fecha de Nacimiento</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['fecha_nacimiento'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Teléfono</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['telefono'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Correo</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['correo'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Ciudad</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['ciudad'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Estatus</p>
+                <p class="text-lg font-semibold text-teal-600">{{ paciente['status'] }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Última Dieta</p>
+                <p class="text-lg font-semibold text-gray-900">{{ ultima_valoracion['ultima_dieta'] if ultima_valoracion else 'No registrada' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Último pago</p>
+                <p class="text-lg font-semibold text-gray-900">{{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Siguiente cita</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {% if siguiente_cita and siguiente_cita > today %}
+                        {{ siguiente_cita.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        ----
+                    {% endif %}
+                </p>
+            </div>
         </div>
     </div>
 
-    <div class="action-buttons">
-        <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="action-button">
-            <i class="fas fa-plus-circle"></i> Nueva Valoración Antropométrica
+    <!-- Acciones -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition">
+            <i class="fas fa-plus-circle"></i> Nueva Valoración
         </a>
-        <a href="{{ url_for('valoracion.lista_valoraciones', paciente_id=paciente['id']) }}" class="action-button">
-            <i class="fas fa-weight"></i> Ver Valoraciones Antropométricas
+        <a href="{{ url_for('valoracion.lista_valoraciones', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
+            <i class="fas fa-weight"></i> Ver Valoraciones
         </a>
-        <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">
-            <i class="fas fa-notes-medical"></i> Capturar/Actualizar Historial Clínico
+        <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
+            <i class="fas fa-notes-medical"></i> Historial Clínico
         </a>
-        <button type="button" id="btnOpenExcelModal" class="action-button">
+        <button type="button" id="btnOpenExcelModal" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
             <i class="fas fa-file-excel"></i> Cargar Excel
         </button>
     </div>
 
-    <!-- Excel Upload Modal -->
-    <div id="modalCargarExcel" class="modal">
-        <div class="modal-upload">
-            <div class="modal-upload__header">
-                <h2 class="modal-upload__title">Cargar Archivo Excel</h2>
-                <button class="modal-upload__close">&times;</button>
-            </div>
-            <div class="modal-upload__content">
-                <form id="formCargarExcel" enctype="multipart/form-data" class="file-upload" method="POST">
-                    <input type="file" 
-                            name="excel_file" 
-                            accept=".xls,.xlsx" 
-                            class="file-upload__input" 
-                            required>
-                    <button type="submit" class="upload-button">
-                        <i class="fas fa-upload"></i> Cargar
-                    </button>
-                </form>
-                <div id="resultadoCarga" class="upload-message"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para registrar o actualizar próxima cita -->
-    <div id="modalRegistrarCita" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Registrar / Actualizar Próxima Cita</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="citaForm" action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
-                    <div class="form-group">
-                        <label for="proxima_cita_fecha" class="form-label">Fecha de Próxima Cita:</label>
-                        <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" min="{{ today.strftime('%Y-%m-%d') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="proxima_cita_hora" class="form-label">Hora de Próxima Cita:</label>
-                        <select id="proxima_cita_hora" name="proxima_cita_hora" class="form-input" required>
-                            <option value="" disabled selected>Seleccione una hora</option>
-                            {% for hour in range(9, 20) %}
-                                <option value="{{ '{:02d}:00'.format(hour) }}">{{ '{:02d}:00'.format(hour) }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="form-button">Registrar Cita</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de confirmación para actualizar cita -->
-    <div id="modalConfirmarActualizar" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Confirmar Actualización</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Ya existe una cita registrada para este día. ¿Desea actualizar la cita existente?</p>
-            </div>
-            <div class="modal-footer">
-                <button id="btnActualizar" class="form-button">Actualizar</button>
-                <button id="btnCancelar" class="form-button">No, continuar</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Secciones Adicionales (Historial, etc.) -->
     <div class="valoracion-grid">
         <div class="valoracion-card">
             <h3 class="valoracion-card__title"><i class="fas fa-calendar"></i> Registrar Fecha Pago</h3>
@@ -126,7 +89,7 @@
                 <div class="data-item">
                     <form action="{{ url_for('pacientes.registrar_pago_paciente', id=paciente['id']) }}" method="POST">
                         <div class="form-group">
-                            <label for="ultima_dieta" class="form-label">Registrar Pago:</label>
+                            <label for="fecha_pago" class="form-label">Registrar Pago:</label>
                             <input type="date" id="fecha_pago" name="fecha_pago" class="form-input" required>
                         </div>
                         <button type="submit" class="form-button">Registrar Pago</button>
@@ -150,24 +113,20 @@
             </div>
         </div>
         
-
         <div class="valoracion-card">
             <h3 class="valoracion-card__title"><i class="fas fa-calendar-plus"></i> Registrar / Actualizar Próxima Cita</h3>
             <div class="valoracion-card__content">
                 <div class="data-item">
-                    <form>
-                        <div class="form-group">
-                            <label for="Registrar Próxima Cita" class="form-label">Registrar / Actualizar Próxima Cita:</label>
-                            <a href="#" id="btnOpenModal" class="form-button">
-                                <i class="fas fa-calendar-plus"></i> Registrar / Actualizar Próxima Cita
-                            </a>
-                        </div>
-                    </form>
+                    <div class="form-group">
+                        <label class="form-label">Registrar / Actualizar Próxima Cita:</label>
+                        <button type="button" id="btnOpenModal" class="form-button">
+                            <i class="fas fa-calendar-plus"></i> Registrar / Actualizar Próxima Cita
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <div class="valoracion-grid">
     {% if historial %}   
@@ -245,167 +204,234 @@
     </div>
 </div>
 
+<!-- Excel Upload Modal -->
+<div id="modalCargarExcel" class="modal">
+    <div class="modal-upload">
+        <div class="modal-upload__header">
+            <h2 class="modal-upload__title">Cargar Archivo Excel</h2>
+            <button class="modal-upload__close">&times;</button>
+        </div>
+        <div class="modal-upload__content">
+            <form id="formCargarExcel" enctype="multipart/form-data" class="file-upload" method="POST">
+                <input type="file" 
+                        name="excel_file" 
+                        accept=".xls,.xlsx" 
+                        class="file-upload__input" 
+                        required>
+                <button type="submit" class="upload-button">
+                    <i class="fas fa-upload"></i> Cargar
+                </button>
+            </form>
+            <div id="resultadoCarga" class="upload-message"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para registrar o actualizar próxima cita -->
+<div id="modalRegistrarCita" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Registrar / Actualizar Próxima Cita</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="citaForm" action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST">
+                <div class="form-group">
+                    <label for="proxima_cita_fecha" class="form-label">Fecha de Próxima Cita:</label>
+                    <input type="date" id="proxima_cita_fecha" name="proxima_cita_fecha" class="form-input" min="{{ today.strftime('%Y-%m-%d') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="proxima_cita_hora" class="form-label">Hora de Próxima Cita:</label>
+                    <select id="proxima_cita_hora" name="proxima_cita_hora" class="form-input" required>
+                        <option value="" disabled selected>Seleccione una hora</option>
+                        {% for hour in range(9, 20) %}
+                            <option value="{{ '{:02d}:00'.format(hour) }}">{{ '{:02d}:00'.format(hour) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="form-button">Registrar Cita</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para actualizar cita -->
+<div id="modalConfirmarActualizar" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirmar Actualización</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Ya existe una cita registrada para este día. ¿Desea actualizar la cita existente?</p>
+        </div>
+        <div class="modal-footer">
+            <button id="btnActualizar" class="form-button">Actualizar</button>
+            <button id="btnCancelar" class="form-button">No, continuar</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script type="module">
-import { initModal } from "{{ url_for('static', filename='js/components/modal.js') }}";
+    import { initModal } from "{{ url_for('static', filename='js/components/modal.js') }}";
 
-document.addEventListener('DOMContentLoaded', () => {
-    initModal();
-    
-    // Agregar evento al botón de abrir modal
-    const btnOpenModal = document.getElementById('btnOpenExcelModal');
-    if (btnOpenModal) {
-        btnOpenModal.addEventListener('click', () => {
-            openExcelModal();
-        });
-    }
-    
-    // Configurar el formulario de carga
-    const formCargarExcel = document.getElementById('formCargarExcel');
-    const resultadoCarga = document.getElementById('resultadoCarga');
-    
-    if (formCargarExcel) {
-        const pacienteId = '{{ paciente["id"] }}';
+    document.addEventListener('DOMContentLoaded', () => {
+        initModal();
         
-        formCargarExcel.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
-            resultadoCarga.className = 'upload-message';
-            resultadoCarga.textContent = 'Procesando archivo...';
-            
-            const formData = new FormData(this);
-            
-            fetch(`/pacientes/${pacienteId}/cargar-excel`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.registros_duplicados > 0 && data.registros_procesados === 0) {
-                        resultadoCarga.className = 'upload-message warning';
-                        resultadoCarga.textContent = 'Los registros del archivo ya han sido procesados anteriormente.';
-                    } else if (data.registros_procesados > 0) {
-                        resultadoCarga.className = 'upload-message success';
-                        resultadoCarga.textContent = data.message;
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    }
-                } else {
-                    resultadoCarga.className = 'upload-message error';
-                    resultadoCarga.textContent = 'Error al cargar el archivo: ' + data.message;
-                }
-            })
-            .catch(error => {
-                resultadoCarga.className = 'upload-message error';
-                resultadoCarga.textContent = 'Error al cargar el archivo: ' + error;
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-                submitButton.innerHTML = '<i class="fas fa-upload"></i> Cargar';
+        // Agregar evento al botón de abrir modal
+        const btnOpenModal = document.getElementById('btnOpenExcelModal');
+        if (btnOpenModal) {
+            btnOpenModal.addEventListener('click', () => {
+                window.openExcelModal();
             });
-        });
-    }
-});
+        }
+        
+        // Configurar el formulario de carga
+        const formCargarExcel = document.getElementById('formCargarExcel');
+        const resultadoCarga = document.getElementById('resultadoCarga');
+        
+        if (formCargarExcel) {
+            const pacienteId = '{{ paciente["id"] }}';
+            
+            formCargarExcel.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+                resultadoCarga.className = 'upload-message';
+                resultadoCarga.textContent = 'Procesando archivo...';
+                
+                const formData = new FormData(this);
+                
+                fetch(`/pacientes/${pacienteId}/cargar-excel`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.registros_duplicados > 0 && data.registros_procesados === 0) {
+                            resultadoCarga.className = 'upload-message warning';
+                            resultadoCarga.textContent = 'Los registros del archivo ya han sido procesados anteriormente.';
+                        } else if (data.registros_procesados > 0) {
+                            resultadoCarga.className = 'upload-message success';
+                            resultadoCarga.textContent = data.message;
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    } else {
+                        resultadoCarga.className = 'upload-message error';
+                        resultadoCarga.textContent = 'Error al cargar el archivo: ' + data.message;
+                    }
+                })
+                .catch(error => {
+                    resultadoCarga.className = 'upload-message error';
+                    resultadoCarga.textContent = 'Error al cargar el archivo: ' + error;
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-upload"></i> Cargar';
+                });
+            });
+        }
+    });
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modalRegistrarCita');
-    const modalConfirmarActualizar = document.getElementById('modalConfirmarActualizar');
-    const btnOpenModal = document.getElementById('btnOpenModal');
-    const spanCloseRegistrar = modal.getElementsByClassName('close')[0];
-    const spanCloseActualizar = modalConfirmarActualizar.getElementsByClassName('close')[0];
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('modalRegistrarCita');
+        const modalConfirmarActualizar = document.getElementById('modalConfirmarActualizar');
+        const btnOpenModal = document.getElementById('btnOpenModal');
+        const spanCloseRegistrar = modal.getElementsByClassName('close')[0];
+        const spanCloseActualizar = modalConfirmarActualizar.getElementsByClassName('close')[0];
 
-    // Cerrar el modal de registrar cita
-    spanCloseRegistrar.onclick = function() {
-        modal.style.display = 'none';
-    }
-
-    // Cerrar el modal de confirmar actualización
-    spanCloseActualizar.onclick = function() {
-        modalConfirmarActualizar.style.display = 'none';
-    }
-
-    // Cerrar el modal si se hace clic fuera de él
-    window.onclick = function(event) {
-        if (event.target == modal) {
+        // Cerrar el modal de registrar cita
+        spanCloseRegistrar.onclick = function() {
             modal.style.display = 'none';
-        } else if (event.target == modalConfirmarActualizar) {
+        }
+
+        // Cerrar el modal de confirmar actualización
+        spanCloseActualizar.onclick = function() {
             modalConfirmarActualizar.style.display = 'none';
         }
-    }
 
-    // Manejar el evento de clic en "Registrar Cita"
-    btnOpenModal.onclick = function() {
-        const fechaSeleccionada = document.getElementById('proxima_cita_fecha').value;
-        
-        // Si el usuario ya seleccionó una fecha, verificar disponibilidad
-        if (fechaSeleccionada) {
-            fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
-                .then(response => response.json())
-                .then(horasOcupadas => {
-                    if (horasOcupadas.length > 0) {
-                        modalConfirmarActualizar.style.display = 'block';
-                    } else {
-                        modal.style.display = 'block';
-                    }
-                });
-        } else {
-            // Si no hay fecha, abrir el modal para que la seleccione
-            modal.style.display = 'block';
+        // Cerrar el modal si se hace clic fuera de él
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            } else if (event.target == modalConfirmarActualizar) {
+                modalConfirmarActualizar.style.display = 'none';
+            }
         }
-    }
 
-    // Manejar la confirmación de actualización
-    document.getElementById('btnActualizar').onclick = function() {
-        const horaExistente = '{{ cita[2] if cita else "" }}';
-        if (horaExistente) {
-            document.getElementById('proxima_cita_hora').value = horaExistente;
+        // Manejar el evento de clic en "Registrar Cita"
+        btnOpenModal.onclick = function() {
+            const fechaSeleccionada = document.getElementById('proxima_cita_fecha').value;
+            
+            // Si el usuario ya seleccionó una fecha, verificar disponibilidad
+            if (fechaSeleccionada) {
+                fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+                    .then(response => response.json())
+                    .then(horasOcupadas => {
+                        if (horasOcupadas.length > 0) {
+                            modalConfirmarActualizar.style.display = 'block';
+                        } else {
+                            modal.style.display = 'block';
+                        }
+                    });
+            } else {
+                // Si no hay fecha, abrir el modal para que la seleccione
+                modal.style.display = 'block';
+            }
         }
-        modal.style.display = 'block'; // Abrir el modal para registrar la cita
-        modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
-    }
 
-    // Manejar la cancelación
-    document.getElementById('btnCancelar').onclick = function() {
-        modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
-    }
-});
+        // Manejar la confirmación de actualización
+        document.getElementById('btnActualizar').onclick = function() {
+            const horaExistente = '{{ cita[2] if cita else "" }}';
+            if (horaExistente) {
+                document.getElementById('proxima_cita_hora').value = horaExistente;
+            }
+            modal.style.display = 'block'; // Abrir el modal para registrar la cita
+            modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
+        }
+
+        // Manejar la cancelación
+        document.getElementById('btnCancelar').onclick = function() {
+            modalConfirmarActualizar.style.display = 'none'; // Cerrar el modal de confirmación
+        }
+    });
 </script>
 
 <script>
-document.getElementById('proxima_cita_fecha').addEventListener('change', function() {
-    const fechaSeleccionada = this.value;
-    
-    fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
-        .then(response => response.json())
-        .then(horasOcupadas => {
-            const selectHora = document.getElementById('proxima_cita_hora');
-            const opciones = selectHora.querySelectorAll('option');
+    document.getElementById('proxima_cita_fecha').addEventListener('change', function() {
+        const fechaSeleccionada = this.value;
+        
+        fetch(`/pacientes/disponibilidad_horas?fecha=${fechaSeleccionada}`)
+            .then(response => response.json())
+            .then(horasOcupadas => {
+                const selectHora = document.getElementById('proxima_cita_hora');
+                const opciones = selectHora.querySelectorAll('option');
 
-            // Habilitar todas las opciones primero
-            opciones.forEach(option => {
-                option.style.display = 'block'; // Mostrar todas las opciones
-                option.disabled = false; // Habilitar todas las opciones
-            });
-
-            // Ocultar o deshabilitar las horas ocupadas
-            horasOcupadas.forEach(hora => {
+                // Habilitar todas las opciones primero
                 opciones.forEach(option => {
-                    if (option.value === hora) {
-                        option.style.display = 'none'; // Ocultar la opción
-                        option.disabled = true; // Deshabilitar la opción
-                    }
+                    option.style.display = 'block'; // Mostrar todas las opciones
+                    option.disabled = false; // Habilitar todas las opciones
+                });
+
+                // Ocultar o deshabilitar las horas ocupadas
+                horasOcupadas.forEach(hora => {
+                    opciones.forEach(option => {
+                        if (option.value === hora) {
+                            option.style.display = 'none'; // Ocultar la opción
+                            option.disabled = true; // Deshabilitar la opción
+                        }
+                    });
                 });
             });
-        });
-});
+    });
 </script>
 {% endblock %}
