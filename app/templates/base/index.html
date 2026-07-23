@@ -80,9 +80,8 @@
                     <tr class="bg-white hover:bg-gray-50/50 transition-colors">
                         <td class="px-6 py-4 font-medium text-gray-900">{{ p.nombre }} {{ p.apellido_paterno }}</td>
                         {% set fecha_hora = p.proxima_cita.split(' ') %}
-                        {% set fecha = fecha_hora[0].split('-') %}
+                        <td class="px-6 py-4 text-gray-600">{{ fecha_hora[0]|format_date }}</td>
                         {% set hora = fecha_hora[1].split(':') %}
-                        <td class="px-6 py-4 text-gray-600">{{ fecha[2] }}/{{ fecha[1] }}/{{ fecha[0] }}</td>
                         <td class="px-6 py-4 text-gray-600">{{ '%02d:%02d %s' % (hora[0]|int % 12 or 12, hora[1]|int, 'AM' if hora[0]|int < 12 else 'PM') }}</td>
                         <td class="px-6 py-4 text-right">
                             <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=p.paciente_id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Iniciar Consulta</a>
@@ -204,7 +203,7 @@
                     <td class="px-6 py-5 font-medium text-gray-900">
                         {{ val.nombre }} {{ val.apellido_paterno }}
                     </td>
-                    <td class="px-6 py-5 text-gray-600">{{ val.fecha }}</td>
+                    <td class="px-6 py-5 text-gray-600">{{ val.fecha|format_date }}</td>
                     <td class="px-6 py-5 font-semibold text-gray-800">{{ val.imc }}</td>
                     <td class="px-6 py-5 text-right">
                         <a href="{{ url_for('pacientes.detalle_paciente', id=val.paciente_id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Ver Expediente</a>

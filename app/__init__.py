@@ -50,4 +50,17 @@ def create_app(config_name=None):
     # REGISTRO DE MANEJADORES GLOBALES DE ERROR
     register_error_handlers(app)
     
+    # FILTROS GLOBALES DE JINJA2
+    @app.template_filter('format_date')
+    def format_date(value):
+        if not value:
+            return ""
+        try:
+            fecha_str = str(value)
+            fecha = fecha_str.split('-')
+            meses = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+            return f"{fecha[2]} {meses[int(fecha[1])]}, {fecha[0]}"
+        except:
+            return value
+    
     return app
