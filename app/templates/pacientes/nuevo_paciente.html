@@ -6,8 +6,7 @@
 <div class="max-w-4xl mx-auto">
     <!-- Encabezado -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Registrar Nuevo Paciente</h1>
-        <p class="text-gray-600 mt-2">Complete la información básica para dar de alta a un nuevo paciente en el sistema.</p>
+        <h1 class="text-3xl font-bold text-gray-900" align="center">Registrar Nuevo Paciente</h1>
     </div>
 
     <!-- Formulario -->
@@ -18,6 +17,8 @@
                 <div class="space-y-2">
                     <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
                     <input type="text" id="nombre" name="nombre" required
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                           onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode == 32 || event.charCode == 225 || event.charCode == 233 || event.charCode == 237 || event.charCode == 243 || event.charCode == 250 || event.charCode == 193 || event.charCode == 201 || event.charCode == 205 || event.charCode == 211 || event.charCode == 218 || event.charCode == 241 || event.charCode == 209"
                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                            placeholder="Nombre(s)"
                            value="{{ request.form.nombre or '' }}">
@@ -27,6 +28,8 @@
                 <div class="space-y-2">
                     <label for="apellido_paterno" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
                     <input type="text" id="apellido_paterno" name="apellido_paterno" required
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                           onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode == 32 || event.charCode == 225 || event.charCode == 233 || event.charCode == 237 || event.charCode == 243 || event.charCode == 250 || event.charCode == 193 || event.charCode == 201 || event.charCode == 205 || event.charCode == 211 || event.charCode == 218 || event.charCode == 241 || event.charCode == 209"
                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                            placeholder="Apellido paterno"
                            value="{{ request.form.apellido_paterno or '' }}">
@@ -36,6 +39,8 @@
                 <div class="space-y-2">
                     <label for="apellido_materno" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
                     <input type="text" id="apellido_materno" name="apellido_materno" required
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                           onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode == 32 || event.charCode == 225 || event.charCode == 233 || event.charCode == 237 || event.charCode == 243 || event.charCode == 250 || event.charCode == 193 || event.charCode == 201 || event.charCode == 205 || event.charCode == 211 || event.charCode == 218 || event.charCode == 241 || event.charCode == 209"
                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                            placeholder="Apellido materno"
                            value="{{ request.form.apellido_materno or '' }}">

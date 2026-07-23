@@ -33,19 +33,19 @@ export function validarFormularioPaciente(form) {
         let mensajeError = "";
 
         if (valor === "") {
-            mensajeError = `El campo ${campo.label} es obligatorio.`;
+            mensajeError = `Por favor, ingrese ${campo.label.toLowerCase()}.`;
         } else if (campo.id === 'nombre' && !validarTexto(valor, 3, 30)) {
-            mensajeError = "El nombre debe tener entre 3 y 30 letras.";
+            mensajeError = "El nombre debe tener entre 3 y 30 caracteres.";
         } else if ((campo.id === 'apellido_paterno' || campo.id === 'apellido_materno') && !validarTexto(valor, 2, 40)) {
-            mensajeError = "El apellido debe tener entre 2 y 40 letras.";
+            mensajeError = "El apellido debe tener entre 2 y 40 caracteres.";
         } else if (campo.id === 'ciudad' && !validarTexto(valor, 3, 50)) {
-            mensajeError = "La ciudad debe tener entre 3 y 50 letras.";
+            mensajeError = "La ciudad debe tener entre 3 y 50 caracteres.";
         } else if (campo.id === 'fecha_nacimiento' && !validarFechaNacimiento(valor)) {
-            mensajeError = "La fecha debe ser posterior a 1900 y anterior al día de hoy.";
+            mensajeError = "La fecha de nacimiento no es válida (debe ser posterior a 1900 y anterior a hoy).";
         } else if (campo.id === 'telefono' && !validarTelefono(valor)) {
-            mensajeError = "Debe contener exactamente 10 dígitos numéricos.";
+            mensajeError = "El número de teléfono debe tener exactamente 10 dígitos.";
         } else if (campo.id === 'correo' && !validarCorreo(valor)) {
-            mensajeError = "El formato del correo no es válido.";
+            mensajeError = "El correo electrónico ingresado no parece ser válido.";
         }
 
         if (mensajeError) {
