@@ -58,6 +58,7 @@ def create_app(config_name=None):
     # CONFIGURACIÓN DE LOGIN
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    login_manager.login_message = None
     
     @login_manager.user_loader
     def load_user(user_id):
