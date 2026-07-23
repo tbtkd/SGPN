@@ -37,7 +37,7 @@
             <p class="text-sm font-medium text-gray-500">Valoraciones (Este Mes)</p>
             <h3 class="text-3xl font-bold text-gray-900 mt-1">{{ valoraciones_mes }}</h3>
             <p class="text-sm text-gray-600 mt-1.5">
-                Promedio diario: {{ promedio_diario }}%
+                Promedio diario: {{ promedio_diario }} valoraciones/día
             </p>
         </div>
     </article>
@@ -70,14 +70,30 @@
                 <thead class="text-xs text-gray-500 uppercase bg-gray-50 rounded-lg">
                     <tr>
                         <th class="px-6 py-4 font-medium">Paciente</th>
-                        <th class="px-6 py-4 font-medium">Próxima Cita</th>
+                        <th class="px-6 py-4 font-medium">Fecha</th>
+                        <th class="px-6 py-4 font-medium">Hora</th>
+                        <th class="px-6 py-4 font-medium text-right">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     {% for p in proximos_pacientes %}
                     <tr class="bg-white hover:bg-gray-50/50 transition-colors">
                         <td class="px-6 py-4 font-medium text-gray-900">{{ p.nombre }} {{ p.apellido_paterno }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ p.proxima_cita }}</td>
+                        {% set fecha_hora = p.proxima_cita.split(' ') %}
+                        {% set fecha = fecha_hora[0].split('-') %}
+                        {% set hora = fecha_hora[1].split(':') %}
+                        <td class="px-6 py-4 text-gray-600">{{ fecha[2] }}/{{ fecha[1] }}/{{ fecha[0] }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ '%02d:%02d %s' % (hora[0]|int % 12 or 12, hora[1]|int, 'AM' if hora[0]|int < 12 else 'PM') }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=p.paciente_id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Iniciar Consulta</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-500">
+                            <i class="fas fa-calendar-times fa-2x mb-3 text-gray-300"></i>
+                            <p>No hay citas agendadas para los próximos días.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

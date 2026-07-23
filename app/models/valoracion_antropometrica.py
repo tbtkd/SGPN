@@ -106,6 +106,7 @@ class ValoracionAntropometrica:
     @staticmethod
     def obtener_recientes(limite=5):
         # Obtiene la última valoración de cada paciente, ordenadas por fecha
+        # Filtros defensivos: fecha >= 1900, imc < 100
         return query_db('''
             SELECT va.*, p.nombre, p.apellido_paterno 
             FROM valoracion_antropometrica va
@@ -116,6 +117,8 @@ class ValoracionAntropometrica:
                     SELECT MAX(id) FROM valoracion_antropometrica GROUP BY paciente_id
                 )
             )
+            AND strftime('%Y', va.fecha) >= '1900'
+            AND (va.imc < 100 OR va.imc IS NULL)
             ORDER BY va.fecha DESC
             LIMIT ?
         ''', [limite])

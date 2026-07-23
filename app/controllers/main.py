@@ -19,8 +19,7 @@ def index():
     
     # Cálculo dinámico del promedio diario
     dia_actual = datetime.now().day
-    # Promedio diario expresado como porcentaje (ej. 3 valoraciones al día = 300%)
-    promedio_diario_porcentaje = round((valoraciones_mes / dia_actual) * 100, 1)
+    promedio_diario = round(valoraciones_mes / dia_actual, 1)
     
     pacientes_seguimiento = Paciente.contar_en_seguimiento()
     proximos_pacientes = Paciente.obtener_proximos(limite=5)
@@ -35,7 +34,7 @@ def index():
                            total_pacientes=total_pacientes,
                            crecimiento_pacientes=crecimiento_pacientes,
                            valoraciones_mes=valoraciones_mes,
-                           promedio_diario=promedio_diario_porcentaje,
+                           promedio_diario=promedio_diario,
                            pacientes_seguimiento=pacientes_seguimiento,
                            proximos_pacientes=proximos_pacientes,
                            actividad_reciente=actividad_reciente)

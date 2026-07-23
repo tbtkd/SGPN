@@ -167,7 +167,7 @@ class Paciente:
     def obtener_proximos(limite=5):
         # Consulta corregida usando los campos 'fecha' y 'hora' de la tabla 'citas'
         return query_db('''
-            SELECT p.nombre, p.apellido_paterno, (c.fecha || ' ' || c.hora) as proxima_cita
+            SELECT p.id as paciente_id, p.nombre, p.apellido_paterno, (c.fecha || ' ' || c.hora) as proxima_cita
             FROM pacientes p
             JOIN citas c ON p.id = c.paciente_id
             WHERE (c.fecha || ' ' || c.hora) >= datetime('now')
