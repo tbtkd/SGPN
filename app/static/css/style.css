@@ -7,7 +7,8 @@ body {
 }
 
 .container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 250px 1fr;
   min-height: 100vh;
 }
 
@@ -84,6 +85,13 @@ body {
   flex: 1;
   padding: 20px;
   background-color: #fff;
+  display: flex;
+  justify-content: center;
+}
+
+.content > div {
+  width: 100%;
+  max-width: 1200px;
 }
 
 /* Estilos para formularios */

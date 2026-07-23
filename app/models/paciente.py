@@ -117,3 +117,32 @@ class Paciente:
                 [f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', status])
         else:
             return query_db('SELECT * FROM pacientes WHERE status = ? ORDER BY nombre', [status])
+
+    @staticmethod
+    def contar_activos():
+        return query_db("SELECT COUNT(*) as total FROM pacientes WHERE status = 'activo'", one=True)['total']
+
+    @staticmethod
+    def contar_en_seguimiento():
+        # Definimos "seguimiento activo" como pacientes que tienen más de 1 valoración
+        return query_db('''
+            SELECT COUNT(*) as total 
+            FROM (
+                SELECT paciente_id 
+                FROM valoracion_antropometrica 
+                GROUP BY paciente_id 
+                HAVING COUNT(*) > 1
+            )
+        ''', one=True)['total']
+
+    @staticmethod
+    def obtener_proximos(limite=5):
+        # Consulta corregida usando los campos 'fecha' y 'hora' de la tabla 'citas'
+        return query_db('''
+            SELECT p.nombre, p.apellido_paterno, (c.fecha || ' ' || c.hora) as proxima_cita
+            FROM pacientes p
+            JOIN citas c ON p.id = c.paciente_id
+            WHERE (c.fecha || ' ' || c.hora) >= datetime('now')
+            ORDER BY c.fecha ASC, c.hora ASC
+            LIMIT ?
+        ''', [limite])

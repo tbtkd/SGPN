@@ -13,9 +13,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_tabs.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/_sidebar.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container" x-data="{ menuOpen: false }">
@@ -37,25 +38,6 @@
                         <i class="fas fa-user-plus sidebar__icon"></i> Alta Pacientes
                     </a>
                 </li>
-                <li class="sidebar__item" x-data="{ open: false }">
-                    <a @click="open = !open" class="sidebar__link sidebar__dropdown">
-                        <i class="fas fa-users sidebar__icon"></i> Pacientes
-                        <i class="fas fa-chevron-down sidebar__icon-arrow" 
-                           :class="{ 'rotate-180': open }"></i>
-                    </a>
-                    <ul x-show="open" class="sidebar__submenu">
-                        <li class="sidebar__item">
-                            <a href="{{ url_for('pacientes.lista_pacientes_activos') }}" class="sidebar__link">
-                                <i class="fas fa-user-check sidebar__icon"></i> Pacientes Activos
-                            </a>
-                        </li>
-                        <li class="sidebar__item">
-                            <a href="{{ url_for('pacientes.lista_pacientes_inactivos') }}" class="sidebar__link">
-                                <i class="fas fa-user-times sidebar__icon"></i> Pacientes Inactivos
-                            </a>
-                        </li>
-                    </ul>
-                </li>
             </ul>
             <div class="sidebar-footer">
                 <div class="footer-content">
@@ -64,7 +46,7 @@
                 </div>
             </div>
         </nav>
-        <main class="content">
+        <main class="p-6 md:p-10 space-y-10">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}

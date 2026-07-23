@@ -95,6 +95,25 @@ class ValoracionAntropometrica:
         ''')
 
     @staticmethod
+    def contar_mes_vigente():
+        # Cuenta valoraciones donde el mes y año de la fecha coinciden con el mes y año actual
+        return query_db('''
+            SELECT COUNT(*) as total 
+            FROM valoracion_antropometrica 
+            WHERE strftime('%Y-%m', fecha) = strftime('%Y-%m', 'now')
+        ''', one=True)['total']
+
+    @staticmethod
+    def obtener_recientes(limite=5):
+        return query_db('''
+            SELECT va.*, p.nombre, p.apellido_paterno 
+            FROM valoracion_antropometrica va
+            JOIN pacientes p ON va.paciente_id = p.id
+            ORDER BY va.fecha DESC
+            LIMIT ?
+        ''', [limite])
+
+    @staticmethod
     def obtener_por_id(valoracion_id):
         return query_db('SELECT * FROM valoracion_antropometrica WHERE id = ?', [valoracion_id], one=True)
 
