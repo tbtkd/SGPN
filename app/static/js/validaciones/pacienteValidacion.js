@@ -1,99 +1,100 @@
-export function validarFormularioPaciente() {
-  limpiarErrores();
+export function validarFormularioPaciente(form) {
+    const campos = [
+        { id: 'nombre', label: 'Nombre' },
+        { id: 'apellido_paterno', label: 'Apellido Paterno' },
+        { id: 'apellido_materno', label: 'Apellido Materno' },
+        { id: 'fecha_nacimiento', label: 'Fecha de Nacimiento' },
+        { id: 'telefono', label: 'Teléfono' },
+        { id: 'correo', label: 'Correo Electrónico' },
+        { id: 'ciudad', label: 'Ciudad' }
+    ];
 
-  const nombre = document.getElementById("nombre").value.trim();
-  const apellidoPaterno = document.getElementById("apellido_paterno").value.trim();
-  const apellidoMaterno = document.getElementById("apellido_materno").value.trim();
-  const fechaNacimiento = document.getElementById("fecha_nacimiento").value;
-  const telefono = document.getElementById("telefono").value.trim();
-  const correo = document.getElementById("correo").value.trim();
-  const ciudad = document.getElementById("ciudad").value.trim();
+    let primerError = null;
 
-  let esValido = true;
+    // Limpiar errores previos
+    campos.forEach(campo => {
+        const el = document.getElementById(campo.id);
+        if (el) {
+            el.classList.remove('input-error');
+            const group = el.closest('.space-y-2');
+            if (group) {
+                const errorSpan = group.querySelector('.error-message');
+                if (errorSpan) errorSpan.remove();
+            }
+        }
+    });
 
-  if (!nombre) { marcarErrorCampo("nombre", "El nombre es obligatorio."); esValido = false; }
-  if (!apellidoPaterno) { marcarErrorCampo("apellido_paterno", "El apellido paterno es obligatorio."); esValido = false; }
-  if (!apellidoMaterno) { marcarErrorCampo("apellido_materno", "El apellido materno es obligatorio."); esValido = false; }
-  if (!ciudad) { marcarErrorCampo("ciudad", "La ciudad es obligatoria."); esValido = false; }
+    // Validar campos
+    for (const campo of campos) {
+        const el = document.getElementById(campo.id);
+        if (!el) continue;
 
-  if (!fechaNacimiento) {
-    marcarErrorCampo("fecha_nacimiento", "La fecha de nacimiento es obligatoria.");
-    esValido = false;
-  } else if (!validarFechaNacimiento(fechaNacimiento)) {
-    marcarErrorCampo("fecha_nacimiento", "La fecha de nacimiento debe ser anterior al día de hoy.");
-    esValido = false;
-  }
+        const valor = el.value.trim();
+        let mensajeError = "";
 
-  if (!telefono) {
-    marcarErrorCampo("telefono", "El teléfono es obligatorio.");
-    esValido = false;
-  } else if (!validarTelefono(telefono)) {
-    marcarErrorCampo("telefono", "Debe contener exactamente 10 dígitos numéricos.");
-    esValido = false;
-  }
+        if (valor === "") {
+            mensajeError = `El campo ${campo.label} es obligatorio.`;
+        } else if (campo.id === 'nombre' && !validarTexto(valor, 3, 30)) {
+            mensajeError = "El nombre debe tener entre 3 y 30 letras.";
+        } else if ((campo.id === 'apellido_paterno' || campo.id === 'apellido_materno') && !validarTexto(valor, 2, 40)) {
+            mensajeError = "El apellido debe tener entre 2 y 40 letras.";
+        } else if (campo.id === 'ciudad' && !validarTexto(valor, 3, 50)) {
+            mensajeError = "La ciudad debe tener entre 3 y 50 letras.";
+        } else if (campo.id === 'fecha_nacimiento' && !validarFechaNacimiento(valor)) {
+            mensajeError = "La fecha debe ser posterior a 1900 y anterior al día de hoy.";
+        } else if (campo.id === 'telefono' && !validarTelefono(valor)) {
+            mensajeError = "Debe contener exactamente 10 dígitos numéricos.";
+        } else if (campo.id === 'correo' && !validarCorreo(valor)) {
+            mensajeError = "El formato del correo no es válido.";
+        }
 
-  if (!correo) {
-    marcarErrorCampo("correo", "El correo es obligatorio.");
-    esValido = false;
-  } else if (!validarCorreo(correo)) {
-    marcarErrorCampo("correo", "El formato del correo no es válido.");
-    esValido = false;
-  }
+        if (mensajeError) {
+            primerError = { id: campo.id, mensaje: mensajeError };
+            
+            // Marcar error
+            el.classList.add('input-error');
+            const group = el.closest('.space-y-2');
+            if (group) {
+                const errorSpan = document.createElement("small");
+                errorSpan.className = "text-red-600 error-message";
+                errorSpan.style.display = "block";
+                errorSpan.innerText = mensajeError;
+                group.appendChild(errorSpan);
+            }
+            break; // Solo marcar el primero
+        }
+    }
 
-  if (!esValido) {
-    mostrarBannerError("Por favor, corrija los campos marcados en rojo antes de enviar.");
-  }
+    if (primerError) {
+        const el = document.getElementById(primerError.id);
+        if (el) {
+            el.focus();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+    }
 
-  return esValido;
+    return true;
 }
 
 function validarFechaNacimiento(fecha) {
-  const hoy = new Date();
-  const fechaNacimiento = new Date(fecha);
-  return fechaNacimiento < hoy;
+    const hoy = new Date();
+    const fechaNacimiento = new Date(fecha);
+    const fechaMinima = new Date('1900-01-01');
+    return fechaNacimiento >= fechaMinima && fechaNacimiento < hoy;
 }
 
 function validarTelefono(telefono) {
-  const regex = /^\d{10}$/;
-  return regex.test(telefono);
+    const regex = /^\d{10}$/;
+    return regex.test(telefono);
 }
 
 function validarCorreo(correo) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(correo);
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
 }
 
-function marcarErrorCampo(idInput, mensaje) {
-  const input = document.getElementById(idInput);
-  if (input) {
-    input.classList.add("input-error"); // Aplica borde rojo definido en tu base.css o _forms.css
-    
-    // Crear el mensaje debajo del input
-    const errorText = document.createElement("small");
-    errorText.className = "text-danger error-feedback";
-    errorText.style.display = "block";
-    errorText.style.marginTop = "0.25rem";
-    errorText.innerText = mensaje;
-    input.parentNode.appendChild(errorText);
-  }
+function validarTexto(texto, min, max) {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return regex.test(texto) && texto.length >= min && texto.length <= max;
 }
-
-function limpiarErrores() {
-  document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
-  document.querySelectorAll(".error-feedback").forEach(el => el.remove());
-  const banner = document.getElementById("js-error-banner");
-  if (banner) banner.remove();
-}
-
-function mostrarBannerError(mensaje) {
-  const form = document.querySelector("form");
-  if (form) {
-    const banner = document.createElement("div");
-    banner.id = "js-error-banner";
-    banner.className = "alert alert-error"; // Ajusta a la clase CSS de alertas de tu proyecto
-    banner.style.marginBottom = "1rem";
-    banner.innerText = mensaje;
-    form.insertBefore(banner, form.firstChild);
-  }
-}
-

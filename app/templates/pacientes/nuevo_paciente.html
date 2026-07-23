@@ -1,64 +1,93 @@
 {% extends "base/base.html" %}
 
-{% block title %}Nuevo Paciente{% endblock %}
+{% block title %}Registrar Nuevo Paciente{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Registrar Nuevo Paciente</h2>
-    <form id="form-nuevo-paciente" action="{{ url_for('pacientes.nuevo_paciente') }}" method="POST">
-        <div class="form-group">
-            <label for="nombre" class="form-label">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" class="form-input" required 
-                    placeholder="Ingrese el nombre del paciente"
-                    value="{{ request.form.nombre or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="apellido_paterno" class="form-label">Apellido Paterno:</label>
-            <input type="text" id="apellido_paterno" name="apellido_paterno" class="form-input" required
-                    placeholder="Ingrese el apellido paterno"
-                    value="{{ request.form.apellido_paterno or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="apellido_materno" class="form-label">Apellido Materno:</label>
-            <input type="text" id="apellido_materno" name="apellido_materno" class="form-input" required
-                    placeholder="Ingrese el apellido materno"
-                    value="{{ request.form.apellido_materno or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
-            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-input" required
-                    placeholder="DD/MM/AAAA"
-                    value="{{ request.form.fecha_nacimiento or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="telefono" class="form-label">Teléfono:</label>
-            <input type="tel" 
-                    id="telefono" 
-                    name="telefono" 
-                    class="form-input" 
-                    required 
-                    maxlength="10" 
-                    pattern="[0-9]{10}" 
-                    title="Por favor ingrese un número de teléfono válido de 10 dígitos"
-                    placeholder="Ingrese 10 dígitos"
-                    value="{{ request.form.telefono or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="correo" class="form-label">Correo:</label>
-            <input type="email" id="correo" name="correo" class="form-input" required
-                    placeholder="ejemplo@correo.com"
-                    value="{{ request.form.correo or '' }}">
-        </div>
-        <div class="form-group">
-            <label for="ciudad" class="form-label">Ciudad:</label>
-            <input type="text" id="ciudad" name="ciudad" class="form-input" required
-                    placeholder="Ingrese la ciudad"
-                    value="{{ request.form.ciudad or '' }}">
-        </div>
-        <div class="action-buttons">
-            <button type="submit" class="action-button">Registrar Paciente</button>
-        </div>
-    </form>
+<div class="max-w-4xl mx-auto">
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Registrar Nuevo Paciente</h1>
+        <p class="text-gray-600 mt-2">Complete la información básica para dar de alta a un nuevo paciente en el sistema.</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <form id="form-nuevo-paciente" action="{{ url_for('pacientes.nuevo_paciente') }}" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nombre -->
+                <div class="space-y-2">
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="Nombre(s)"
+                           value="{{ request.form.nombre or '' }}">
+                </div>
+
+                <!-- Apellido Paterno -->
+                <div class="space-y-2">
+                    <label for="apellido_paterno" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
+                    <input type="text" id="apellido_paterno" name="apellido_paterno" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="Apellido paterno"
+                           value="{{ request.form.apellido_paterno or '' }}">
+                </div>
+
+                <!-- Apellido Materno -->
+                <div class="space-y-2">
+                    <label for="apellido_materno" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
+                    <input type="text" id="apellido_materno" name="apellido_materno" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="Apellido materno"
+                           value="{{ request.form.apellido_materno or '' }}">
+                </div>
+
+                <!-- Fecha de Nacimiento -->
+                <div class="space-y-2">
+                    <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
+                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required
+                           min="1900-01-01"
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           value="{{ request.form.fecha_nacimiento or '' }}">
+                    <p class="text-xs text-gray-500">Seleccione una fecha válida (año mínimo: 1900).</p>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="space-y-2">
+                    <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" required maxlength="10" pattern="[0-9]{10}"
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="10 dígitos"
+                           value="{{ request.form.telefono or '' }}">
+                </div>
+
+                <!-- Correo -->
+                <div class="space-y-2">
+                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" id="correo" name="correo" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="ejemplo@correo.com"
+                           value="{{ request.form.correo or '' }}">
+                </div>
+
+                <!-- Ciudad -->
+                <div class="space-y-2 md:col-span-2">
+                    <label for="ciudad" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                    <input type="text" id="ciudad" name="ciudad" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                           placeholder="Ciudad de residencia"
+                           value="{{ request.form.ciudad or '' }}">
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="{{ url_for('main.index') }}" class="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition">Cancelar</a>
+                <button type="submit" class="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition">
+                    Registrar Paciente
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- CARGA DE VALIDACIONES COMO MÓDULO -->
@@ -66,10 +95,9 @@
     import { validarFormularioPaciente } from "{{ url_for('static', filename='js/validaciones/pacienteValidacion.js') }}";
 
     document.getElementById("form-nuevo-paciente").addEventListener("submit", function(event) {
-        if (!validarFormularioPaciente()) {
-            event.preventDefault(); // Detiene el envío si el formulario tiene errores
+        if (!validarFormularioPaciente(this)) {
+            event.preventDefault();
         }
     });
 </script>
 {% endblock %}
-

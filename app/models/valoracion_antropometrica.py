@@ -105,10 +105,17 @@ class ValoracionAntropometrica:
 
     @staticmethod
     def obtener_recientes(limite=5):
+        # Obtiene la última valoración de cada paciente, ordenadas por fecha
         return query_db('''
             SELECT va.*, p.nombre, p.apellido_paterno 
             FROM valoracion_antropometrica va
             JOIN pacientes p ON va.paciente_id = p.id
+            WHERE va.id IN (
+                SELECT id FROM valoracion_antropometrica 
+                WHERE id IN (
+                    SELECT MAX(id) FROM valoracion_antropometrica GROUP BY paciente_id
+                )
+            )
             ORDER BY va.fecha DESC
             LIMIT ?
         ''', [limite])
