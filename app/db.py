@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from flask import current_app, g
 import logging
 
@@ -7,8 +8,10 @@ logger = logging.getLogger(__name__)
 def get_db():
     if 'db' not in g:
         try:
+            # Usar variable de entorno para la ruta de la base de datos, default a local
+            db_path = os.environ.get('DATABASE_URL', 'pacientes.db')
             g.db = sqlite3.connect(
-                'pacientes.db',
+                db_path,
                 detect_types=sqlite3.PARSE_DECLTYPES
             )
             g.db.row_factory = sqlite3.Row
