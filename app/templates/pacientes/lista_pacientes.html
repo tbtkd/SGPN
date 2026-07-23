@@ -4,8 +4,19 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="flex text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{{ url_for('main.index') }}" class="hover:text-teal-600">Inicio</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li><a href="{{ url_for('pacientes.lista_pacientes_activos') }}" class="hover:text-teal-600">Pacientes</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li class="text-gray-900 font-medium">Lista</li>
+        </ol>
+    </nav>
+
     <!-- Encabezado -->
-    <div class="mb-8 text-center">
+    <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Lista de Pacientes {{ "Activos" if tipo_lista == "activos" else "Inactivos" }}</h1>
     </div>
 
@@ -19,6 +30,12 @@
         </form>
     </div>
 
+    <!-- Pestañas de Filtro -->
+    <div class="flex gap-2 mb-6">
+        <a href="{{ url_for('pacientes.lista_pacientes_activos') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition {{ 'bg-teal-600 text-white' if tipo_lista == 'activos' else 'bg-white text-gray-600 hover:bg-gray-50' }}">Activos</a>
+        <a href="{{ url_for('pacientes.lista_pacientes_inactivos') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition {{ 'bg-teal-600 text-white' if tipo_lista == 'inactivos' else 'bg-white text-gray-600 hover:bg-gray-50' }}">Inactivos</a>
+    </div>
+
     <!-- Tabla -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
@@ -28,7 +45,7 @@
                         <th class="px-6 py-4 text-sm font-semibold text-gray-600">Nombre</th>
                         <th class="px-6 py-4 text-sm font-semibold text-gray-600">Apellidos</th>
                         <th class="px-6 py-4 text-sm font-semibold text-gray-600">Correo</th>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Ciudad</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Última Consulta</th>
                         <th class="px-6 py-4 text-sm font-semibold text-gray-600">Estatus</th>
                         <th class="px-6 py-4 text-sm font-semibold text-gray-600 text-center">Acciones</th>
                     </tr>
@@ -39,9 +56,13 @@
                         <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['nombre'] }}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['correo'] }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['ciudad'] }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['ultima_consulta']|format_date if paciente['ultima_consulta'] else 'Sin registro' }}</td>
                         <td class="px-6 py-4 text-sm">
-                            <span class="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{{ paciente['status'] }}</span>
+                            {% if paciente['status']|lower == 'activo' %}
+                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2.5 py-0.5 rounded-full capitalize text-xs">Activo</span>
+                            {% else %}
+                                <span class="bg-slate-100 text-slate-600 border border-slate-200 font-medium px-2.5 py-0.5 rounded-full capitalize text-xs">Inactivo</span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 text-sm text-center">
                             <div class="flex justify-center gap-2">

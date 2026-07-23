@@ -133,6 +133,7 @@ class ValoracionAntropometrica:
             ORDER BY va.fecha DESC
         ''', [fecha_inicio, fecha_fin])
 
+
     @staticmethod
     def obtener_por_id(valoracion_id):
         return query_db('SELECT * FROM valoracion_antropometrica WHERE id = ?', [valoracion_id], one=True)
