@@ -3,11 +3,17 @@
 {% block title %}Nueva Valoración Antropométrica - {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}{% endblock %}
 
 {% block content %}
-<h2 align="center">Nueva Valoración Antropométrica para {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}</h2>
-<div class="form-container">
-    <div class="form-container">
-        <!-- Banner de Notificación de Validación (Diseño Plano Rojo Semitransparente / Texto Blanco) -->
-        <div id="validation-alert" style="display: none; background-color: rgba(220, 53, 69, 0.85); color: #ffffff; padding: 12px 20px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); backdrop-filter: blur(2px);">
+<div class="max-w-4xl mx-auto">
+    <!-- Encabezado -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Nueva Valoración Antropométrica</h1>
+        <p class="text-gray-600 mt-2">{{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <!-- Banner de Notificación de Validación -->
+        <div id="validation-alert" style="display: none; background-color: rgba(220, 53, 69, 0.85); color: #ffffff; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); backdrop-filter: blur(2px);">
             <div style="display: flex; align-items: center;">
                 <i class="fas fa-exclamation-circle" style="margin-right: 10px; font-size: 1.1em;"></i>
                 <span id="validation-alert-text"></span>
@@ -15,146 +21,134 @@
             <button type="button" onclick="document.getElementById('validation-alert').style.display = 'none'" style="background: none; border: none; color: #ffffff; cursor: pointer; font-size: 1.3em; font-weight: bold; margin-left: 15px; padding: 0; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">&times;</button>
         </div>
 
-        <!-- Formulario con pestañas -->
-        <form id="formValoracion" method="POST" x-data="{ activeTab: 'antropometrica' }" @submit.prevent="if (validarFormularioValoracion($el, $data)) $el.submit()">
-            <div>
-                <!-- Pestañas -->
-                <div class="form-tabs">
-                    <button type="button" @click="activeTab = 'antropometrica'" :class="{ 'active': activeTab === 'antropometrica' }" class="form-tab">
-                        Antropométrica
-                    </button>
-                    <button type="button" @click="activeTab = 'plicometria'" :class="{ 'active': activeTab === 'plicometria' }" class="form-tab">
-                        Plicometría
-                    </button>
-                    <button type="button" @click="activeTab = 'bioimpedancia'" :class="{ 'active': activeTab === 'bioimpedancia' }" class="form-tab">
-                        Datos de Bioimpedancia
-                    </button>
-                </div>
+        <form id="formValoracion" method="POST" class="space-y-6" x-data="{ activeTab: 'antropometrica' }">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button type="button" @click="activeTab = 'antropometrica'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'antropometrica' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Antropométrica</button>
+                <button type="button" @click="activeTab = 'plicometria'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'plicometria' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Plicometría</button>
+                <button type="button" @click="activeTab = 'bioimpedancia'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'bioimpedancia' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Bioimpedancia</button>
+            </div>
 
-                <!-- Contenido de la pestaña Antropométrica -->
-                <div x-show="activeTab === 'antropometrica'" class="form-section" :class="{ 'active': activeTab === 'antropometrica' }">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="numero_cita" class="form-label">Número de cita:</label>
-                            <input type="number" id="numero_cita" name="numero_cita" class="form-input" placeholder="Ingrese el número de cita">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="fecha" class="form-label">Fecha:</label>
-                            <input type="date" id="fecha" name="fecha" class="form-input" placeholder="Ingrese la fecha">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="estatura" class="form-label">Estatura (cm):</label>
-                            <input type="number" id="estatura" name="estatura" step="0.01" class="form-input" oninput="calcularIMC()" placeholder="Ej: 170.0" value="{{ valoracion.estatura if valoracion else '' }}">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="peso" class="form-label">Peso (kg):</label>
-                            <input type="number" id="peso" name="peso" step="0.01" class="form-input" oninput="calcularIMC()" placeholder="Ej: 70.5" value="{{ valoracion.peso if valoracion else '' }}">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="cintura" class="form-label">Cintura (cm):</label>
-                            <input type="number" id="cintura" name="cintura" step="0.1" class="form-input" placeholder="Ej: 70.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="torax" class="form-label">Tórax (cm):</label>
-                            <input type="number" id="torax" name="torax" step="0.1" class="form-input" placeholder="Ej: 70.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="brazo" class="form-label">Brazo (cm):</label>
-                            <input type="number" id="brazo" name="brazo" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="cadera" class="form-label">Cadera (cm):</label>
-                            <input type="number" id="cadera" name="cadera" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="pierna" class="form-label">Pierna (cm):</label>
-                            <input type="number" id="pierna" name="pierna" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="pantorrilla" class="form-label">Pantorrilla (cm):</label>
-                            <input type="number" id="pantorrilla" name="pantorrilla" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="tension_arterial" class="form-label">Tensión arterial:</label>
-                            <input type="text" id="tension_arterial" name="tension_arterial" class="form-input" placeholder="Ej: 120/80" value="{{ valoracion.tension_arterial if valoracion else '' }}">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="frecuencia_cardiaca" class="form-label">Frecuencia cardíaca (lpm):</label>
-                            <input type="number" id="frecuencia_cardiaca" name="frecuencia_cardiaca" class="form-input" placeholder="Ej: 70" value="{{ valoracion.frecuencia_cardiaca if valoracion else '' }}">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
+            <!-- Contenido de Tabs -->
+            <div x-show="activeTab === 'antropometrica'" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 form-group">
+                        <label for="numero_cita" class="block text-sm font-medium text-gray-700">Número de cita:</label>
+                        <input type="number" id="numero_cita" name="numero_cita" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ingrese el número de cita">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
                     </div>
-                </div>
-
-                <!-- Contenido de la pestaña Plicometría -->
-                <div x-show="activeTab === 'plicometria'" class="form-section" :class="{ 'active': activeTab === 'plicometria' }">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="bicep" class="form-label">Bícep (mm):</label>
-                            <input type="number" id="bicep" name="bicep" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="tricep" class="form-label">Trícep (mm):</label>
-                            <input type="number" id="tricep" name="tricep" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="suprailiaco" class="form-label">Suprailiaco (mm):</label>
-                            <input type="number" id="suprailiaco" name="suprailiaco" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="subescapular" class="form-label">Subescapular (mm):</label>
-                            <input type="number" id="subescapular" name="subescapular" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="femoral" class="form-label">Femoral (mm) (solo para mujeres):</label>
-                            <input type="number" id="femoral" name="femoral" step="0.1" class="form-input" placeholder="Ej: 30.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo si aplica.</span>
-                        </div>
+                    <div class="space-y-2 form-group">
+                        <label for="fecha" class="block text-sm font-medium text-gray-700">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
                     </div>
-                </div>
-
-                <!-- Contenido de la pestaña Datos de Bioimpedancia -->
-                <div x-show="activeTab === 'bioimpedancia'" class="form-section" :class="{ 'active': activeTab === 'bioimpedancia' }">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="grasa" class="form-label">Grasa (%):</label>
-                            <input type="number" id="grasa" name="grasa" step="0.1" class="form-input" placeholder="Ej: 20.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="imc" class="form-label">IMC:</label>
-                            <input type="number" id="imc" name="imc" step="0.01" class="form-input" readonly placeholder="Calculado automáticamente">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo se calcula automáticamente.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="porcentaje_grasa" class="form-label">Grasa Total:</label>
-                            <input type="text" id="porcentaje_grasa" name="porcentaje_grasa" step="0.1" class="form-input" placeholder="Ej: 20.5">
-                            <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
-                        </div>
+                    <div class="space-y-2 form-group">
+                        <label for="estatura" class="block text-sm font-medium text-gray-700">Estatura (cm):</label>
+                        <input type="number" id="estatura" name="estatura" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" oninput="calcularIMC()" placeholder="Ej: 170.0">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="peso" class="block text-sm font-medium text-gray-700">Peso (kg):</label>
+                        <input type="number" id="peso" name="peso" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" oninput="calcularIMC()" placeholder="Ej: 70.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="cintura" class="block text-sm font-medium text-gray-700">Cintura (cm):</label>
+                        <input type="number" id="cintura" name="cintura" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 70.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="torax" class="block text-sm font-medium text-gray-700">Tórax (cm):</label>
+                        <input type="number" id="torax" name="torax" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 70.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="brazo" class="block text-sm font-medium text-gray-700">Brazo (cm):</label>
+                        <input type="number" id="brazo" name="brazo" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="cadera" class="block text-sm font-medium text-gray-700">Cadera (cm):</label>
+                        <input type="number" id="cadera" name="cadera" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="pierna" class="block text-sm font-medium text-gray-700">Pierna (cm):</label>
+                        <input type="number" id="pierna" name="pierna" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="pantorrilla" class="block text-sm font-medium text-gray-700">Pantorrilla (cm):</label>
+                        <input type="number" id="pantorrilla" name="pantorrilla" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="tension_arterial" class="block text-sm font-medium text-gray-700">Tensión arterial:</label>
+                        <input type="text" id="tension_arterial" name="tension_arterial" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 120/80">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="frecuencia_cardiaca" class="block text-sm font-medium text-gray-700">Frecuencia cardíaca (lpm):</label>
+                        <input type="number" id="frecuencia_cardiaca" name="frecuencia_cardiaca" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 70">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
                     </div>
                 </div>
             </div>
-            <div class="action-buttons">
-            <!-- Botón de guardar -->
-            <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">
-                <i class="fas fa-arrow-left"></i> Volver al Paciente
-            </a>
-            <button type="submit" class="action-button">Guardar Valoración</button>
+
+            <div x-show="activeTab === 'plicometria'" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 form-group">
+                        <label for="bicep" class="block text-sm font-medium text-gray-700">Bícep (mm):</label>
+                        <input type="number" id="bicep" name="bicep" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="tricep" class="block text-sm font-medium text-gray-700">Trícep (mm):</label>
+                        <input type="number" id="tricep" name="tricep" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="suprailiaco" class="block text-sm font-medium text-gray-700">Suprailiaco (mm):</label>
+                        <input type="number" id="suprailiaco" name="suprailiaco" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="subescapular" class="block text-sm font-medium text-gray-700">Subescapular (mm):</label>
+                        <input type="number" id="subescapular" name="subescapular" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="femoral" class="block text-sm font-medium text-gray-700">Femoral (mm) (solo para mujeres):</label>
+                        <input type="number" id="femoral" name="femoral" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo si aplica.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="activeTab === 'bioimpedancia'" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 form-group">
+                        <label for="grasa" class="block text-sm font-medium text-gray-700">Grasa (%):</label>
+                        <input type="number" id="grasa" name="grasa" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 20.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="imc" class="block text-sm font-medium text-gray-700">IMC:</label>
+                        <input type="number" id="imc" name="imc" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" readonly placeholder="Calculado automáticamente">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo se calcula automáticamente.</span>
+                    </div>
+                    <div class="space-y-2 form-group">
+                        <label for="porcentaje_grasa" class="block text-sm font-medium text-gray-700">Grasa Total:</label>
+                        <input type="text" id="porcentaje_grasa" name="porcentaje_grasa" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 20.5">
+                        <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition">Volver</a>
+                <button type="submit" class="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition">Guardar Valoración</button>
             </div>
         </form>
     </div>
@@ -162,9 +156,23 @@
 {% endblock %}
 
 {% block scripts %}
+{{ super() }}
 <script type="module">
     import { validarFormularioValoracion } from "{{ url_for('static', filename='js/validaciones/valoracionValidacion.js') }}";
-    window.validarFormularioValoracion = validarFormularioValoracion;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("formValoracion");
+        if (form) {
+            // Obtenemos el contexto de Alpine.js del formulario
+            const alpineContext = Alpine.$data(form);
+            
+            form.addEventListener("submit", (event) => {
+                if (!validarFormularioValoracion(form, alpineContext)) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
 </script>
 <script>
     function calcularIMC() {
@@ -173,11 +181,8 @@
         const imcInput = document.getElementById('imc');
         
         if (peso && estatura) {
-            // Convertir estatura de cm a metros
             const estaturaMetros = estatura / 100;
-            // Calcular IMC: peso / (estatura en metros)²
             const imc = peso / (estaturaMetros * estaturaMetros);
-            // Mostrar IMC con 2 decimales
             imcInput.value = imc.toFixed(2);
         } else {
             imcInput.value = '';
