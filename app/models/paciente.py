@@ -174,3 +174,15 @@ class Paciente:
             ORDER BY c.fecha ASC, c.hora ASC
             LIMIT ?
         ''', [limite])
+
+    @staticmethod
+    def obtener_sin_valoracion_reciente(dias=30):
+        return query_db('''
+            SELECT p.id, p.nombre, p.apellido_paterno
+            FROM pacientes p
+            WHERE p.id NOT IN (
+                SELECT paciente_id 
+                FROM valoracion_antropometrica 
+                WHERE fecha >= date('now', ? || ' days')
+            )
+        ''', [f'-{dias}'])

@@ -22,6 +22,7 @@ def index():
     promedio_diario = round(valoraciones_mes / dia_actual, 1)
     
     pacientes_seguimiento = Paciente.contar_en_seguimiento()
+    pacientes_sin_valoracion = Paciente.obtener_sin_valoracion_reciente(dias=30)
     proximos_pacientes = Paciente.obtener_proximos(limite=5)
     
     # Si hay filtro de fechas, obtener actividad filtrada
@@ -36,6 +37,7 @@ def index():
                            valoraciones_mes=valoraciones_mes,
                            promedio_diario=promedio_diario,
                            pacientes_seguimiento=pacientes_seguimiento,
+                           pacientes_sin_valoracion=pacientes_sin_valoracion,
                            proximos_pacientes=proximos_pacientes,
                            actividad_reciente=actividad_reciente)
 
