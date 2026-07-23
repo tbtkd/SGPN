@@ -76,3 +76,9 @@ CREATE TABLE IF NOT EXISTS citas (
     estado TEXT DEFAULT 'pendiente',
     FOREIGN KEY (paciente_id) REFERENCES pacientes (id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+);

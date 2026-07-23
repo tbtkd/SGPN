@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request
+from flask_login import login_required
 from datetime import datetime
 from app.models.paciente import Paciente
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
@@ -6,6 +7,7 @@ from app.models.valoracion_antropometrica import ValoracionAntropometrica
 main = Blueprint('main', __name__)
 
 @main.route('/')
+@login_required
 def index():
     """
     Renderiza la página principal del sistema con KPIs y actividad reciente.
