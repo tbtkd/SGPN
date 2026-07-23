@@ -58,23 +58,27 @@ El sistema abarca la gestión completa de pacientes, desde su registro inicial h
 
 **Flujo Principal:**
 1. Registrar nueva valoración
-   - Datos requeridos:
-     * Número de cita (auto-incrementable)
-     * Fecha
-     * Medidas corporales:
+   - Datos requeridos (organizados en pestañas):
+     * Antropométrica:
+       - Número de cita
+       - Fecha
        - Estatura
        - Peso
-       - IMC (calculado)
-       - % Grasa
-       - Medidas (cintura, tórax, etc.)
-     * Signos vitales:
-       - Tensión arterial
-       - Frecuencia cardíaca
-     * Pliegues cutáneos
-     * Última dieta
+       - Medidas (cintura, tórax, brazo, cadera, pierna, pantorrilla)
+       - Signos vitales (tensión arterial, frecuencia cardíaca)
+     * Plicometría:
+       - Pliegues (bícep, trícep, suprailiaco, subescapular, femoral)
+     * Bioimpedancia:
+       - Grasa (%)
+       - IMC (calculado automáticamente)
+       - Grasa Total
 
 2. Consultar valoraciones anteriores
 3. Registrar última dieta
+
+**Validaciones:**
+- El formulario implementa validación en tiempo real y al enviar.
+- Si faltan campos, el sistema cambia automáticamente a la pestaña correspondiente y enfoca el campo con error.
 
 ### UC-04: Gestión de Pagos
 **Actor Principal:** Nutriólogo

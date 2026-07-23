@@ -5,15 +5,17 @@ La interfaz de usuario combina plantillas **Jinja2** con **JavaScript nativo** y
 ## Interacción y Componentes
 *   **Plantillas (Jinja2):** Renderizan los datos del backend y estructuran el DOM.
 *   **JavaScript (Vanilla):** Utilizado para la lógica de interacción compleja, como la gestión de modales, validaciones de formularios en tiempo real y peticiones asíncronas (`fetch`).
-*   **Alpine.js:** Utilizado para componentes reactivos ligeros en la interfaz.
+*   **Alpine.js:** Utilizado para componentes reactivos ligeros en la interfaz, incluyendo la gestión de pestañas en formularios.
 
 ## Validaciones y Navegación
 El sistema implementa validaciones robustas para asegurar la integridad de los datos antes de enviarlos al servidor:
 
-1.  **Validación de Formularios:**
-    *   Se interceptan los eventos `submit` para validar campos requeridos.
+1.  **Validación de Formularios (Nueva Valoración):**
+    *   Se interceptan los eventos `submit` para validar todos los campos requeridos en las 3 pestañas (Antropométrica, Plicometría, Bioimpedancia).
+    *   Si falta un campo, el sistema cambia automáticamente a la pestaña oculta correspondiente.
     *   Se aplican estilos visuales (clases CSS) para indicar errores.
-    *   Se utiliza `.focus()` para dirigir al usuario al campo con error.
+    *   Se utiliza `.focus()` y `scrollIntoView()` para dirigir al usuario al campo con error.
+    *   Se muestra un banner de notificación claro en la parte superior.
 
 2.  **Gestión de Citas (Flujo de Validación):**
     *   Al hacer clic en "Registrar Próxima Cita", el frontend verifica si el paciente ya tiene una cita activa.

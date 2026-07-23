@@ -121,6 +121,16 @@ class ValoracionAntropometrica:
         ''', [limite])
 
     @staticmethod
+    def obtener_por_rango(fecha_inicio, fecha_fin):
+        return query_db('''
+            SELECT va.*, p.nombre, p.apellido_paterno 
+            FROM valoracion_antropometrica va
+            JOIN pacientes p ON va.paciente_id = p.id
+            WHERE va.fecha BETWEEN ? AND ?
+            ORDER BY va.fecha DESC
+        ''', [fecha_inicio, fecha_fin])
+
+    @staticmethod
     def obtener_por_id(valoracion_id):
         return query_db('SELECT * FROM valoracion_antropometrica WHERE id = ?', [valoracion_id], one=True)
 

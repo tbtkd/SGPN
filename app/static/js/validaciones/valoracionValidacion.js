@@ -119,16 +119,29 @@ export function validarFormularioValoracion(form, alpineData) {
         return false;
     }
 
-    // Validar fecha no futura
+    // Validar fecha: no futura y no mayor a 10 años atrás
     const fechaEl = document.getElementById('fecha');
-    if (fechaEl) {
+    if (fechaEl && fechaEl.value) {
         const fechaIngresada = new Date(fechaEl.value);
         const hoy = new Date();
+        
+        // Fecha hace 10 años
+        const haceDiezAnios = new Date();
+        haceDiezAnios.setFullYear(hoy.getFullYear() - 10);
+
         if (fechaIngresada > hoy) {
             fechaEl.classList.add('is-invalid');
             if (alpineData) alpineData.activeTab = 'antropometrica';
             fechaEl.focus();
             mostrarNotificacion("La fecha de valoración no puede ser futura.", "error");
+            return false;
+        }
+        
+        if (fechaIngresada < haceDiezAnios) {
+            fechaEl.classList.add('is-invalid');
+            if (alpineData) alpineData.activeTab = 'antropometrica';
+            fechaEl.focus();
+            mostrarNotificacion("La fecha de valoración no puede ser mayor a 10 años atrás.", "error");
             return false;
         }
     }

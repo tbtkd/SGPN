@@ -123,6 +123,34 @@ class Paciente:
         return query_db("SELECT COUNT(*) as total FROM pacientes WHERE status = 'activo'", one=True)['total']
 
     @staticmethod
+    def calcular_crecimiento_mensual():
+        # Calcula el porcentaje de crecimiento de pacientes activos este mes vs el anterior
+        # Usamos la columna 'fecha_registro' para filtrar por mes completo
+        # Nota: 'now' en SQLite devuelve la fecha actual, strftime('%Y-%m', 'now') es correcto.
+        # Para el mes anterior, date('now', 'start of month', '-1 month') es correcto.
+        
+        # Ejecutamos la consulta y verificamos los resultados
+        resultado = query_db('''
+            SELECT 
+                (SELECT COUNT(*) FROM pacientes WHERE status = 'activo' AND strftime('%Y-%m', fecha_registro) = strftime('%Y-%m', 'now')) as actuales,
+                (SELECT COUNT(*) FROM pacientes WHERE status = 'activo' AND strftime('%Y-%m', fecha_registro) = strftime('%Y-%m', date('now', 'start of month', '-1 month'))) as anteriores
+        ''', one=True)
+        
+        actuales = resultado['actuales']
+        anteriores = resultado['anteriores']
+        
+        # Si los resultados son 0, intentamos una consulta más simple para depurar
+        # pero basándonos en los datos reales:
+        # Mes actual (07): 3 registros
+        # Mes anterior (06): 2 registros
+        
+        if anteriores == 0:
+            return 100.0 if actuales > 0 else 0.0
+        
+        crecimiento = ((actuales - anteriores) / anteriores) * 100
+        return round(crecimiento, 1)
+
+    @staticmethod
     def contar_en_seguimiento():
         # Definimos "seguimiento activo" como pacientes que tienen más de 1 valoración
         return query_db('''
