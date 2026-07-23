@@ -30,7 +30,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500 font-medium">Fecha de Nacimiento</p>
-                <p class="text-lg font-semibold text-gray-900">{{ paciente['fecha_nacimiento'] }}</p>
+                <p class="text-lg font-semibold text-gray-900">{{ paciente['fecha_nacimiento']|format_date }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500 font-medium">Teléfono</p>
@@ -54,13 +54,24 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500 font-medium">Último pago</p>
-                <p class="text-lg font-semibold text-gray-900">{{ ultimo_pago['fecha_pago'] if ultimo_pago else 'No registrado' }}</p>
+                <p class="text-lg font-semibold text-gray-900">{{ ultimo_pago['fecha_pago']|format_date if ultimo_pago else 'No registrado' }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 font-medium">Siguiente cita</p>
+                <p class="text-sm text-gray-500 font-medium">Fecha de Siguiente Cita</p>
                 <p class="text-lg font-semibold text-gray-900">
                     {% if siguiente_cita and siguiente_cita > today %}
-                        {{ siguiente_cita.strftime('%Y-%m-%d %H:%M') }}
+                        {{ siguiente_cita.strftime('%Y-%m-%d')|format_date }}
+                    {% else %}
+                        ----
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Hora de Siguiente Cita</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {% if siguiente_cita and siguiente_cita > today %}
+                        {% set hora = siguiente_cita.strftime('%H:%M').split(':') %}
+                        {{ '%02d:%02d %s' % (hora[0]|int % 12 or 12, hora[1]|int, 'AM' if hora[0]|int < 12 else 'PM') }}
                     {% else %}
                         ----
                     {% endif %}
