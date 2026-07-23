@@ -199,6 +199,72 @@
     </div>
 </div>
 
-<!-- Modales (Excel, Cita, Confirmación) -->
-<!-- ... (Mantener la estructura de modales existente) ... -->
+<!-- Modales (Excel, Cita) -->
+<div x-data="{ modalExcelOpen: false, modalCitaOpen: false }" @open-excel-modal.window="modalExcelOpen = true" @open-cita-modal.window="modalCitaOpen = true">
+    <!-- Modal Excel -->
+    <div x-show="modalExcelOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
+        <div @click.away="modalExcelOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Importar desde Excel</h3>
+            <form action="{{ url_for('pacientes.cargar_excel', id=paciente['id']) }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ error: '' }">
+                <input type="file" name="file" accept=".xlsx, .xls" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" @change="error = ''">
+                <p x-show="error" class="text-sm text-red-600 bg-red-50 p-2 rounded-lg" x-text="error" x-cloak></p>
+                <div class="flex gap-4 mt-6">
+                    <button type="button" @click="modalExcelOpen = false; error = ''" class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">Cancelar</button>
+                    <button type="button" @click="if(!document.querySelector('input[name=file]').value) { error = 'Por favor, selecciona un archivo Excel antes de cargar.'; } else { $el.form.submit(); }" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700">Cargar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Cita -->
+    <div x-show="modalCitaOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
+        <div @click.away="modalCitaOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Agendar Próxima Cita</h3>
+            <form action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST" class="space-y-4" x-data="citaForm()">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Fecha:</label>
+                    <input type="date" name="proxima_cita_fecha" x-model="fecha" @change="actualizarDisponibilidad()" class="w-full border-gray-200 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Hora:</label>
+                    <select name="proxima_cita_hora" x-model="hora" class="w-full border-gray-200 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+                        <option value="">Seleccionar hora</option>
+                        {% for h in range(9, 20) %}
+                            {% set hora_str = '%02d:00' % h %}
+                            <option value="{{ hora_str }}" :disabled="horasOcupadas.includes('{{ hora_str }}')">
+                                {{ hora_str }} <template x-if="horasOcupadas.includes('{{ hora_str }}')">(Ocupado)</template>
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="button" @click="modalCitaOpen = false" class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">Cancelar</button>
+                    <button type="submit" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700">Agendar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('btnOpenExcelModal').addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-excel-modal'));
+    });
+    document.getElementById('btnOpenModal').addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-cita-modal'));
+    });
+
+    function citaForm() {
+        return {
+            fecha: '',
+            hora: '',
+            horasOcupadas: [],
+            async actualizarDisponibilidad() {
+                if (!this.fecha) return;
+                const response = await fetch(`{{ url_for('pacientes.disponibilidad_horas') }}?fecha=${this.fecha}`);
+                this.horasOcupadas = await response.json();
+            }
+        }
+    }
+</script>
 {% endblock %}
