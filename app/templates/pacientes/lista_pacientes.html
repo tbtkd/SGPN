@@ -3,50 +3,57 @@
 {% block title %}Lista de Pacientes{% endblock %}
 
 {% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Encabezado -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Lista de Pacientes {{ "Activos" if tipo_lista == "activos" else "Inactivos" }}</h1>
+    </div>
 
-
-<div class="table-container">
-    <header class="valoracion-header">
-        <h2 align = "center">Lista de Pacientes {{ "Activos" if tipo_lista == "activos" else "Inactivos" }}</h2>
-        <form action="{{ url_for('pacientes.lista_pacientes_' + tipo_lista) }}" method="get" class="search-form">
-            <input type="text" name="busqueda" placeholder="Buscar pacientes..." value="{{ busqueda }}">
-            <button type="submit">Buscar</button>
+    <!-- Buscador -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <form action="{{ url_for('pacientes.lista_pacientes_' + tipo_lista) }}" method="get" class="flex gap-4">
+            <input type="text" name="busqueda" placeholder="Buscar pacientes..." value="{{ busqueda }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+            <button type="submit" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition">
+                <i class="fas fa-search mr-2"></i> Buscar
+            </button>
         </form>
-    </header>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="table__header">Nombre</th>
-                <th class="table__header">Apellidos</th>
-                <th class="table__header">Correo</th>
-                <th class="table__header">Ciudad</th>
-                <th class="table__header">Estatus</th>
-                <th class="table__header">Detalle del paciente</th>
-                <th class="table__header">Actualizar paciente</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for paciente in pacientes %}
-            <tr>
-                <td class="table__cell">{{ paciente['nombre'] }}</td>
-                <td class="table__cell">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
-                <td class="table__cell">{{ paciente['correo'] }}</td>
-                <td class="table__cell">{{ paciente['ciudad'] }}</td>
-                <td class="table__cell">{{ paciente['status'] }}</td>             
-                <td class="table__cell">
-                    <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="action-button">Consultar</a>
-
-                    <!--<a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="action-button">Historial Clínico</a>
-                    <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="action-button">Nueva Valoración</a>-->
-                </td>
-                <td class="table__cell">
-                    <a href="{{ url_for('pacientes.editar_paciente', id=paciente['id']) }}" class="action-button">Actualizar Paciente</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Tabla -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Nombre</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Apellidos</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Correo</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Ciudad</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Estatus</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for paciente in pacientes %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['nombre'] }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['correo'] }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['ciudad'] }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{{ paciente['status'] }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="px-3 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition">Consultar</a>
+                                <a href="{{ url_for('pacientes.editar_paciente', id=paciente['id']) }}" class="px-3 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition">Editar</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}
-
