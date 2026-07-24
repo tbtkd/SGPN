@@ -85,9 +85,15 @@
         <a href="{{ url_for('valoracion.nueva_valoracion', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition">
             <i class="fas fa-plus-circle"></i> Nueva Valoración
         </a>
-        <a href="{{ url_for('valoracion.lista_valoraciones', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
-            <i class="fas fa-weight"></i> Ver Valoraciones
+        {% if ultima_valoracion %}
+        <a href="{{ url_for('valoracion.detalle_valoracion', valoracion_id=ultima_valoracion['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
+            <i class="fas fa-eye"></i> Última Valoración
         </a>
+        {% else %}
+        <button disabled class="flex items-center justify-center gap-2 p-4 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-medium cursor-not-allowed">
+            <i class="fas fa-eye-slash"></i> Sin Valoraciones
+        </button>
+        {% endif %}
         <a href="{{ url_for('historial_clinico.ver_crear_historial', paciente_id=paciente['id']) }}" class="flex items-center justify-center gap-2 p-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition">
             <i class="fas fa-notes-medical"></i> Historial Clínico
         </a>
