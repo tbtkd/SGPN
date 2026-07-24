@@ -125,7 +125,9 @@ def detalle_paciente(id):
     if siguiente_cita_data:
         fecha_str = siguiente_cita_data['fecha']
         hora_str = siguiente_cita_data['hora']
-        siguiente_cita = datetime.strptime(f"{fecha_str} {hora_str}", '%Y-%m-%d %H:%M')
+        # Asegurar que la hora solo tenga HH:MM
+        hora_limpia = ":".join(hora_str.split(':')[:2])
+        siguiente_cita = datetime.strptime(f"{fecha_str} {hora_limpia}", '%Y-%m-%d %H:%M')
 
     today = datetime.now()
     return render_template('pacientes/detalle_paciente.html', 

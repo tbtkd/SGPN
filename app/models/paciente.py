@@ -184,15 +184,19 @@ class Paciente:
     @staticmethod
     def obtener_sin_valoracion_reciente(dias=30):
         return query_db('''
-            SELECT p.id, p.nombre, p.apellido_paterno
+            SELECT 
+                p.id, 
+                p.nombre, 
+                p.apellido_paterno,
+                MAX(v.fecha) as ultima_valoracion,
+                (julianday('now') - julianday(MAX(v.fecha))) as dias_transcurridos
             FROM pacientes p
+            JOIN valoracion_antropometrica v ON p.id = v.paciente_id
             WHERE p.status = 'activo'
-            AND p.id NOT IN (
-                SELECT paciente_id 
-                FROM valoracion_antropometrica 
-                WHERE fecha >= date('now', ? || ' days')
-            )
-        ''', [f'-{dias}'])
+            GROUP BY p.id
+            HAVING dias_transcurridos > ?
+            ORDER BY dias_transcurridos DESC
+        ''', [dias])
 
     @staticmethod
     def obtener_pendientes_reagendamiento():
