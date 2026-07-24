@@ -166,15 +166,20 @@ class Paciente:
         ''', one=True)['total']
 
     @staticmethod
-    def obtener_proximos():
-        # Consulta corregida para obtener solo las citas del día actual
+    def obtener_proximos(fecha=None):
+        # Consulta corregida para obtener citas de una fecha específica (o hoy)
+        # Excluye pacientes que ya tienen una valoración en esa fecha
+        fecha = fecha or datetime.now().strftime('%Y-%m-%d')
         return query_db('''
             SELECT p.id as paciente_id, p.nombre, p.apellido_paterno, (c.fecha || ' ' || c.hora) as proxima_cita
             FROM pacientes p
             JOIN citas c ON p.id = c.paciente_id
-            WHERE c.fecha = date('now')
+            WHERE c.fecha = ?
+            AND p.id NOT IN (
+                SELECT paciente_id FROM valoracion_antropometrica WHERE fecha = ?
+            )
             ORDER BY c.hora ASC
-        ''')
+        ''', [fecha, fecha])
 
     @staticmethod
     def obtener_sin_valoracion_reciente(dias=30):

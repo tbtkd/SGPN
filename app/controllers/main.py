@@ -25,7 +25,10 @@ def index():
     
     pacientes_seguimiento = Paciente.contar_en_seguimiento()
     pacientes_sin_valoracion = Paciente.obtener_sin_valoracion_reciente(dias=30)
-    proximos_pacientes = Paciente.obtener_proximos()
+    
+    fecha_filtro = request.args.get('fecha_proximos')
+    proximos_pacientes = Paciente.obtener_proximos(fecha=fecha_filtro)
+    
     pendientes_reagendamiento = Paciente.obtener_pendientes_reagendamiento()
     
     # Si hay filtro de fechas, obtener actividad filtrada
