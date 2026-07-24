@@ -96,8 +96,16 @@ def detalle_valoracion(valoracion_id):
     paciente = Paciente.obtener_por_id(valoracion['paciente_id'])
     historial_valoraciones = ValoracionAntropometrica.obtener_por_paciente(valoracion['paciente_id'])
     
+    # Encontrar la valoración anterior
+    valoracion_anterior = None
+    for i, v in enumerate(historial_valoraciones):
+        if v['id'] == valoracion_id and i + 1 < len(historial_valoraciones):
+            valoracion_anterior = historial_valoraciones[i + 1]
+            break
+    
     return render_template('valoraciones/detalle_valoracion.html', 
                             valoracion=valoracion, 
+                            valoracion_anterior=valoracion_anterior,
                             paciente=paciente,
                             historial_valoraciones=historial_valoraciones)
 

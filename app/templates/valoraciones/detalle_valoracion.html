@@ -45,13 +45,31 @@
     </div>
 
     <!-- Mapa Antropométrico -->
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8" x-data="{ hovered: null, ultima_valoracion: {{ dict(valoracion)|tojson }}, valoracion_anterior: null }">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8" 
+         x-data="{ 
+            hovered: null, 
+            ultima_valoracion: {{ dict(valoracion)|tojson }}, 
+            valoracion_anterior: {{ dict(valoracion_anterior)|tojson if valoracion_anterior else 'null' }} 
+         }">
+        
         <h2 class="text-xl font-bold text-gray-900 mb-6">🧍 Mapa Antropométrico</h2>
+        
+        {% if valoracion_anterior %}
+        <div class="mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-teal-800">📊 Comparativa vs Consulta Anterior ({{ valoracion_anterior.fecha|format_date }})</h3>
+            <div class="flex gap-4 text-xs">
+                <span class="text-teal-700">Peso: {{ (valoracion.peso|float - valoracion_anterior.peso|float)|round(1) }} kg</span>
+                <span class="text-teal-700">% Grasa: {{ (valoracion.porcentaje_grasa|float - valoracion_anterior.porcentaje_grasa|float)|round(1) }}%</span>
+                <span class="text-teal-700">Cintura: {{ (valoracion.cintura|float - valoracion_anterior.cintura|float)|round(1) }} cm</span>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Datos -->
             <div class="w-full flex flex-col justify-center items-center p-4 bg-gray-50/50 rounded-2xl relative min-h-[360px]">
                 <div class="relative w-full h-auto">
-                    {% with ultima_valoracion=valoracion, valoracion_anterior=None %}
+                    {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
                         {% include 'components/body_map.html' %}
                     {% endwith %}
                 </div>                

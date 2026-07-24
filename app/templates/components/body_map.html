@@ -1,16 +1,18 @@
 <div x-data="{ 
     hovered: null,
     getDiff(current, previous) {
-        if (previous === undefined || previous === null || current === undefined || current === null) return '';
+        if (previous === undefined || previous === null || current === undefined || current === null) return 'Sin datos';
         const diff = (current - previous);
-        if (Math.abs(diff) < 0.01) return '';
+        if (Math.abs(diff) < 0.01) return 'Sin cambios';
         return diff > 0 ? `↑ ${diff.toFixed(1)}` : `↓ ${Math.abs(diff).toFixed(1)}`;
     },
     getDiffClass(current, previous) {
         if (previous === undefined || previous === null || current === undefined || current === null) return 'text-gray-500';
         const diff = current - previous;
-        if (Math.abs(diff) < 0.01) return 'text-gray-500';
-        return diff < 0 ? 'text-teal-600' : 'text-red-600';
+        if (Math.abs(diff) < 0.01) return 'bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded text-xs font-normal';
+        return diff < 0 
+            ? 'bg-teal-50 text-teal-700 border border-teal-200 px-1.5 py-0.5 rounded text-xs font-medium' 
+            : 'bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded text-xs font-medium';
     }
 }" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     
@@ -75,11 +77,17 @@
                         {% for campo in ['torax', 'cintura', 'cadera', 'brazo', 'pierna', 'pantorrilla'] %}
                         <li class="flex justify-between">
                             <span class="capitalize text-gray-600">{{ campo }}:</span>
-                            <span class="font-medium">{{ ultima_valoracion[campo] or 'N/A' }} 
-                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none and (ultima_valoracion[campo] - valoracion_anterior[campo])|abs >= 0.1 %}
-                                    <span class="text-xs {{ 'text-teal-600' if ultima_valoracion[campo] < valoracion_anterior[campo] else 'text-red-600' }}">
-                                        ({{ '↓' if ultima_valoracion[campo] < valoracion_anterior[campo] else '↑' }} {{ (ultima_valoracion[campo] - valoracion_anterior[campo])|abs|round(1) }})
-                                    </span>
+                            <span class="font-medium flex items-center gap-2">
+                                {{ ultima_valoracion[campo] or 'N/A' }} 
+                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none %}
+                                    {% set diff = ultima_valoracion[campo] - valoracion_anterior[campo] %}
+                                    {% if diff|abs >= 0.01 %}
+                                        <span class="{{ 'bg-teal-50 text-teal-700 border border-teal-200' if diff < 0 else 'bg-amber-50 text-amber-700 border border-amber-200' }} px-1.5 py-0.5 rounded text-xs font-medium">
+                                            {{ '↓' if diff < 0 else '↑' }} {{ diff|abs|round(1) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded text-xs font-normal">Sin cambio</span>
+                                    {% endif %}
                                 {% endif %}
                             </span>
                         </li>
@@ -93,11 +101,17 @@
                         {% if campo != 'femoral' or paciente.sexo == 'Femenino' or ultima_valoracion.femoral %}
                         <li class="flex justify-between">
                             <span class="capitalize text-gray-600">{{ campo }}:</span>
-                            <span class="font-medium">{{ ultima_valoracion[campo] or 'N/A' }}
-                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none and (ultima_valoracion[campo] - valoracion_anterior[campo])|abs >= 0.1 %}
-                                    <span class="text-xs {{ 'text-teal-600' if ultima_valoracion[campo] < valoracion_anterior[campo] else 'text-red-600' }}">
-                                        ({{ '↓' if ultima_valoracion[campo] < valoracion_anterior[campo] else '↑' }} {{ (ultima_valoracion[campo] - valoracion_anterior[campo])|abs|round(1) }})
-                                    </span>
+                            <span class="font-medium flex items-center gap-2">
+                                {{ ultima_valoracion[campo] or 'N/A' }}
+                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none %}
+                                    {% set diff = ultima_valoracion[campo] - valoracion_anterior[campo] %}
+                                    {% if diff|abs >= 0.01 %}
+                                        <span class="{{ 'bg-teal-50 text-teal-700 border border-teal-200' if diff < 0 else 'bg-amber-50 text-amber-700 border border-amber-200' }} px-1.5 py-0.5 rounded text-xs font-medium">
+                                            {{ '↓' if diff < 0 else '↑' }} {{ diff|abs|round(1) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded text-xs font-normal">Sin cambio</span>
+                                    {% endif %}
                                 {% endif %}
                             </span>
                         </li>
