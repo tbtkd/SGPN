@@ -20,11 +20,12 @@ def generate_dummy_data():
         nombre = f"Paciente_{i}"
         apellido_paterno = f"ApellidoP_{i}"
         apellido_materno = f"ApellidoM_{i}"
+        genero = "hombre" if i % 2 == 0 else "mujer"
         
         cursor.execute("""
-            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, fecha_nacimiento, telefono, correo, ciudad, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (nombre, apellido_paterno, apellido_materno, "1990-01-01", f"555000{i:03d}", f"paciente{i}@example.com", "Ciudad de México", "activo"))
+            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (nombre, apellido_paterno, apellido_materno, genero, "1990-01-01", f"555000{i:03d}", f"paciente{i}@example.com", "Ciudad de México", "activo"))
         paciente_id = cursor.lastrowid
 
         # Historial clínico
@@ -61,22 +62,24 @@ def generate_dummy_data():
         nombre = f"Inactivo_{i}"
         apellido_paterno = f"ApellidoP_{i}"
         apellido_materno = f"ApellidoM_{i}"
+        genero = "hombre" if i % 2 == 0 else "mujer"
         
         cursor.execute("""
-            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, fecha_nacimiento, telefono, correo, ciudad, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (nombre, apellido_paterno, apellido_materno, "1990-01-01", f"555999{i:03d}", f"inactivo{i}@example.com", "Ciudad de México", "inactivo"))
+            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (nombre, apellido_paterno, apellido_materno, genero, "1990-01-01", f"555999{i:03d}", f"inactivo{i}@example.com", "Ciudad de México", "inactivo"))
 
     # 4. Generar 10 registros para próximas citas
     for i in range(1, 11):
         nombre = f"ProximaCita_{i}"
         apellido_paterno = f"ApellidoP_{i}"
         apellido_materno = f"ApellidoM_{i}"
+        genero = "hombre" if i % 2 == 0 else "mujer"
         
         cursor.execute("""
-            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, fecha_nacimiento, telefono, correo, ciudad, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (nombre, apellido_paterno, apellido_materno, "1990-01-01", f"555888{i:03d}", f"proximacita{i}@example.com", "Ciudad de México", "activo"))
+            INSERT INTO pacientes (nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (nombre, apellido_paterno, apellido_materno, genero, "1990-01-01", f"555888{i:03d}", f"proximacita{i}@example.com", "Ciudad de México", "activo"))
         paciente_id = cursor.lastrowid
         
         # Cita futura

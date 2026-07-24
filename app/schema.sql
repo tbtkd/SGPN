@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS pacientes (
     nombre TEXT NOT NULL,
     apellido_paterno TEXT NOT NULL,
     apellido_materno TEXT NOT NULL,
+    genero TEXT NOT NULL CHECK (genero IN ('hombre', 'mujer')),
     fecha_nacimiento DATE NOT NULL,
     telefono TEXT NOT NULL,
     correo TEXT UNIQUE NOT NULL,

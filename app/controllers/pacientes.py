@@ -28,6 +28,7 @@ def nuevo_paciente():
                 request.form['nombre'],
                 request.form['apellido_paterno'],
                 request.form['apellido_materno'],
+                request.form['genero'],
                 request.form['fecha_nacimiento'],
                 telefono,
                 request.form['correo'],
@@ -77,7 +78,7 @@ def detalle_paciente(id):
     paciente = Paciente.obtener_por_id(id)
     if paciente is None:
         flash('Paciente no encontrado', 'error')
-        return redirect(url_for('pacientes.lista_pacientes'))
+        return redirect(url_for('pacientes.lista_pacientes_activos'))
     
     if request.method == 'POST':
         if 'fecha_pago' in request.form:
@@ -101,23 +102,7 @@ def detalle_paciente(id):
 
     ultimo_pago = Pago.obtener_ultimo_pago(id)
     historial = HistorialClinico.obtener_por_paciente_id(id)
-    ultima_valoracion = ValoracionAntropometrica.obtener_ultima_por_paciente(id)
-
-    # Verificar si se debe mostrar la cita existente
-    cita_id = request.args.get('cita_id', None)
-    cita = None
-    if cita_id:
-        cita = Cita.obtener_por_id(cita_id)
-
-    # Obtener la siguiente cita
-    siguiente_cita_data = Cita.obtener_siguiente_cita(id)
-    siguiente_cita = None
-    if siguiente_cita_data:
-        # siguiente_cita_data es un dict con 'fecha' y 'hora'
-        fecha_str = siguiente_cita_data['fecha']
-        hora_str = siguiente_cita_data['hora']
-        siguiente_cita = datetime.strptime(f"{fecha_str} {hora_str}", '%Y-%m-%d %H:%M')
-
+    
     # Lógica para Mapa Corporal
     valoraciones = ValoracionAntropometrica.obtener_por_paciente(id)
     ultima_valoracion = valoraciones[0] if len(valoraciones) > 0 else None
@@ -134,6 +119,14 @@ def detalle_paciente(id):
                 tendencia = 'aumento' if diff > 0 else ('reduccion' if diff < 0 else 'sin_cambio')
                 diferencias[campo] = {'valor': diff, 'tendencia': tendencia}
 
+    # Obtener la siguiente cita
+    siguiente_cita_data = Cita.obtener_siguiente_cita(id)
+    siguiente_cita = None
+    if siguiente_cita_data:
+        fecha_str = siguiente_cita_data['fecha']
+        hora_str = siguiente_cita_data['hora']
+        siguiente_cita = datetime.strptime(f"{fecha_str} {hora_str}", '%Y-%m-%d %H:%M')
+
     today = datetime.now()
     return render_template('pacientes/detalle_paciente.html', 
                             paciente=paciente, 
@@ -142,7 +135,6 @@ def detalle_paciente(id):
                             ultima_valoracion=ultima_valoracion,
                             valoracion_anterior=valoracion_anterior,
                             diferencias=diferencias,
-                            cita=cita,
                             siguiente_cita=siguiente_cita,
                             today=today)
 
@@ -166,6 +158,7 @@ def editar_paciente(id):
                 request.form['nombre'],
                 request.form['apellido_paterno'],
                 request.form['apellido_materno'],
+                request.form['genero'],
                 request.form['fecha_nacimiento'],
                 telefono,
                 request.form['correo'],

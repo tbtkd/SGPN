@@ -4,13 +4,14 @@ import sqlite3
 
 class Paciente:
     @staticmethod
-    def crear(nombre, apellido_paterno, apellido_materno, fecha_nacimiento, telefono, correo, ciudad):
+    def crear(nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad):
         """
         Crea un nuevo paciente en la base de datos
         Args:
             nombre (str): Nombre del paciente
             apellido_paterno (str): Apellido paterno del paciente
             apellido_materno (str): Apellido materno del paciente
+            genero (str): Género del paciente (hombre/mujer)
             fecha_nacimiento (str): Fecha de nacimiento del paciente
             telefono (str): Teléfono del paciente
             correo (str): Correo electrónico del paciente
@@ -23,10 +24,10 @@ class Paciente:
             db = get_db()
             db.execute(
                 '''INSERT INTO pacientes (
-                    nombre, apellido_paterno, apellido_materno, fecha_nacimiento, 
+                    nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, 
                     telefono, correo, ciudad, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'activo')''',
-                [nombre, apellido_paterno, apellido_materno, fecha_nacimiento, 
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'activo')''',
+                [nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, 
                  telefono, correo, ciudad]
             )
             db.commit()
@@ -51,7 +52,7 @@ class Paciente:
         return query_db('SELECT * FROM pacientes WHERE id = ?', [id], one=True)
 
     @staticmethod
-    def actualizar(id, nombre, apellido_paterno, apellido_materno, fecha_nacimiento, telefono, correo, ciudad, status):
+    def actualizar(id, nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad, status):
         """
         Actualiza los datos de un paciente
         Args:
@@ -59,6 +60,7 @@ class Paciente:
             nombre (str): Nombre del paciente
             apellido_paterno (str): Apellido paterno
             apellido_materno (str): Apellido materno
+            genero (str): Género
             fecha_nacimiento (str): Fecha de nacimiento
             telefono (str): Teléfono
             correo (str): Correo electrónico
@@ -70,10 +72,10 @@ class Paciente:
             db.execute('''
                 UPDATE pacientes 
                 SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, 
-                    fecha_nacimiento = ?, telefono = ?, correo = ?, ciudad = ?, 
-                    status = ?
+                    genero = ?, fecha_nacimiento = ?, telefono = ?, correo = ?, 
+                    ciudad = ?, status = ?
                 WHERE id = ?
-            ''', [nombre, apellido_paterno, apellido_materno, fecha_nacimiento,
+            ''', [nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento,
                   telefono, correo, ciudad, status, id])
             db.commit()
         except Exception as e:

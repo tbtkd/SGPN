@@ -46,6 +46,16 @@
                            value="{{ paciente['apellido_materno'] }}">
                 </div>
 
+                <!-- Género -->
+                <div class="space-y-2">
+                    <label for="genero" class="block text-sm font-medium text-gray-700">Género</label>
+                    <select id="genero" name="genero" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                        <option value="hombre" {% if paciente['genero'] == 'hombre' %}selected{% endif %}>Hombre</option>
+                        <option value="mujer" {% if paciente['genero'] == 'mujer' %}selected{% endif %}>Mujer</option>
+                    </select>
+                </div>
+
                 <!-- Fecha de Nacimiento -->
                 <div class="space-y-2">
                     <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
