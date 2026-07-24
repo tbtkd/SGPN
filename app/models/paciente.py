@@ -166,16 +166,15 @@ class Paciente:
         ''', one=True)['total']
 
     @staticmethod
-    def obtener_proximos(limite=5):
-        # Consulta corregida usando los campos 'fecha' y 'hora' de la tabla 'citas'
+    def obtener_proximos():
+        # Consulta corregida para obtener solo las citas del día actual
         return query_db('''
             SELECT p.id as paciente_id, p.nombre, p.apellido_paterno, (c.fecha || ' ' || c.hora) as proxima_cita
             FROM pacientes p
             JOIN citas c ON p.id = c.paciente_id
-            WHERE (c.fecha || ' ' || c.hora) >= datetime('now')
-            ORDER BY c.fecha ASC, c.hora ASC
-            LIMIT ?
-        ''', [limite])
+            WHERE c.fecha = date('now')
+            ORDER BY c.hora ASC
+        ''')
 
     @staticmethod
     def obtener_sin_valoracion_reciente(dias=30):
