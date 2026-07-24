@@ -17,48 +17,41 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex"
-      x-data="{ 
-        sidebarOpen: localStorage.getItem('sidebar_state') === 'true',
-        mobileOpen: false,
-        toggleSidebar() {
-            this.sidebarOpen = !this.sidebarOpen;
-            localStorage.setItem('sidebar_state', this.sidebarOpen);
-        }
-      }">
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex" x-data="{ sidebarOpen: true }">
 
-    <!-- 1. SIDEBAR (Izquierda) -->
-    <aside class="w-20 lg:w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 transition-all duration-300"
-           :class="mobileOpen ? 'fixed inset-y-0 left-0 z-50 translate-x-0' : '-translate-x-full lg:translate-x-0'">
-        
-        <!-- Contenido del Sidebar -->
-        <div class="flex-1 p-4">
-            <div class="h-16 flex items-center justify-between px-2 mb-6">
-                <img src="{{ url_for('static', filename='img/logos/logo.png') }}" alt="Logo" class="h-8 w-auto">
-                <button @click="toggleSidebar()" class="hidden lg:block text-gray-500 hover:text-teal-600">
-                    <i class="fas fa-bars"></i>
-                </button>
+    <!-- 2. ESTRUCTURA DEL SIDEBAR FIJO -->
+    <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-30">
+
+        <!-- A. CABECERA DEL SIDEBAR -->
+        <div class="p-4 flex items-center justify-between border-b border-gray-50">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <img src="{{ url_for('static', filename='img/logos/logo.png') }}" alt="Logo" class="h-8 w-auto" x-show="sidebarOpen">
+                <img src="{{ url_for('static', filename='img/icons/logo.ico') }}" alt="Logo" class="h-8 w-auto" x-show="!sidebarOpen">
             </div>
-            
-            <!-- Menú de navegación -->
-            <nav class="space-y-2">
-                <a href="{{ url_for('main.index') }}" class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded-xl transition-colors">
-                    <i class="fas fa-th-large text-xl"></i>
-                    <span class="hidden lg:inline font-medium">Inicio</span>
-                </a>
-            </nav>
+            <!-- Botón Toggle -->
+            <button @click="sidebarOpen = !sidebarOpen" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                <span x-text="sidebarOpen ? '◀' : '▶'"></span>
+            </button>
         </div>
 
-        <!-- FOOTER DEL SIDEBAR (Botón Salir) -->
-        <div class="p-4 border-t border-gray-100">
-            <a href="{{ url_for('auth.logout') }}" class="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm transition-colors">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="hidden lg:inline">Salir</span>
+        <!-- B. MENÚ DE NAVEGACIÓN -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+            <a href="{{ url_for('main.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                <i class="fas fa-th-large text-lg"></i>
+                <span x-show="sidebarOpen" class="font-medium text-sm">Inicio</span>
+            </a>
+        </nav>
+
+        <!-- C. FOOTER DEL SIDEBAR -->
+        <div class="p-4 border-t border-gray-100 bg-white">
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 text-red-600 hover:text-red-700 font-semibold text-sm transition-colors">
+                <span class="text-lg">🚪</span>
+                <span x-show="sidebarOpen">Salir</span>
             </a>
         </div>
     </aside>
 
-    <!-- 2. CONTENIDO PRINCIPAL (Derecha) -->
+    <!-- 3. CONTENIDO PRINCIPAL DERECHO -->
     <div class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
         <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {% with messages = get_flashed_messages(with_categories=true) %}
