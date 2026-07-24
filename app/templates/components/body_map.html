@@ -75,7 +75,9 @@
                     <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Perímetros (cm)</h3>
                     <ul class="space-y-2 text-sm">
                         {% for campo in ['torax', 'cintura', 'cadera', 'brazo', 'pierna', 'pantorrilla'] %}
-                        <li class="flex justify-between">
+                        <li @mouseover="hovered = '{{ campo }}'" @mouseleave="hovered = null"
+                            :class="hovered === '{{ campo }}' ? 'bg-teal-50/80 text-teal-900 font-semibold scale-[1.02] shadow-sm px-2 py-1 rounded-lg border-l-4 border-teal-500' : 'px-2 py-1 transition-all duration-200'"
+                            class="flex justify-between cursor-pointer">
                             <span class="capitalize text-gray-600">{{ campo }}:</span>
                             <span class="font-medium flex items-center gap-2">
                                 {{ ultima_valoracion[campo] or 'N/A' }} 
@@ -99,7 +101,9 @@
                     <ul class="space-y-2 text-sm">
                         {% for campo in ['bicep', 'tricep', 'suprailiaco', 'subescapular', 'femoral'] %}
                         {% if campo != 'femoral' or paciente.sexo == 'Femenino' or ultima_valoracion.femoral %}
-                        <li class="flex justify-between">
+                        <li @mouseover="hovered = '{{ campo }}'" @mouseleave="hovered = null"
+                            :class="hovered === '{{ campo }}' ? 'bg-teal-50/80 text-teal-900 font-semibold scale-[1.02] shadow-sm px-2 py-1 rounded-lg border-l-4 border-teal-500' : 'px-2 py-1 transition-all duration-200'"
+                            class="flex justify-between cursor-pointer">
                             <span class="capitalize text-gray-600">{{ campo }}:</span>
                             <span class="font-medium flex items-center gap-2">
                                 {{ ultima_valoracion[campo] or 'N/A' }}
