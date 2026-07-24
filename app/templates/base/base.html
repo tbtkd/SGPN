@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-900"
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex"
       x-data="{ 
         sidebarOpen: localStorage.getItem('sidebar_state') === 'true',
         mobileOpen: false,
@@ -27,61 +27,53 @@
         }
       }">
 
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'w-64' : 'w-20'" 
-               class="fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col"
-               :class="mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
-            
-            <!-- Header -->
-            <div class="h-20 flex items-center justify-between px-4 border-b border-gray-100">
-                <img src="{{ url_for('static', filename='img/logos/logo.png') }}" 
-                     alt="Logo" 
-                     class="h-10 w-auto"
-                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/logos/default-logo.png') }}'">
-                <button @click="toggleSidebar()" class="text-gray-500 hover:text-teal-600 transition-transform duration-300" :class="sidebarOpen ? '' : 'rotate-180'">
-                    <i class="fas fa-chevron-left"></i>
+    <!-- 1. SIDEBAR (Izquierda) -->
+    <aside class="w-20 lg:w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 transition-all duration-300"
+           :class="mobileOpen ? 'fixed inset-y-0 left-0 z-50 translate-x-0' : '-translate-x-full lg:translate-x-0'">
+        
+        <!-- Contenido del Sidebar -->
+        <div class="flex-1 p-4">
+            <div class="h-16 flex items-center justify-between px-2 mb-6">
+                <img src="{{ url_for('static', filename='img/logos/logo.png') }}" alt="Logo" class="h-8 w-auto">
+                <button @click="toggleSidebar()" class="hidden lg:block text-gray-500 hover:text-teal-600">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 py-6 space-y-2">
-                <a href="{{ url_for('main.index') }}" 
-                   class="flex items-center px-6 py-3 text-gray-600 hover:bg-teal-50 hover:text-teal-700 transition-colors relative group">
+            
+            <!-- Menú de navegación -->
+            <nav class="space-y-2">
+                <a href="{{ url_for('main.index') }}" class="flex items-center gap-4 px-4 py-3 text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded-xl transition-colors">
                     <i class="fas fa-th-large text-xl"></i>
-                    <span x-show="sidebarOpen" class="ml-4 font-medium">Inicio</span>
-                    <span x-show="!sidebarOpen" class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Inicio</span>
+                    <span class="hidden lg:inline font-medium">Inicio</span>
                 </a>
             </nav>
+        </div>
 
-            <!-- Footer -->
-            <footer class="p-6 border-t border-gray-100">
-                <a href="{{ url_for('auth.logout') }}" class="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm transition-colors">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span x-show="sidebarOpen">Salir</span>
-                </a>
-            </footer>
-        </aside>
+        <!-- FOOTER DEL SIDEBAR (Botón Salir) -->
+        <div class="p-4 border-t border-gray-100">
+            <a href="{{ url_for('auth.logout') }}" class="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm transition-colors">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="hidden lg:inline">Salir</span>
+            </a>
+        </div>
+    </aside>
 
-        <!-- Overlay Mobile -->
-        <div x-show="mobileOpen" @click="mobileOpen = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"></div>
-
-        <!-- Main Content -->
-        <main class="flex-1 transition-all duration-300" :class="sidebarOpen ? 'md:ml-64' : 'md:ml-20'">
-            <div class="p-8">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" class="mb-6 p-4 rounded-xl {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                {% block content %}{% endblock %}
-            </div>
+    <!-- 2. CONTENIDO PRINCIPAL (Derecha) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
+        <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-6 p-4 rounded-xl {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
         </main>
     </div>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>
