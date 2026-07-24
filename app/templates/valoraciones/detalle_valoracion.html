@@ -56,48 +56,8 @@
                     {% endwith %}
                 </div>
             </div>
-            <!-- Columna Derecha: Datos -->
-            <div class="w-full lg:w-7/12">
-                <!-- Signos Vitales -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Presión Arterial</p>
-                        <p class="text-xl font-bold text-gray-900">{{ valoracion.tension_arterial or 'N/A' }} <span class="text-sm font-normal text-gray-500">mmHg</span></p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Frecuencia Cardíaca</p>
-                        <p class="text-xl font-bold text-gray-900">{{ valoracion.frecuencia_cardiaca or 'N/A' }} <span class="text-sm font-normal text-gray-500">ppm</span></p>
-                    </div>
-                </div>
-                <!-- Perímetros y Pliegues -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Perímetros (cm)</h3>
-                        <ul class="space-y-2 text-sm">
-                            {% for campo in ['torax', 'cintura', 'cadera', 'brazo', 'pierna', 'pantorrilla'] %}
-                            <li class="flex justify-between p-2 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer" @mouseover="hovered = '{{ campo }}'" @mouseleave="hovered = null">
-                                <span class="capitalize text-gray-600">{{ campo }}:</span>
-                                <span class="font-medium">{{ valoracion[campo] or 'N/A' }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Pliegues (mm)</h3>
-                        <ul class="space-y-2 text-sm">
-                            {% for campo in ['bicep', 'tricep', 'suprailiaco', 'subescapular', 'femoral'] %}
-                            {% if campo != 'femoral' or valoracion.femoral %}
-                            <li class="flex justify-between p-2 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer" @mouseover="hovered = '{{ campo }}'" @mouseleave="hovered = null">
-                                <span class="capitalize text-gray-600">{{ campo }}:</span>
-                                <span class="font-medium">{{ valoracion[campo] or 'N/A' }}</span>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
+
     </div>
 
     <!-- Historial -->
