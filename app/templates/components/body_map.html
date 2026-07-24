@@ -1,0 +1,111 @@
+<div x-data="{ 
+    hovered: null,
+    getDiff(current, previous) {
+        if (previous === undefined || previous === null || current === undefined || current === null) return '';
+        const diff = (current - previous);
+        if (Math.abs(diff) < 0.01) return '';
+        return diff > 0 ? `↑ ${diff.toFixed(1)}` : `↓ ${Math.abs(diff).toFixed(1)}`;
+    },
+    getDiffClass(current, previous) {
+        if (previous === undefined || previous === null || current === undefined || current === null) return 'text-gray-500';
+        const diff = current - previous;
+        if (Math.abs(diff) < 0.01) return 'text-gray-500';
+        return diff < 0 ? 'text-teal-600' : 'text-red-600';
+    }
+}" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Mapa Corporal SVG -->
+        <div class="relative w-full lg:w-1/2 flex justify-center items-center">
+            <svg viewBox="0 0 200 400" class="w-full max-w-[220px] h-[320px] mx-auto block fill-gray-200 stroke-white stroke-[2px]">
+                <g id="cuerpo" class="transition-all duration-300">
+                    <!-- Regiones para Perímetros -->
+                    <path id="cabeza" @mouseover="hovered = 'cabeza'" @mouseleave="hovered = null" d="M 100,15 C 112,15 120,25 120,40 C 120,55 112,65 100,65 C 88,65 80,55 80,40 C 80,25 88,15 100,15 Z M 93,65 L 107,65 L 108,78 L 92,78 Z" :class="hovered === 'cabeza' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="torax" @mouseover="hovered = 'torax'" @mouseleave="hovered = null" d="M 92,78 L 108,78 C 122,81 138,91 142,108 L 138,146 L 62,146 L 58,108 C 62,91 78,81 92,78 Z" :class="hovered === 'torax' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="bicep" @mouseover="hovered = 'bicep'" @mouseleave="hovered = null" d="M 58,108 L 44,114 C 40,131 38,156 36,181 L 50,181 C 53,161 57,136 62,108 Z" :class="hovered === 'bicep' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="tricep" @mouseover="hovered = 'tricep'" @mouseleave="hovered = null" d="M 142,108 L 156,114 C 160,131 162,156 164,181 L 150,181 C 147,161 143,136 138,108 Z" :class="hovered === 'tricep' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="cintura" @mouseover="hovered = 'cintura'" @mouseleave="hovered = null" d="M 62,146 L 138,146 C 134,171 132,191 135,206 L 65,206 C 68,191 66,171 62,146 Z" :class="hovered === 'cintura' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="cadera" @mouseover="hovered = 'cadera'" @mouseleave="hovered = null" d="M 65,206 L 135,206 C 140,226 142,244 138,256 L 62,256 C 58,244 60,226 65,206 Z" :class="hovered === 'cadera' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="pierna" @mouseover="hovered = 'pierna'" @mouseleave="hovered = null" d="M 64,256 L 97,256 L 95,326 L 70,326 Z M 103,256 L 136,256 L 130,326 L 105,326 Z" :class="hovered === 'pierna' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+                    <path id="pantorrilla" @mouseover="hovered = 'pantorrilla'" @mouseleave="hovered = null" d="M 70,326 L 95,326 L 92,380 C 88,385 80,385 73,380 Z M 105,326 L 130,326 L 127,380 C 120,385 112,385 108,380 Z" :class="hovered === 'pantorrilla' ? 'fill-teal-500' : 'fill-gray-200'" class="cursor-pointer transition-colors" />
+
+                    <!-- Puntos/Pins para Pliegues -->
+                    <circle id="subescapular" cx="145" cy="115" r="6" @mouseover="hovered = 'subescapular'" @mouseleave="hovered = null" class="fill-teal-500 stroke-white stroke-2 hover:scale-125 transition-transform cursor-pointer" />
+                    <circle id="suprailiaco" cx="60" cy="180" r="6" @mouseover="hovered = 'suprailiaco'" @mouseleave="hovered = null" class="fill-teal-500 stroke-white stroke-2 hover:scale-125 transition-transform cursor-pointer" />
+                    <circle id="femoral" cx="115" cy="290" r="6" @mouseover="hovered = 'femoral'" @mouseleave="hovered = null" class="fill-teal-500 stroke-white stroke-2 hover:scale-125 transition-transform cursor-pointer" />
+                </g>
+            </svg>
+
+            <!-- Tooltip -->
+            <div x-show="hovered" class="absolute top-0 left-0 bg-white p-3 rounded-xl shadow-lg border border-gray-100 w-48 z-20 pointer-events-none" x-cloak>
+                <h4 class="font-bold text-gray-900 capitalize" x-text="hovered"></h4>
+                <template x-if="ultima_valoracion[hovered]">
+                    <div>
+                        <p class="text-sm text-gray-600">Actual: <span x-text="ultima_valoracion[hovered]"></span></p>
+                        <p class="text-sm font-semibold" :class="getDiffClass(ultima_valoracion[hovered], valoracion_anterior ? valoracion_anterior[hovered] : null)">
+                            <span x-text="getDiff(ultima_valoracion[hovered], valoracion_anterior ? valoracion_anterior[hovered] : null)"></span>
+                        </p>
+                    </div>
+                </template>
+                <template x-if="!ultima_valoracion[hovered]">
+                    <p class="text-sm text-gray-400">Sin datos</p>
+                </template>
+            </div>
+        </div>
+
+        <!-- Paneles de Datos -->
+        <div class="w-full lg:w-1/2 space-y-6">
+            <!-- Signos Vitales -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <p class="text-xs text-gray-500 uppercase font-semibold">Presión Arterial</p>
+                    <p class="text-xl font-bold text-gray-900">{{ ultima_valoracion.tension_arterial or 'N/A' }} <span class="text-sm font-normal text-gray-500">mmHg</span></p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <p class="text-xs text-gray-500 uppercase font-semibold">Frecuencia Cardíaca</p>
+                    <p class="text-xl font-bold text-gray-900">{{ ultima_valoracion.frecuencia_cardiaca or 'N/A' }} <span class="text-sm font-normal text-gray-500">ppm</span></p>
+                </div>
+            </div>
+
+            <!-- Perímetros y Pliegues -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Perímetros (cm)</h3>
+                    <ul class="space-y-2 text-sm">
+                        {% for campo in ['torax', 'cintura', 'cadera', 'brazo', 'pierna', 'pantorrilla'] %}
+                        <li class="flex justify-between">
+                            <span class="capitalize text-gray-600">{{ campo }}:</span>
+                            <span class="font-medium">{{ ultima_valoracion[campo] or 'N/A' }} 
+                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none and (ultima_valoracion[campo] - valoracion_anterior[campo])|abs >= 0.1 %}
+                                    <span class="text-xs {{ 'text-teal-600' if ultima_valoracion[campo] < valoracion_anterior[campo] else 'text-red-600' }}">
+                                        ({{ '↓' if ultima_valoracion[campo] < valoracion_anterior[campo] else '↑' }} {{ (ultima_valoracion[campo] - valoracion_anterior[campo])|abs|round(1) }})
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Pliegues (mm)</h3>
+                    <ul class="space-y-2 text-sm">
+                        {% for campo in ['bicep', 'tricep', 'suprailiaco', 'subescapular', 'femoral'] %}
+                        {% if campo != 'femoral' or paciente.sexo == 'Femenino' or ultima_valoracion.femoral %}
+                        <li class="flex justify-between">
+                            <span class="capitalize text-gray-600">{{ campo }}:</span>
+                            <span class="font-medium">{{ ultima_valoracion[campo] or 'N/A' }}
+                                {% if valoracion_anterior and ultima_valoracion[campo] is not none and valoracion_anterior[campo] is not none and (ultima_valoracion[campo] - valoracion_anterior[campo])|abs >= 0.1 %}
+                                    <span class="text-xs {{ 'text-teal-600' if ultima_valoracion[campo] < valoracion_anterior[campo] else 'text-red-600' }}">
+                                        ({{ '↓' if ultima_valoracion[campo] < valoracion_anterior[campo] else '↑' }} {{ (ultima_valoracion[campo] - valoracion_anterior[campo])|abs|round(1) }})
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

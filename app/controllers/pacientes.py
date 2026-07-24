@@ -118,12 +118,30 @@ def detalle_paciente(id):
         hora_str = siguiente_cita_data['hora']
         siguiente_cita = datetime.strptime(f"{fecha_str} {hora_str}", '%Y-%m-%d %H:%M')
 
+    # Lógica para Mapa Corporal
+    valoraciones = ValoracionAntropometrica.obtener_por_paciente(id)
+    ultima_valoracion = valoraciones[0] if len(valoraciones) > 0 else None
+    valoracion_anterior = valoraciones[1] if len(valoraciones) > 1 else None
+    
+    diferencias = {}
+    if ultima_valoracion and valoracion_anterior:
+        campos = ['cintura', 'torax', 'brazo', 'bicep', 'tricep', 'cadera', 'pierna', 'pantorrilla', 'subescapular', 'suprailiaco', 'femoral']
+        for campo in campos:
+            val_actual = ultima_valoracion[campo]
+            val_anterior = valoracion_anterior[campo]
+            if val_actual is not None and val_anterior is not None:
+                diff = val_actual - val_anterior
+                tendencia = 'aumento' if diff > 0 else ('reduccion' if diff < 0 else 'sin_cambio')
+                diferencias[campo] = {'valor': diff, 'tendencia': tendencia}
+
     today = datetime.now()
     return render_template('pacientes/detalle_paciente.html', 
                             paciente=paciente, 
                             ultimo_pago=ultimo_pago,
                             historial=historial,
                             ultima_valoracion=ultima_valoracion,
+                            valoracion_anterior=valoracion_anterior,
+                            diferencias=diferencias,
                             cita=cita,
                             siguiente_cita=siguiente_cita,
                             today=today)
