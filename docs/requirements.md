@@ -10,6 +10,15 @@ El sistema abarca la gestión completa de pacientes, desde su registro inicial h
 
 ## 2. Casos de Uso
 
+### UC-00: Gestión de Género
+**Actor Principal:** Nutriólogo
+**Descripción:** Registro del género del paciente para habilitar/deshabilitar campos específicos en valoraciones.
+
+**Flujo Principal:**
+1. Registrar nuevo paciente o editar existente.
+2. Seleccionar género (Masculino/Femenino).
+3. El sistema utiliza esta información en las valoraciones antropométricas para habilitar o deshabilitar el campo "Femoral" (solo habilitado para mujeres).
+
 ### UC-01: Gestión de Pacientes
 **Actor Principal:** Nutriólogo
 **Descripción:** Permite administrar la información de los pacientes.
