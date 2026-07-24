@@ -33,3 +33,8 @@ graph TD
     G -- No --> H[Deshabilitar Hora]
     G -- Sí --> I[Habilitar Hora]
 ```
+
+## Mapa Antropométrico (Interactividad)
+*   **Conexión Bidireccional:** El componente utiliza **Alpine.js** (`x-data="{ hovered: null }"`) para sincronizar la silueta SVG con las listas de datos (Perímetros y Pliegues).
+*   **Resaltado Dinámico:** Al pasar el mouse sobre una región del cuerpo (SVG) o una fila de datos, se aplica un estilo visual (`bg-teal-50`, borde lateral) en ambos elementos simultáneamente.
+*   **Comparativa:** Muestra automáticamente la diferencia respecto a la valoración anterior, con indicadores visuales de aumento (ámbar) o disminución (teal).

@@ -28,3 +28,7 @@ def registrar_proxima_cita(id):
     # 4. Verificación de disponibilidad (Cita.es_horario_disponible)
     # 5. Persistencia o retorno de mensaje de advertencia
 ```
+
+## Lógica de Comparación de Valoraciones
+*   **Controlador (`detalle_valoracion`):** Identifica la valoración anterior del paciente dentro del historial y la pasa a la plantilla para su renderizado.
+*   **Validación:** Se asegura de que los datos numéricos sean convertidos correctamente (`float`) antes de realizar operaciones aritméticas en la plantilla para evitar errores de tipo (`TypeError`).
