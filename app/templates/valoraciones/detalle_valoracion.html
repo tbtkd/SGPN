@@ -29,7 +29,7 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Información General</h3>
             <div class="space-y-3 text-sm">
                 <div class="flex justify-between"><span class="text-gray-500">Número de cita:</span><span class="font-medium text-gray-900">{{ valoracion['numero_cita'] }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Fecha:</span><span class="font-medium text-gray-900">{{ valoracion['fecha'] }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Fecha:</span><span class="font-medium text-gray-900">{{ valoracion['fecha']|format_date }}</span></div>
                 <div class="flex justify-between"><span class="text-gray-500">Última Dieta:</span><span class="font-medium text-gray-900">{{ valoracion['ultima_dieta'] or 'No registrada' }}</span></div>
             </div>
         </div>

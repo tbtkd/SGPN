@@ -119,10 +119,14 @@
                     </div>
                     <div class="space-y-2 form-group">
                         <label for="femoral" class="block text-sm font-medium text-gray-700">Femoral (mm) (solo para mujeres):</label>
-                        <input type="number" id="femoral" name="femoral" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 30.5">
+                        <input type="number" id="femoral" name="femoral" step="0.1" 
+                               class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                               placeholder="Ej: 30.5"
+                               {% if paciente['genero'] != 'mujer' %}disabled{% endif %}>
                         <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo si aplica.</span>
                     </div>
                 </div>
+
             </div>
 
             <div x-show="activeTab === 'bioimpedancia'" class="space-y-4">
