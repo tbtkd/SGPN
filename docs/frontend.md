@@ -12,10 +12,8 @@ El sistema implementa validaciones robustas para asegurar la integridad de los d
 
 1.  **Validación de Formularios (Nueva Valoración):**
     *   Se interceptan los eventos `submit` para validar todos los campos requeridos en las 3 pestañas (Antropométrica, Plicometría, Bioimpedancia).
-    *   Si falta un campo, el sistema cambia automáticamente a la pestaña oculta correspondiente.
-    *   Se aplican estilos visuales (clases CSS) para indicar errores.
-    *   Se utiliza `.focus()` y `scrollIntoView()` para dirigir al usuario al campo con error.
-    *   Se muestra un banner de notificación claro en la parte superior.
+    *   Se utiliza **Alpine.js** para la gestión reactiva de pestañas.
+    *   Si falta un campo, el sistema cambia automáticamente a la pestaña correspondiente, aplica estilos visuales de error, hace `.focus()` en el input afectado y muestra un banner de notificación.
 
 2.  **Gestión de Citas (Flujo de Validación):**
     *   Al hacer clic en "Registrar Próxima Cita", el frontend verifica si el paciente ya tiene una cita activa.

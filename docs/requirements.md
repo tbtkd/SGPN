@@ -77,6 +77,7 @@ El sistema abarca la gestión completa de pacientes, desde su registro inicial h
        - Signos vitales (tensión arterial, frecuencia cardíaca)
      * Plicometría:
        - Pliegues (bícep, trícep, suprailiaco, subescapular, femoral)
+       - *Nota:* El campo "Femoral" solo se habilita si el género del paciente es femenino.
      * Bioimpedancia:
        - Grasa (%)
        - IMC (calculado automáticamente)
@@ -86,8 +87,8 @@ El sistema abarca la gestión completa de pacientes, desde su registro inicial h
 3. Registrar última dieta
 
 **Validaciones:**
-- El formulario implementa validación en tiempo real y al enviar.
-- Si faltan campos, el sistema cambia automáticamente a la pestaña correspondiente y enfoca el campo con error.
+- **Backend:** Validación defensiva de campos obligatorios, casteo seguro de tipos y manejo de excepciones con `try/except`. Feedback mediante `flash()`.
+- **Frontend:** Intercepción del evento `submit` para validar campos requeridos en las 3 pestañas. Si falta un campo, el sistema cambia automáticamente a la pestaña correspondiente, aplica estilos visuales de error y hace `.focus()` en el input afectado.
 
 ### UC-04: Gestión de Pagos
 **Actor Principal:** Nutriólogo
