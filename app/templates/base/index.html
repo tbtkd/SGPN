@@ -79,10 +79,10 @@
     <!-- 3. SECCIÓN CENTRAL -->
     <section class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         
-        <!-- Columna Izquierda: Próximos Pacientes -->  
+        <!-- Columna Izquierda: Pacientes por valorar -->  
         <div class="xl:col-span-2 bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-800">Próximos Pacientes</h2>
+                <h2 class="text-xl font-semibold text-gray-800">Pacientes por valorar</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left">
@@ -155,12 +155,23 @@
     </aside>
 </section>
 
-<!-- 4. TABLA DE ACTIVIDAD RECIENTE -->
-<section class="bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
-    <div class="mb-6 flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-gray-800">Últimas Valoraciones</h2>
-        <!-- Botón para abrir modal de filtro -->
-        <div x-data="{ modalFiltroOpen: false }">
+<!-- 4. SECCIÓN DE PESTAÑAS: VALORACIONES Y REAGENDAMIENTO -->
+<section x-data="{ tab: 'valoraciones' }" class="bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
+    <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+        <div class="flex gap-6">
+            <button @click="tab = 'valoraciones'" :class="tab === 'valoraciones' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition">
+                Últimas Valoraciones
+            </button>
+            <button @click="tab = 'reagendamiento'" :class="tab === 'reagendamiento' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition flex items-center gap-2">
+                Pendiente de Agendar
+                {% if pendientes_reagendamiento|length > 0 %}
+                <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pendientes_reagendamiento|length }}</span>
+                {% endif %}
+            </button>
+        </div>
+        
+        <!-- Botón Filtro (Solo visible en tab valoraciones) -->
+        <div x-show="tab === 'valoraciones'" x-data="{ modalFiltroOpen: false }">
             <div class="flex gap-2">
                 {% if request.args.get('fecha_inicio') %}
                 <a href="{{ url_for('main.index') }}" class="text-sm bg-red-50 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 transition">
@@ -194,7 +205,9 @@
             </div>
         </div>
     </div>
-    <div class="overflow-x-auto relative no-scrollbar">
+
+    <!-- Contenido Tab 1: Valoraciones -->
+    <div x-show="tab === 'valoraciones'" class="overflow-x-auto relative no-scrollbar">
         <table class="w-full text-sm text-left">
             <thead class="text-xs text-gray-500 uppercase bg-gray-50 rounded-lg">
                 <tr>
@@ -233,6 +246,44 @@
                     <td colspan="4" class="px-6 py-10 text-center text-gray-500">
                         <i class="fas fa-folder-open fa-2x mb-3 text-gray-300"></i>
                         <p>No hay valoraciones registradas en el rango seleccionado.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Contenido Tab 2: Reagendamiento -->
+    <div x-show="tab === 'reagendamiento'" class="overflow-x-auto relative no-scrollbar" x-cloak>
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50 rounded-lg">
+                <tr>
+                    <th scope="col" class="px-6 py-4 font-medium">Paciente</th>
+                    <th scope="col" class="px-6 py-4 font-medium">Última Cita</th>
+                    <th scope="col" class="px-6 py-4 font-medium">Tiempo Transcurrido</th>
+                    <th scope="col" class="px-6 py-4 font-medium text-right">Acción</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for p in pendientes_reagendamiento %}
+                <tr class="bg-white hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-5 font-medium text-gray-900">
+                        {{ p.nombre }} {{ p.apellido_paterno }}
+                    </td>
+                    <td class="px-6 py-5 text-gray-600">{{ p.ultima_cita|format_date }}</td>
+                    <td class="px-6 py-5 text-gray-600">
+                        <span class="text-amber-600 font-medium">Hace {{ p.dias_transcurridos|int }} días</span>
+                        <span class="text-xs text-gray-400 block">Faltan {{ 30 - p.dias_transcurridos|int }} días para el mes</span>
+                    </td>
+                    <td class="px-6 py-5 text-right">
+                        <a href="{{ url_for('pacientes.detalle_paciente', id=p.id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Agendar Cita</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-10 text-center text-gray-500">
+                        <i class="fas fa-check-circle fa-2x mb-3 text-green-400"></i>
+                        <p>✨ Todos los pacientes se encuentran al día con sus citas.</p>
                     </td>
                 </tr>
                 {% endfor %}

@@ -187,3 +187,26 @@ class Paciente:
                 WHERE fecha >= date('now', ? || ' days')
             )
         ''', [f'-{dias}'])
+
+    @staticmethod
+    def obtener_pendientes_reagendamiento():
+        """
+        Obtiene pacientes activos sin cita futura y cuya última valoración
+        fue hace entre 25 y 30 días.
+        """
+        return query_db('''
+            SELECT 
+                p.id, 
+                p.nombre, 
+                p.apellido_paterno,
+                MAX(v.fecha) as ultima_cita,
+                (julianday('now') - julianday(MAX(v.fecha))) as dias_transcurridos
+            FROM pacientes p
+            JOIN valoracion_antropometrica v ON p.id = v.paciente_id
+            LEFT JOIN citas c ON p.id = c.paciente_id AND c.fecha >= date('now')
+            WHERE p.status = 'activo'
+            AND c.id IS NULL
+            GROUP BY p.id
+            HAVING dias_transcurridos >= 25
+            ORDER BY dias_transcurridos DESC
+        ''')
