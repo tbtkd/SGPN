@@ -16,10 +16,16 @@ def login():
             return redirect(url_for('main.index'))
         
         flash('Usuario o contraseña incorrectos', 'error')
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/registrar-usuario', methods=['GET', 'POST'])
+@login_required
+def registrar_usuario():
+    # Implementación pendiente
+    return "Página de registro de usuario"

@@ -81,5 +81,11 @@ CREATE TABLE IF NOT EXISTS citas (
 CREATE TABLE IF NOT EXISTS usuarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    password_hash TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    apellido_paterno TEXT NOT NULL,
+    apellido_materno TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    cedula_profesional TEXT,
+    rol TEXT DEFAULT 'nutriologa'
 );
