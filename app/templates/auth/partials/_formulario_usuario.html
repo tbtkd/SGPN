@@ -3,7 +3,7 @@
         <!-- Nombre -->
         <div class="space-y-2">
             <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-            <input type="text" id="nombre" name="nombre" required
+            <input type="text" id="nombre" name="nombre" required minlength="2" maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="Nombre(s)"
                    value="{{ request.form.nombre or '' }}">
@@ -12,7 +12,7 @@
         <!-- Apellido Paterno -->
         <div class="space-y-2">
             <label for="apellido_paterno" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
-            <input type="text" id="apellido_paterno" name="apellido_paterno" required
+            <input type="text" id="apellido_paterno" name="apellido_paterno" required minlength="2" maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="Apellido paterno"
                    value="{{ request.form.apellido_paterno or '' }}">
@@ -21,7 +21,7 @@
         <!-- Apellido Materno -->
         <div class="space-y-2">
             <label for="apellido_materno" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
-            <input type="text" id="apellido_materno" name="apellido_materno" required
+            <input type="text" id="apellido_materno" name="apellido_materno" required minlength="2" maxlength="30" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="Apellido materno"
                    value="{{ request.form.apellido_materno or '' }}">
@@ -30,7 +30,7 @@
         <!-- Usuario -->
         <div class="space-y-2">
             <label for="username" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
-            <input type="text" id="username" name="username" required
+            <input type="text" id="username" name="username" required minlength="5" maxlength="10"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="Nombre de usuario"
                    value="{{ request.form.username or '' }}">
@@ -39,10 +39,20 @@
         <!-- Correo -->
         <div class="space-y-2">
             <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-            <input type="email" id="email" name="email" required
+            <input type="email" id="email" name="email" required maxlength="40"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="ejemplo@correo.com"
                    value="{{ request.form.email or '' }}">
+        </div>
+
+        <!-- Teléfono -->
+        <div class="space-y-2">
+            <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" required maxlength="10" pattern="[0-9]{10}"
+                   onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                   placeholder="10 dígitos"
+                   value="{{ request.form.telefono or '' }}">
         </div>
 
         <!-- Rol -->
@@ -58,7 +68,7 @@
         <!-- Contraseña -->
         <div class="space-y-2 md:col-span-2">
             <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-            <input type="password" id="password" name="password" required
+            <input type="password" id="password" name="password" required minlength="5" maxlength="12"
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
                    placeholder="••••••••">
         </div>
