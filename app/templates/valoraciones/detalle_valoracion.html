@@ -3,7 +3,7 @@
 {% block title %}Detalle de Valoración - {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
+<div class="max-w-7xl mx-auto">
     <!-- Breadcrumbs -->
     <nav class="text-sm text-gray-500 mb-4">
         <a href="/" class="hover:text-teal-600">Inicio</a> / 
@@ -25,101 +25,14 @@
 
     <!-- Grid de Información General -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Información General</h3>
-            <div class="space-y-3 text-sm">
-                <div class="flex justify-between"><span class="text-gray-500">Número de cita:</span><span class="font-medium text-gray-900">{{ valoracion['numero_cita'] }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Fecha:</span><span class="font-medium text-gray-900">{{ valoracion['fecha']|format_date }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Última Dieta:</span><span class="font-medium text-gray-900">{{ valoracion['ultima_dieta'] or 'No registrada' }}</span></div>
-            </div>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Medidas Corporales</h3>
-            <div class="space-y-3 text-sm">
-                <div class="flex justify-between"><span class="text-gray-500">Estatura:</span><span class="font-medium text-gray-900">{{ valoracion['estatura'] }} cm</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">Peso:</span><span class="font-medium text-gray-900">{{ valoracion['peso'] }} kg</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">IMC:</span><span class="font-medium text-gray-900">{{ valoracion['imc'] }}</span></div>
-                <div class="flex justify-between"><span class="text-gray-500">% Grasa:</span><span class="font-medium text-gray-900">{{ valoracion['grasa'] }}%</span></div>
-            </div>
-        </div>
+        {% include 'valoraciones/partials/_info_general.html' %}
+        {% include 'valoraciones/partials/_medidas_corporales.html' %}
     </div>
 
     <!-- Mapa Antropométrico -->
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8" 
-         x-data="{ 
-            hovered: null, 
-            ultima_valoracion: {{ dict(valoracion)|tojson }}, 
-            valoracion_anterior: {{ dict(valoracion_anterior)|tojson if valoracion_anterior else 'null' }} 
-         }">
-        
-        <h2 class="text-xl font-bold text-gray-900 mb-6">🧍 Mapa Antropométrico</h2>
-        
-        {% if valoracion_anterior %}
-        <div class="mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-teal-800">📊 Comparativa vs Consulta Anterior ({{ valoracion_anterior.fecha|format_date }})</h3>
-            <div class="flex gap-4 text-xs">
-                <span class="text-teal-700">Peso: {{ (valoracion.peso|float - valoracion_anterior.peso|float)|round(1) }} kg</span>
-                <span class="text-teal-700">% Grasa: {{ (valoracion.porcentaje_grasa|float - valoracion_anterior.porcentaje_grasa|float)|round(1) }}%</span>
-                <span class="text-teal-700">Cintura: {{ (valoracion.cintura|float - valoracion_anterior.cintura|float)|round(1) }} cm</span>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Datos -->
-            <div class="w-full flex flex-col justify-center items-center p-4 bg-gray-50/50 rounded-2xl relative min-h-[360px]">
-                <div class="relative w-full h-auto">
-                    {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
-                        {% include 'components/body_map.html' %}
-                    {% endwith %}
-                </div>                
-            </div>
-        </div>
-    </div>
+    {% include 'valoraciones/partials/_mapa_antropometrico.html' %}
 
     <!-- Historial -->
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h3 class="text-xl font-semibold text-gray-900 mb-6">Historial de Valoraciones</h3>
-        <div class="overflow-x-auto max-h-[380px] overflow-y-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse">
-                <thead class="sticky top-0 bg-white z-10 border-b border-gray-100">
-                    <tr class="text-gray-500">
-                        <th class="pb-3 font-medium">Fecha</th>
-                        <th class="pb-3 font-medium text-right">Peso (kg)</th>
-                        <th class="pb-3 font-medium text-right">IMC</th>
-                        <th class="pb-3 font-medium text-right">% Grasa</th>
-                        <th class="pb-3 font-medium text-center">Tensión arterial</th>
-                        <th class="pb-3 font-medium text-right">Frecuencia cardíaca</th>
-                        <th class="pb-3 font-medium text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    {% for val in historial_valoraciones %}
-                    <tr class="{{ 'bg-teal-50/60 font-medium' if val['id'] == valoracion['id'] else 'hover:bg-gray-50' }} transition">
-                        <td class="py-4 text-gray-900 flex items-center gap-2">
-                            {{ val['fecha']|format_date }}
-                            {% if val['id'] == valoracion['id'] %}
-                                <span class="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-semibold">Actual</span>
-                            {% endif %}
-                        </td>
-                        <td class="py-4 text-gray-900 text-right">{{ val['peso'] }}</td>
-                        <td class="py-4 text-gray-900 text-right">{{ val['imc'] }}</td>
-                        <td class="py-4 text-gray-900 text-right max-w-[120px] truncate">{{ val['porcentaje_grasa'] }}%</td>
-                        <td class="py-4 text-gray-900 text-center">{{ val['tension_arterial'] }}</td>
-                        <td class="py-4 text-gray-900 text-right">{{ val['frecuencia_cardiaca'] }} lpm</td>
-                        <td class="py-4 text-center">
-                            {% if val['id'] == valoracion['id'] %}
-                                <span class="text-xs text-gray-400 font-normal">Mostrando</span>
-                            {% else %}
-                                <a href="{{ url_for('valoracion.detalle_valoracion', valoracion_id=val['id']) }}" 
-                                    class="inline-flex items-center gap-1 text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1 rounded-lg text-xs font-semibold transition-colors"> 👁️ Ver Detalle </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {% include 'valoraciones/partials/_historial_valoraciones.html' %}
 </div>
 {% endblock %}
