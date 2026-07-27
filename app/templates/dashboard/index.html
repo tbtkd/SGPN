@@ -1,0 +1,50 @@
+{% extends "base/base.html" %}
+
+{% block title %}Dashboard - Aurora Ángeles Nutrición{% endblock %}
+
+{% block content %}
+<!-- 1. ENCABEZADO SUPERIOR -->
+<header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Bienvenido, <span class="text-teal-600">Aurora Ángeles</span></h1>
+    <p class="text-gray-600 mt-1">Panel de control clínico - Resumen del sistema</p>
+</header>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- COLUMNA IZQUIERDA: AGENDA Y VALORACIONES -->
+    <div class="lg:col-span-8 space-y-6" x-data="{ tab: 'valoraciones' }">
+        <div class="bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
+            <!-- Pestañas -->
+            <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+                <div class="flex gap-6">
+                    <button @click="tab = 'valoraciones'" :class="tab === 'valoraciones' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition">
+                        📅 Pacientes del Día
+                    </button>
+                    <button @click="tab = 'reagendamiento'" :class="tab === 'reagendamiento' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition flex items-center gap-2">
+                        ⏳ Pendiente de Agendar
+                        {% if pendientes_reagendamiento|length > 0 %}
+                        <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pendientes_reagendamiento|length }}</span>
+                        {% endif %}
+                    </button>
+                    <button @click="tab = 'seguimiento'" :class="tab === 'seguimiento' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition flex items-center gap-2">
+                        ⚠️ Sin Valoración (>30 días)
+                        {% if pacientes_sin_valoracion|length > 0 %}
+                        <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pacientes_sin_valoracion|length }}</span>
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenido de Pestañas -->
+            <div class="overflow-x-auto max-h-[380px] overflow-y-auto custom-scrollbar">
+                <div x-show="tab === 'valoraciones'">{% include 'dashboard/tabs/_tab_pacientes_dia.html' %}</div>
+                <div x-show="tab === 'reagendamiento'" x-cloak>{% include 'dashboard/tabs/_tab_reagendamiento.html' %}</div>
+                <div x-show="tab === 'seguimiento'" x-cloak>{% include 'dashboard/tabs/_tab_sin_valoracion.html' %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMNA DERECHA / LATERAL -->
+    {% include 'dashboard/partials/_resumen_lateral.html' %}
+</div>
+{% endblock %}

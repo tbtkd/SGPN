@@ -37,7 +37,7 @@ def index():
     else:
         actividad_reciente = ValoracionAntropometrica.obtener_recientes(limite=10)
     
-    return render_template('base/index.html', 
+    return render_template('dashboard/index.html', 
                            total_pacientes=total_pacientes,
                            crecimiento_pacientes=crecimiento_pacientes,
                            valoraciones_mes=valoraciones_mes,
