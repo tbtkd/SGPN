@@ -1,4 +1,4 @@
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8" 
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8" 
      x-data="{ 
         hovered: null, 
         ultima_valoracion: {{ dict(valoracion)|tojson }}, 
@@ -18,14 +18,44 @@
     </div>
     {% endif %}
 
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Datos -->
-        <div class="w-full flex flex-col justify-center items-center p-4 bg-gray-50/50 rounded-2xl relative min-h-[360px]">
-            <div class="relative w-full h-auto">
-                {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
-                    {% include 'components/body_map.html' %}
-                {% endwith %}
-            </div>                
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Columna Izquierda: Silueta y Vitales -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+            <div class="w-full flex justify-center items-center p-4 bg-gray-50/50 rounded-2xl h-56">
+                <div class="relative w-full h-full">
+                    {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
+                        {% include 'components/body_map.html' %}
+                    {% endwith %}
+                </div>                
+            </div>
+            <div class="flex items-center justify-around bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs">
+                <span>🩸 <strong>PA:</strong> {{ valoracion['tension_arterial'] }} mmHg</span>
+                <span>💓 <strong>FC:</strong> {{ valoracion['frecuencia_cardiaca'] }} ppm</span>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Mediciones -->
+        <div class="lg:col-span-8 grid grid-cols-2 gap-4">
+            <!-- Perímetros -->
+            <div class="space-y-1">
+                <h4 class="font-semibold text-sm text-gray-900 mb-2">Perímetros (cm)</h4>
+                {% for key in ['cintura', 'torax', 'brazo', 'cadera', 'pierna', 'pantorrilla'] %}
+                <div class="flex justify-between py-1.5 px-2 bg-gray-50 rounded text-xs">
+                    <span class="text-gray-500 capitalize">{{ key }}</span>
+                    <span class="font-medium text-gray-900">{{ valoracion[key] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Pliegues -->
+            <div class="space-y-1">
+                <h4 class="font-semibold text-sm text-gray-900 mb-2">Pliegues (mm)</h4>
+                {% for key in ['bicep', 'tricep', 'suprailiaco', 'subescapular', 'femoral'] %}
+                <div class="flex justify-between py-1.5 px-2 bg-gray-50 rounded text-xs">
+                    <span class="text-gray-500 capitalize">{{ key }}</span>
+                    <span class="font-medium text-gray-900">{{ valoracion[key] or 'N/A' }}</span>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

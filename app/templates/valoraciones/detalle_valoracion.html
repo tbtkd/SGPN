@@ -3,7 +3,7 @@
 {% block title %}Detalle de Valoración - {{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
+<div class="max-w-8xl mx-auto">
     <!-- Breadcrumbs -->
     <nav class="text-sm text-gray-500 mb-4">
         <a href="/" class="hover:text-teal-600">Inicio</a> / 
@@ -13,7 +13,7 @@
     </nav>
 
     <!-- Encabezado -->
-    <div class="mb-8 flex items-center justify-between">
+    <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Detalle de Valoración</h1>
             <p class="text-gray-600 mt-1">{{ paciente['nombre'] }} {{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</p>
@@ -23,11 +23,8 @@
         </a>
     </div>
 
-    <!-- Grid de Información General -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {% include 'valoraciones/partials/_info_general.html' %}
-        {% include 'valoraciones/partials/_medidas_corporales.html' %}
-    </div>
+    <!-- Barra Compacta de Información -->
+    {% include 'valoraciones/partials/_info_general.html' %}
 
     <!-- Mapa Antropométrico -->
     {% include 'valoraciones/partials/_mapa_antropometrico.html' %}
