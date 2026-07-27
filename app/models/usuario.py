@@ -1,18 +1,19 @@
 from flask_login import UserMixin
-from app.db import get_db
-from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
+from app import db_orm
 
-class Usuario(UserMixin):
-    def __init__(self, id, username, password_hash, nombre, apellido_paterno, apellido_materno, email, cedula_profesional=None, rol='nutriologa'):
-        self.id = id
-        self.username = username
-        self.password_hash = password_hash
-        self.nombre = nombre
-        self.apellido_paterno = apellido_paterno
-        self.apellido_materno = apellido_materno
-        self.email = email
-        self.cedula_profesional = cedula_profesional
-        self.rol = rol
+class Usuario(db_orm.Model, UserMixin):
+    __tablename__ = 'usuarios'
+    
+    id = db_orm.Column(db_orm.Integer, primary_key=True)
+    username = db_orm.Column(db_orm.String(50), nullable=False)
+    password_hash = db_orm.Column(db_orm.String(256), nullable=False)
+    nombre = db_orm.Column(db_orm.String(50), nullable=True)
+    email = db_orm.Column(db_orm.String(120), nullable=True)
+    cedula_profesional = db_orm.Column(db_orm.String(30), nullable=True)
+    rol = db_orm.Column(db_orm.String(20), default='nutriologa')
+    apellido_paterno = db_orm.Column(db_orm.String(50), nullable=True)
+    apellido_materno = db_orm.Column(db_orm.String(50), nullable=True)
 
     @property
     def nombre_completo(self):
@@ -20,34 +21,12 @@ class Usuario(UserMixin):
 
     @staticmethod
     def get(user_id):
-        db = get_db()
-        user = db.execute('SELECT * FROM usuarios WHERE id = ?', (int(user_id),)).fetchone()
-        if user:
-            return Usuario(user['id'], user['username'], user['password_hash'], user['nombre'], user['apellido_paterno'], user['apellido_materno'], user['email'], user['cedula_profesional'], user['rol'])
-        return None
+        return Usuario.query.get(int(user_id))
 
     @staticmethod
     def find_by_username(username):
-        db = get_db()
-        user = db.execute('SELECT * FROM usuarios WHERE username = ?', (username,)).fetchone()
-        if user:
-            return Usuario(user['id'], user['username'], user['password_hash'], user['nombre'], user['apellido_paterno'], user['apellido_materno'], user['email'], user['cedula_profesional'], user['rol'])
-        return None
+        return Usuario.query.filter_by(username=username).first()
 
     def check_password(self, password):
+        from werkzeug.security import check_password_hash
         return check_password_hash(self.password_hash, password)
-
-    @staticmethod
-    def create(username, password, nombre, apellido_paterno, apellido_materno, email, rol='nutriologa'):
-        db = get_db()
-        password_hash = generate_password_hash(password)
-        try:
-            db.execute(
-                'INSERT INTO usuarios (username, password_hash, nombre, apellido_paterno, apellido_materno, email, rol) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                (username, password_hash, nombre, apellido_paterno, apellido_materno, email, rol)
-            )
-            db.commit()
-            return True
-        except Exception as e:
-            print(f"Error al crear usuario: {e}")
-            return False

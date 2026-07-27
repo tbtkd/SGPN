@@ -22,8 +22,8 @@
                     </button>
                     <button @click="tab = 'reagendamiento'" :class="tab === 'reagendamiento' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition flex items-center gap-2">
                         ⏳ Pendiente de Agendar
-                        {% if pendientes_reagendamiento|length > 0 %}
-                        <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pendientes_reagendamiento|length }}</span>
+                        {% if pendientes_por_agendar|length > 0 %}
+                        <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pendientes_por_agendar|length }}</span>
                         {% endif %}
                     </button>
                     <button @click="tab = 'seguimiento'" :class="tab === 'seguimiento' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500 hover:text-gray-700'" class="pb-2 font-semibold transition flex items-center gap-2">

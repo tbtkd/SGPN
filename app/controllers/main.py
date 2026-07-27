@@ -3,6 +3,8 @@ from flask_login import login_required
 from datetime import datetime
 from app.models.paciente import Paciente
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
+from app.models.cita import Cita
+from datetime import timedelta
 
 main = Blueprint('main', __name__)
 
@@ -26,10 +28,9 @@ def index():
     pacientes_seguimiento = Paciente.contar_en_seguimiento()
     pacientes_sin_valoracion = Paciente.obtener_sin_valoracion_reciente(dias=30)
     
-    fecha_filtro = request.args.get('fecha_proximos')
-    proximos_pacientes = Paciente.obtener_proximos(fecha=fecha_filtro)
+    citas_del_dia = Cita.obtener_citas_del_dia()
     
-    pendientes_reagendamiento = Paciente.obtener_pendientes_reagendamiento()
+    pendientes_por_agendar = Paciente.obtener_pendientes_por_agendar()
     
     # Si hay filtro de fechas, obtener actividad filtrada
     if fecha_inicio and fecha_fin:
@@ -44,7 +45,7 @@ def index():
                            promedio_diario=promedio_diario,
                            pacientes_seguimiento=pacientes_seguimiento,
                            pacientes_sin_valoracion=pacientes_sin_valoracion,
-                           proximos_pacientes=proximos_pacientes,
-                           pendientes_reagendamiento=pendientes_reagendamiento,
+                           citas_del_dia=citas_del_dia,
+                           pendientes_por_agendar=pendientes_por_agendar,
                            actividad_reciente=actividad_reciente)
 

@@ -37,6 +37,9 @@ export function validarFormularioValoracion(form, alpineData) {
         { id: 'porcentaje_grasa', label: 'Grasa Total', tab: 'bioimpedancia' }
     ];
 
+    // Campos que pueden ser opcionales (ej. femoral)
+    const camposOpcionales = ['femoral'];
+
     let primerError = null;
 
     // Limpiar errores previos y ocultar mensajes inline

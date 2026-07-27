@@ -1,10 +1,14 @@
 import os
 from flask import Flask
 from flask_login import LoginManager
-from app.db import init_db
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from app.config import config
 from app.core.error_handlers import register_error_handlers
 
+# Renombramos la instancia de SQLAlchemy para evitar conflicto con app.db
+db_orm = SQLAlchemy()
+migrate = Migrate()
 login_manager = LoginManager()
 
 def create_app(config_name=None):
@@ -33,11 +37,8 @@ def create_app(config_name=None):
     # setup_logger(app, config[config_name])
     
     # Inicialización de la base de datos
-    try:
-        with app.app_context():
-            init_db()
-    except Exception as e:
-        raise
+    db_orm.init_app(app)
+    migrate.init_app(app, db_orm)
     
     # Registro de blueprints
     from app.controllers.main import main as main_blueprint

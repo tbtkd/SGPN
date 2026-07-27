@@ -10,6 +10,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        # El campo en la BD es 'email', pero el formulario envía 'username'
         user = Usuario.find_by_username(username)
         if user and user.check_password(password):
             login_user(user)

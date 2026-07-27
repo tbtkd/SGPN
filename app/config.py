@@ -20,14 +20,14 @@ class DevelopmentConfig(Config):
     """Configuración de desarrollo"""
     DEBUG = True
     SESSION_COOKIE_SECURE = False  # Permitir HTTP en desarrollo
-    DATABASE_URI = 'sqlite:///development.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
     # LOG_LEVEL = 'DEBUG' 
     # TODO: Descomentar para habilitar logging en desarrollo
-
+    
 class ProductionConfig(Config):
     """Configuración de producción"""
     DEBUG = False
-    DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///production.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///production.db'
     
     @staticmethod
     def init_app(app):

@@ -56,3 +56,19 @@ class Cita:
             ORDER BY fecha ASC, hora ASC LIMIT 1
         ''', [paciente_id, datetime.now().strftime('%Y-%m-%d')], one=True)
         return result if result else None
+
+    @staticmethod
+    def obtener_citas_del_dia():
+        # Obtener citas de hoy, ordenadas por hora, excluyendo las que ya pasaron
+        hoy = datetime.now().strftime('%Y-%m-%d')
+        hora_actual = datetime.now().strftime('%H:%M')
+        
+        # Unimos con pacientes para obtener el nombre
+        query = '''
+            SELECT c.id, c.paciente_id, c.fecha, c.hora, p.nombre, p.apellido_paterno 
+            FROM citas c
+            JOIN pacientes p ON c.paciente_id = p.id
+            WHERE c.fecha = ? AND c.hora >= ?
+            ORDER BY c.hora ASC
+        '''
+        return query_db(query, [hoy, hora_actual])
