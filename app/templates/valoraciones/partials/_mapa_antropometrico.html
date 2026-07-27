@@ -23,7 +23,7 @@
 
     <!-- ÁREA DEL MAPA EXPANDIDO -->
     <div class="w-full flex justify-center items-center py-4">
-        <div class="relative w-full max-w-4xl">
+        <div class="relative w-full max-w-auto">
             {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
                 {% include 'components/body_map.html' %}
             {% endwith %}
