@@ -3,6 +3,7 @@
 {% block title %}Lista de Pacientes{% endblock %}
 
 {% block content %}
+<div class="max-w-7xl mx-auto">
     <!-- Breadcrumbs -->
     <nav class="flex text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2">
@@ -19,65 +20,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Lista de Pacientes {{ "Activos" if tipo_lista == "activos" else "Inactivos" }}</h1>
     </div>
 
-    <!-- Buscador -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-        <form action="{{ url_for('pacientes.lista_pacientes_' + tipo_lista) }}" method="get" class="flex gap-4">
-            <input type="text" name="busqueda" placeholder="Buscar pacientes..." value="{{ busqueda }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
-            <button type="submit" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition">
-                <i class="fas fa-search mr-2"></i> Buscar
-            </button>
-        </form>
-    </div>
-
-    <!-- Pestañas de Filtro -->
-    <div class="flex gap-2 mb-6">
-        <a href="{{ url_for('pacientes.lista_pacientes_activos') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition {{ 'bg-teal-600 text-white' if tipo_lista == 'activos' else 'bg-white text-gray-600 hover:bg-gray-50' }}">Activos</a>
-        <a href="{{ url_for('pacientes.lista_pacientes_inactivos') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition {{ 'bg-teal-600 text-white' if tipo_lista == 'inactivos' else 'bg-white text-gray-600 hover:bg-gray-50' }}">Inactivos</a>
-    </div>
-
-    <!-- Tabla -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
-            <table class="w-full text-left relative">
-                <thead class="bg-gray-50 border-b border-gray-100 sticky top-0 z-10">
-                    <tr>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Nombre</th>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Apellidos</th>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Correo</th>
-
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Última Consulta</th>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600">Estatus</th>
-                        <th class="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for paciente in pacientes %}
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['nombre'] }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['apellido_paterno'] }} {{ paciente['apellido_materno'] }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['correo'] }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ paciente['ultima_consulta']|format_date if paciente['ultima_consulta'] else 'Sin registro' }}</td>
-                        <td class="px-6 py-4 text-sm">
-                            {% if paciente['status']|lower == 'activo' %}
-                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2.5 py-0.5 rounded-full capitalize text-xs">Activo</span>
-                            {% else %}
-                                <span class="bg-slate-100 text-slate-600 border border-slate-200 font-medium px-2.5 py-0.5 rounded-full capitalize text-xs">Inactivo</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-right">
-                            <div class="flex items-center justify-end gap-3">
-                                <a href="{{ url_for('pacientes.detalle_paciente', id=paciente['id']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg text-xs font-medium transition">
-                                    <i class="fas fa-eye"></i> Ver Expediente
-                                </a>
-                                <a href="{{ url_for('pacientes.editar_paciente', id=paciente['id']) }}" class="text-gray-400 hover:text-teal-600 transition" title="Editar">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {% include 'pacientes/partials/_buscador_y_filtros.html' %}
+    {% include 'pacientes/partials/_tabla_pacientes.html' %}
+</div>
 {% endblock %}
