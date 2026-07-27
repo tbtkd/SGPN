@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from app.db import get_db
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 class Usuario(UserMixin):
     def __init__(self, id, username, password_hash, nombre, apellido_paterno, apellido_materno, email, cedula_profesional=None, rol='nutriologa'):
@@ -36,3 +36,18 @@ class Usuario(UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @staticmethod
+    def create(username, password, nombre, apellido_paterno, apellido_materno, email, rol='nutriologa'):
+        db = get_db()
+        password_hash = generate_password_hash(password)
+        try:
+            db.execute(
+                'INSERT INTO usuarios (username, password_hash, nombre, apellido_paterno, apellido_materno, email, rol) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (username, password_hash, nombre, apellido_paterno, apellido_materno, email, rol)
+            )
+            db.commit()
+            return True
+        except Exception as e:
+            print(f"Error al crear usuario: {e}")
+            return False
