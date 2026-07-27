@@ -1,61 +1,32 @@
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8" 
+<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6" 
      x-data="{ 
-        hovered: null, 
         ultima_valoracion: {{ dict(valoracion)|tojson }}, 
         valoracion_anterior: {{ dict(valoracion_anterior)|tojson if valoracion_anterior else 'null' }} 
      }">
     
-    <h2 class="text-xl font-bold text-gray-900 mb-6">🧍 Mapa Antropométrico</h2>
-    
+    <!-- Encabezado -->
+    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+        👤 Mapa Antropométrico
+    </h3>
+
+    <!-- Barra de Comparativa vs Consulta Anterior -->
     {% if valoracion_anterior %}
-    <div class="mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-teal-800">📊 Comparativa vs Consulta Anterior ({{ valoracion_anterior.fecha|format_date }})</h3>
-        <div class="flex gap-4 text-xs">
-            <span class="text-teal-700">Peso: {{ (valoracion.peso|float - valoracion_anterior.peso|float)|round(1) }} kg</span>
-            <span class="text-teal-700">% Grasa: {{ (valoracion.porcentaje_grasa|float - valoracion_anterior.porcentaje_grasa|float)|round(1) }}%</span>
-            <span class="text-teal-700">Cintura: {{ (valoracion.cintura|float - valoracion_anterior.cintura|float)|round(1) }} cm</span>
+    <div class="bg-teal-50/60 p-3 rounded-xl border border-teal-100 flex items-center justify-between text-xs text-teal-800 font-medium">
+        <span>📊 Comparativa vs Consulta Anterior ({{ valoracion_anterior.fecha|format_date }})</span>
+        <div class="flex gap-4">
+            <span>Peso: {{ (valoracion.peso|float - valoracion_anterior.peso|float)|round(1) }} kg</span>
+            <span>% Grasa: {{ (valoracion.porcentaje_grasa|float - valoracion_anterior.porcentaje_grasa|float)|round(1) }}%</span>
+            <span>Cintura: {{ (valoracion.cintura|float - valoracion_anterior.cintura|float)|round(1) }} cm</span>
         </div>
     </div>
     {% endif %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Columna Izquierda: Silueta y Vitales -->
-        <div class="lg:col-span-4 flex flex-col gap-4">
-            <div class="w-full flex justify-center items-center p-4 bg-gray-50/50 rounded-2xl h-56">
-                <div class="relative w-full h-full">
-                    {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
-                        {% include 'components/body_map.html' %}
-                    {% endwith %}
-                </div>                
-            </div>
-            <div class="flex items-center justify-around bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs">
-                <span>🩸 <strong>PA:</strong> {{ valoracion['tension_arterial'] }} mmHg</span>
-                <span>💓 <strong>FC:</strong> {{ valoracion['frecuencia_cardiaca'] }} ppm</span>
-            </div>
-        </div>
-
-        <!-- Columna Derecha: Mediciones -->
-        <div class="lg:col-span-8 grid grid-cols-2 gap-4">
-            <!-- Perímetros -->
-            <div class="space-y-1">
-                <h4 class="font-semibold text-sm text-gray-900 mb-2">Perímetros (cm)</h4>
-                {% for key in ['cintura', 'torax', 'brazo', 'cadera', 'pierna', 'pantorrilla'] %}
-                <div class="flex justify-between py-1.5 px-2 bg-gray-50 rounded text-xs">
-                    <span class="text-gray-500 capitalize">{{ key }}</span>
-                    <span class="font-medium text-gray-900">{{ valoracion[key] }}</span>
-                </div>
-                {% endfor %}
-            </div>
-            <!-- Pliegues -->
-            <div class="space-y-1">
-                <h4 class="font-semibold text-sm text-gray-900 mb-2">Pliegues (mm)</h4>
-                {% for key in ['bicep', 'tricep', 'suprailiaco', 'subescapular', 'femoral'] %}
-                <div class="flex justify-between py-1.5 px-2 bg-gray-50 rounded text-xs">
-                    <span class="text-gray-500 capitalize">{{ key }}</span>
-                    <span class="font-medium text-gray-900">{{ valoracion[key] or 'N/A' }}</span>
-                </div>
-                {% endfor %}
-            </div>
+    <!-- ÁREA DEL MAPA EXPANDIDO -->
+    <div class="w-full flex justify-center items-center py-4">
+        <div class="relative w-full max-w-4xl">
+            {% with ultima_valoracion=valoracion, valoracion_anterior=valoracion_anterior %}
+                {% include 'components/body_map.html' %}
+            {% endwith %}
         </div>
     </div>
 </div>
