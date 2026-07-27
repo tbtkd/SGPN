@@ -12,12 +12,16 @@
         {% for p in pendientes_reagendamiento %}
         <tr class="bg-white hover:bg-gray-50/50 transition-colors">
             <td class="px-6 py-5 font-medium text-gray-900">{{ p.nombre }} {{ p.apellido_paterno }}</td>
-            <td class="px-6 py-5 text-gray-600">{{ p.ultima_cita|format_date }}</td>
+            <td class="px-6 py-5 text-gray-600">
+                <span class="font-medium text-gray-800">{{ p.ultima_cita|format_date }}</span>
+            </td>
             <td class="px-6 py-5 text-gray-600">
                 <span class="text-amber-600 font-medium">Hace {{ p.dias_transcurridos|int }} días</span>
             </td>
-            <td class="px-6 py-5 text-right">
-                <a href="{{ url_for('pacientes.detalle_paciente', id=p.id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Agendar Cita</a>
+            <td class="px-6 py-5 text-right min-w-[150px] whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2.5">
+                    <a href="{{ url_for('pacientes.detalle_paciente', id=p.id) }}" class="text-teal-600 hover:text-teal-900 font-medium bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg transition">Agendar Cita</a>
+                </div>
             </td>
         </tr>
         {% endfor %}
