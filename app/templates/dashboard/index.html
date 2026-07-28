@@ -114,6 +114,29 @@
     {% endif %}
 </div>
 
+<!-- MODAL UIX DE CONFIRMACIÓN OMITIR SEGUIMIENTO -->
+<div id="modalOmitirSeguimiento" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md p-6 space-y-5 transform transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0 border border-amber-100 shadow-inner">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-900">Omitir o Posponer Seguimiento</h3>
+                <p class="text-xs text-gray-500">¿Estás seguro de omitir o posponer este seguimiento?</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+            <button type="button" onclick="cerrarModalOmitir()" class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium text-xs transition">
+                Cancelar
+            </button>
+            <button type="button" onclick="confirmarOmitirSeguimiento()" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-md shadow-teal-600/20 transition flex items-center gap-1.5">
+                <i class="fas fa-check"></i> Aceptar
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL DE EDICIÓN DE MENSAJE DE WHATSAPP -->
 <div id="modalWhatsApp" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm hidden">
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 w-full max-w-lg p-6 space-y-5 transform transition-all">
@@ -205,19 +228,61 @@ function cerrarModalWhatsApp() {
     currentTelefono = null;
 }
 
+function mostrarToast(mensaje, tipo = 'success') {
+    let toast = document.getElementById('appToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-sm font-medium transition-all duration-300 transform translate-y-20 opacity-0';
+        document.body.appendChild(toast);
+    }
+    
+    if (tipo === 'success') {
+        toast.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border bg-gray-900 text-white border-gray-800 transition-all duration-300 transform translate-y-20 opacity-0';
+        toast.innerHTML = `<div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0"><i class="fas fa-check"></i></div><span>${mensaje}</span>`;
+    } else {
+        toast.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border bg-gray-900 text-white border-gray-800 transition-all duration-300 transform translate-y-20 opacity-0';
+        toast.innerHTML = `<div class="w-8 h-8 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0"><i class="fas fa-exclamation"></i></div><span>${mensaje}</span>`;
+    }
+
+    setTimeout(() => {
+        toast.classList.remove('translate-y-20', 'opacity-0');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+    }, 3000);
+}
+
 function copiarTextoModal() {
     const textarea = document.getElementById('modalMensajeTexto');
     textarea.select();
     navigator.clipboard.writeText(textarea.value).then(() => {
-        alert('¡Texto copiado al portapapeles con éxito!');
+        mostrarToast('¡Texto copiado al portapapeles con éxito!');
     }).catch(err => {
         console.error('Error al copiar al portapapeles:', err);
-        alert('No se pudo copiar el texto automáticamente.');
+        mostrarToast('No se pudo copiar el texto automáticamente.', 'error');
     });
 }
 
+let valIdParaOmitir = null;
+
 function omitirSeguimiento(valId) {
-    if (!confirm('¿Estás seguro de omitir o posponer este seguimiento?')) return;
+    valIdParaOmitir = valId;
+    const modal = document.getElementById('modalOmitirSeguimiento');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function cerrarModalOmitir() {
+    const modal = document.getElementById('modalOmitirSeguimiento');
+    if (modal) modal.classList.add('hidden');
+    valIdParaOmitir = null;
+}
+
+function confirmarOmitirSeguimiento() {
+    if (!valIdParaOmitir) return;
+    const valId = valIdParaOmitir;
+    cerrarModalOmitir();
 
     // Optimistic UI: actualizar fila de inmediato
     const row = document.getElementById(`row-val-${valId}`);
