@@ -42,7 +42,7 @@
     @open-cita-modal.window="verificarCita()">
 
     <!-- Modal Excel -->
-    <div x-show="modalExcelOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
+    <div x-show="modalExcelOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" style="display: none;" x-cloak>
         <div @click.away="modalExcelOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
             <h3 class="text-xl font-bold text-gray-900 mb-6">Importar desde Excel</h3>
             <form action="{{ url_for('pacientes.cargar_excel', id=paciente['id']) }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ error: '' }">
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Modal Advertencia Cita Existente -->
-    <div x-show="modalAdvertenciaOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
+    <div x-show="modalAdvertenciaOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 " x-cloak>
         <div @click.away="modalAdvertenciaOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
             <h3 class="text-xl font-bold text-gray-900 mb-4">Cita Ya Registrada</h3>
             <p class="text-sm text-gray-600 mb-6">
