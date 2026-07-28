@@ -1,5 +1,5 @@
 from app import db_orm as db
-from datetime import datetime
+from datetime import datetime, date
 
 class ValoracionAntropometrica(db.Model):
     __tablename__ = 'valoracion_antropometrica'
