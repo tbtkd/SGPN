@@ -23,7 +23,6 @@ SistemaPacientes/
 │   ├── __init__.py           # Fábrica de aplicación (create_app), extensiones (db, login_manager)
 │   ├── config.py             # Configuración de entornos
 │   ├── db.py                 # Inicialización de SQLAlchemy
-│   ├── schema.sql            # Script SQL base de respaldo
 │   ├── controllers/          # Blueprints y lógica de rutas (main, pacientes, valoraciones, etc.)
 │   ├── models/               # Modelos ORM (Paciente, ValoracionAntropometrica, Cita, Pago, HistorialClinico)
 │   ├── static/               # Activos estáticos (CSS con Tailwind, JS modular, imágenes, logos)
