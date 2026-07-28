@@ -46,8 +46,10 @@ def create_app(config_name=None):
     from app.controllers.historial_clinico import historial_clinico as historial_blueprint
     from app.controllers.valoracion_antropometrica import valoracion as valoracion_blueprint
     from app.controllers.auth import auth as auth_blueprint
+    from app.controllers.plantillas import plantillas_bp as plantillas_blueprint
     
     app.register_blueprint(main_blueprint)
+    app.register_blueprint(plantillas_blueprint)
     app.register_blueprint(pacientes_blueprint)
     app.register_blueprint(historial_blueprint)
     app.register_blueprint(valoracion_blueprint)
