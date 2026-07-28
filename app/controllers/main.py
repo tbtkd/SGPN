@@ -5,6 +5,7 @@ from app.models.paciente import Paciente
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 from app.models.cita import Cita
 from app.models.bitacora import BitacoraContacto
+from app.models.plantilla import PlantillaMensaje
 from app import db_orm as db
 
 main = Blueprint('main', __name__)
@@ -42,6 +43,9 @@ def index():
     else:
         actividad_reciente = ValoracionAntropometrica.obtener_recientes(limite=10)
     
+    plantilla_activa = PlantillaMensaje.obtener_activa()
+    contenido_plantilla = plantilla_activa.contenido if plantilla_activa else "¡Hola, {nombre}! 👋 Te saluda la nutrióloga Aurora Ángeles. Han pasado {dias} días desde tu última consulta y quería saber cómo te has sentido con tu plan de alimentación y si te ha surgido alguna duda. ¡Sigo al pendiente de tus avances!"
+
     return render_template('dashboard/index.html', 
                            total_pacientes=total_pacientes,
                            crecimiento_pacientes=crecimiento_pacientes,
@@ -53,6 +57,7 @@ def index():
                            pendientes_por_agendar=pendientes_por_agendar,
                            seguimiento_14_15=seguimiento_14_15,
                            actividad_reciente=actividad_reciente,
+                           contenido_plantilla=contenido_plantilla,
                            datetime=datetime)
 
 @main.route('/dashboard/marcar-seguimiento/<int:valoracion_id>', methods=['POST'])
