@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +11,11 @@ from app.core.error_handlers import register_error_handlers
 db_orm = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.abspath(os.path.dirname(__file__))
 
 def create_app(config_name=None):
     """
@@ -23,19 +29,36 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'default')
     
+    base_path = get_base_path()
+    template_dir = os.path.join(base_path, 'templates') if getattr(sys, 'frozen', False) else 'templates'
+    static_dir = os.path.join(base_path, 'static') if getattr(sys, 'frozen', False) else 'static'
+
     # Inicialización de la aplicación Flask
     app = Flask(__name__,
-                static_folder='static',
-                template_folder='templates') 
+                static_folder=static_dir,
+                template_folder=template_dir) 
     
     # Cargar configuración
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # TODO: Descomentar para ambiente de desarrollo
-    # from app.logger import setup_logger
-    # setup_logger(app, config[config_name])
-    
+    # Configuración de base de datos persistente para ejecutable o desarrollo
+    if getattr(sys, 'frozen', False):
+        # Si corre como ejecutable, la BD se guarda en la carpeta donde está el .exe
+        exe_dir = os.path.dirname(sys.executable)
+        instance_dir = os.path.join(exe_dir, 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        db_path = os.path.join(instance_dir, 'sgpn_nutricion.db')
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+    else:
+        # En desarrollo, usar la ruta estándar dentro del proyecto
+        instance_dir = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        db_path = os.path.join(instance_dir, 'sgpn_nutricion.db')
+        # Si no se ha configurado previamente en config.py, aseguramos SQLite URI
+        if 'SQLALCHEMY_DATABASE_URI' not in app.config:
+            app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+
     # Inicialización de la base de datos
     db_orm.init_app(app)
     migrate.init_app(app, db_orm)
@@ -77,6 +100,8 @@ def create_app(config_name=None):
         from app.models.historial_clinico import HistorialClinico
         from app.models.valoracion_antropometrica import ValoracionAntropometrica
         from app.models.usuario import Usuario
+        from app.models.plantilla import PlantillaMensaje as PlantillaWhatsApp
+        from app.models.bitacora import BitacoraContacto
         
         db_orm.create_all()
 

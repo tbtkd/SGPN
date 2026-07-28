@@ -19,6 +19,9 @@ venv/
 .node_modules/
 node_modules/
 *.log
+dist/
+build/
+
 
 
 # Variables de entorno

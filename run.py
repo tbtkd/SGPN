@@ -1,71 +1,40 @@
 import os
+import sys
+import traceback
 import webbrowser
 from threading import Timer
 from app import create_app
-from app.controllers.pacientes import registrar_proxima_cita
 
 def open_browser(port):
     """Abre el navegador predeterminado en la URL de la aplicación"""
-    webbrowser.open(f'http://127.0.0.1:{port}/')
-
-#app = create_app(os.getenv('FLASK_ENV', 'default'))
-app = create_app()
+    try:
+        webbrowser.open(f'http://127.0.0.1:{port}/')
+    except Exception as e:
+        print(f"[ADVERTENCIA] No se pudo abrir el navegador automáticamente: {e}")
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
-    
-    # Programa la apertura del navegador después de 1.5 segundos
-    # para dar tiempo a que Flask inicie
-    Timer(1.5, open_browser, args=[port]).start()
-    
-    # Configuración de desarrollo con auto-recarga
-    debug_mode = os.getenv('FLASK_ENV') == 'development'
-    app.run(
-        host='127.0.0.1',
-        port=port,
-        debug=True,  # Habilita el modo de depuración
-        use_reloader=True  # Habilita la recarga automática
+    try:
+        print("========================================================")
+        print("   INICIANDO SISTEMA DE GESTION DE PACIENTES Y NUTRICION ")
+        print("========================================================")
         
-        #debug=debug_mode,>
-        #use_reloader=debug_mode,
-        #extra_files=[  # Monitorear cambios en archivos estáticos y templates
-            #'app/static/css/',
-            #'app/static/js/',
-            #'app/templates/'
-        #]
-    )
-# app/core/error_handlers.py
-import logging
-from flask import render_template, jsonify, request
-
-logger = logging.getLogger(__name__)
-
-def register_error_handlers(app):
-    
-    @app.errorhandler(400)
-    def bad_request_error(error):
-        mensaje = error.description if hasattr(error, 'description') else "Petición incorrecta."
-        if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': False, 'error': mensaje}), 400
-        return render_template('errors/400.html', message=mensaje), 400
-
-    @app.errorhandler(404)
-    def not_found_error(error):
-        if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': False, 'error': 'Recurso no encontrado'}), 404
-        return render_template('errors/404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        logger.error(f"Error interno del servidor [500]: {error}")
-        if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': False, 'error': 'Error interno del servidor'}), 500
-        return render_template('errors/500.html'), 500
-
-    @app.errorhandler(Exception)
-    def handle_exception(e):
-        # Captura cualquier excepción genérica no controlada de Python
-        logger.exception("Excepción no controlada detectada en el sistema:")
-        if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': False, 'error': 'Ocurrió un error inesperado'}), 500
-        return render_template('errors/500.html'), 500
+        app = create_app()
+        port = int(os.getenv('PORT', 5000))
+        
+        # Programa la apertura del navegador después de 1.5 segundos
+        Timer(1.5, open_browser, args=[port]).start()
+        
+        print(f"[INFO] Servidor corriendo en http://127.0.0.1:{port}/")
+        app.run(
+            host='127.0.0.1',
+            port=port,
+            debug=False,
+            use_reloader=False
+        )
+    except Exception as e:
+        print("\n========================================================")
+        print(" [ERROR CRITICO] Ocurrio un fallo al iniciar la aplicacion:")
+        print("========================================================")
+        traceback.print_exc()
+        print("\n")
+        input("Presiona ENTER para salir...")
