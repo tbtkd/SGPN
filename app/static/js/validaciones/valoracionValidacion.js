@@ -187,3 +187,63 @@ function mostrarNotificacion(mensaje, tipo) {
         alert(mensaje);
     }
 }
+
+// Inicializar restricciones en tiempo real al cargar el DOM para mantener el código desacoplado del HTML
+document.addEventListener('DOMContentLoaded', function() {
+    const enterosIds = ['numero_cita', 'frecuencia_cardiaca'];
+    enterosIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keypress', function(e) {
+                if (e.key < '0' || e.key > '9') {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
+    });
+
+    const decimalesIds = [
+        'estatura', 'peso', 'cintura', 'torax', 'brazo', 'cadera', 
+        'pierna', 'pantorrilla', 'bicep', 'tricep', 'suprailiaco', 
+        'subescapular', 'femoral', 'grasa', 'imc', 'porcentaje_grasa'
+    ];
+    decimalesIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keypress', function(e) {
+                if ((e.key < '0' || e.key > '9') && e.key !== '.') {
+                    e.preventDefault();
+                }
+                if (e.key === '.' && this.value.includes('.')) {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('input', function(e) {
+                let val = this.value;
+                let partes = val.split('.');
+                if (partes.length > 2) {
+                    this.value = partes[0] + '.' + partes.slice(1).join('');
+                }
+                this.value = this.value.replace(/[^0-9.]/g, '');
+            });
+        }
+    });
+
+    const tensionEl = document.getElementById('tension_arterial');
+    if (tensionEl) {
+        tensionEl.addEventListener('keypress', function(e) {
+            if ((e.key < '0' || e.key > '9') && e.key !== '/') {
+                e.preventDefault();
+            }
+        });
+        tensionEl.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9/]/g, '');
+        });
+    }
+});
+
+
+
