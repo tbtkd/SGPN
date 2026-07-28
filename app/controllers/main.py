@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from datetime import datetime, date, timedelta
 from app.models.paciente import Paciente
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 from app.models.cita import Cita
+from app.models.bitacora import BitacoraContacto
 from app import db_orm as db
 
 main = Blueprint('main', __name__)
@@ -64,6 +65,15 @@ def marcar_seguimiento(valoracion_id):
         
         val.seguimiento_15d_enviado = True
         val.fecha_seguimiento_15d = datetime.now()
+
+        # Registrar en la bitácora de acompañamiento WhatsApp del paciente
+        mensaje_enviado = request.json.get('mensaje', 'Hola, te escribo para dar seguimiento a tu plan nutricional a los 14-15 días.') if request.is_json else 'Seguimiento de 14-15 días enviado.'
+        BitacoraContacto.registrar(
+            paciente_id=val.paciente_id,
+            usuario_id=current_user.id if hasattr(current_user, 'id') else None,
+            mensaje=mensaje_enviado
+        )
+
         db.session.commit()
         return jsonify({'success': True, 'message': 'Seguimiento marcado como enviado correctamente'})
     except Exception as e:

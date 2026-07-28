@@ -337,7 +337,8 @@ function confirmarEnviarWhatsApp() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({ mensaje: mensajeEditado })
     })
     .then(response => response.json())
     .then(data => {
