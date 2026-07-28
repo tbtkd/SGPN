@@ -3,12 +3,11 @@ from werkzeug.utils import secure_filename
 import os
 import openpyxl
 from datetime import datetime
+from app import db_orm as db
 from app.models.paciente import Paciente
 from app.models.pago import Pago
 from app.models.historial_clinico import HistorialClinico
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
-import sqlite3
-from app.db import query_db, get_db
 from app.models.cita import Cita
 
 pacientes = Blueprint('pacientes', __name__, url_prefix='/pacientes')
@@ -23,7 +22,6 @@ def nuevo_paciente():
                 flash('El teléfono debe tener exactamente 10 dígitos numéricos', 'error')
                 return render_template('pacientes/nuevo_paciente.html')
             
-            # El status se asigna automáticamente como 'activo' en la base de datos
             exito, mensaje = Paciente.crear(
                 request.form['nombre'],
                 request.form['apellido_paterno'],
@@ -51,9 +49,9 @@ def nuevo_paciente():
 def lista_pacientes_activos():
     try:
         busqueda = request.args.get('busqueda', '')
-        pacientes = Paciente.buscar(busqueda, status='activo')
+        pacientes_list = Paciente.buscar(busqueda, status='activo')
         return render_template('pacientes/lista_pacientes.html', 
-                            pacientes=pacientes,
+                            pacientes=pacientes_list,
                             busqueda=busqueda,
                             tipo_lista="activos")
     except Exception as e:
@@ -64,9 +62,9 @@ def lista_pacientes_activos():
 def lista_pacientes_inactivos():
     try:
         busqueda = request.args.get('busqueda', '')
-        pacientes = Paciente.buscar(busqueda, status='inactivo')
+        pacientes_list = Paciente.buscar(busqueda, status='inactivo')
         return render_template('pacientes/lista_pacientes.html', 
-                            pacientes=pacientes,
+                            pacientes=pacientes_list,
                             busqueda=busqueda,
                             tipo_lista="inactivos")
     except Exception as e:
@@ -103,7 +101,6 @@ def detalle_paciente(id):
     ultimo_pago = Pago.obtener_ultimo_pago(id)
     historial = HistorialClinico.obtener_por_paciente_id(id)
     
-    # Lógica para Mapa Corporal
     valoraciones = ValoracionAntropometrica.obtener_por_paciente(id)
     ultima_valoracion = valoraciones[0] if len(valoraciones) > 0 else None
     valoracion_anterior = valoraciones[1] if len(valoraciones) > 1 else None
@@ -112,20 +109,18 @@ def detalle_paciente(id):
     if ultima_valoracion and valoracion_anterior:
         campos = ['cintura', 'torax', 'brazo', 'bicep', 'tricep', 'cadera', 'pierna', 'pantorrilla', 'subescapular', 'suprailiaco', 'femoral']
         for campo in campos:
-            val_actual = ultima_valoracion[campo]
-            val_anterior = valoracion_anterior[campo]
+            val_actual = getattr(ultima_valoracion, campo, None)
+            val_anterior = getattr(valoracion_anterior, campo, None)
             if val_actual is not None and val_anterior is not None:
                 diff = val_actual - val_anterior
                 tendencia = 'aumento' if diff > 0 else ('reduccion' if diff < 0 else 'sin_cambio')
                 diferencias[campo] = {'valor': diff, 'tendencia': tendencia}
 
-    # Obtener la siguiente cita
     siguiente_cita_data = Cita.obtener_siguiente_cita(id)
     siguiente_cita = None
     if siguiente_cita_data:
-        fecha_str = siguiente_cita_data['fecha']
-        hora_str = siguiente_cita_data['hora']
-        # Asegurar que la hora solo tenga HH:MM
+        fecha_str = str(siguiente_cita_data.fecha)
+        hora_str = str(siguiente_cita_data.hora)
         hora_limpia = ":".join(hora_str.split(':')[:2])
         siguiente_cita = datetime.strptime(f"{fecha_str} {hora_limpia}", '%Y-%m-%d %H:%M')
 
@@ -145,7 +140,6 @@ def editar_paciente(id):
     if request.method == 'POST':
         try:
             telefono = request.form.get('telefono', '').strip()
-            # Validar teléfono
             if len(telefono) != 10 or not telefono.isdigit():
                 flash('El teléfono debe tener exactamente 10 dígitos numéricos', 'error')
                 return redirect(url_for('pacientes.editar_paciente', id=id))
@@ -194,7 +188,7 @@ def cambiar_estado(id):
         if not paciente:
             raise Exception('Paciente no encontrado')
         
-        nuevo_estado = 'inactivo' if paciente['status'] == 'activo' else 'activo'
+        nuevo_estado = 'inactivo' if paciente.status == 'activo' else 'activo'
         Paciente.actualizar_estatus(id, nuevo_estado)
         
         flash('Estado del paciente actualizado correctamente', 'success')
@@ -203,7 +197,6 @@ def cambiar_estado(id):
         return jsonify({'success': False, 'error': str(e)})
 
 def extraer_valor(texto, clave):
-    """Extrae el número inmediatamente después de la clave en un texto."""
     try:
         partes = texto.lower().split(clave)
         if len(partes) > 1:
@@ -217,7 +210,6 @@ def extraer_valor(texto, clave):
     return None
 
 def convertir_fecha(fecha_valor):
-    """Convierte un valor de celda en una fecha válida, asegurando formato correcto."""
     if isinstance(fecha_valor, datetime):
         return fecha_valor.date()
     elif isinstance(fecha_valor, str):
@@ -230,10 +222,12 @@ def convertir_fecha(fecha_valor):
     return None
 
 def existe_registro(paciente_id, numero_cita, fecha):
-    """Verifica si un registro con el mismo número de cita y fecha ya existe en la base de datos."""
-    resultado = query_db('''SELECT id FROM valoracion_antropometrica WHERE paciente_id = ? AND numero_cita = ? AND fecha = ?''',
-                         [paciente_id, numero_cita, fecha], one=True)
-    return resultado is not None
+    existente = ValoracionAntropometrica.query.filter_by(
+        paciente_id=paciente_id,
+        numero_cita=numero_cita,
+        fecha=fecha
+    ).first()
+    return existente is not None
 
 @pacientes.route('/<int:id>/cargar-excel', methods=['POST'])
 def cargar_excel(id):
@@ -336,12 +330,10 @@ def registrar_proxima_cita(id):
         flash('La fecha y la hora de la cita son campos obligatorios.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Validar que la fecha no sea anterior a hoy
     if datetime.strptime(fecha, '%Y-%m-%d').date() < datetime.now().date():
         flash('No se pueden agendar citas en fechas anteriores al día de hoy.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Validar formato y conversión segura de la hora
     try:
         partes = hora.split(':')
         if len(partes) < 2:
@@ -351,33 +343,27 @@ def registrar_proxima_cita(id):
         flash('El formato de la hora proporcionada es inválido.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    if not (9 <= hora_int <= 19):  # 9 AM a 7 PM
+    if not (9 <= hora_int <= 19):
         flash('La hora de la cita debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
         
-    # Verificar si ya existe una cita para este paciente
     cita_existente = Cita.obtener_siguiente_cita(id)
     
     if cita_existente:
-        # Actualizar la cita existente
-        cita_id = cita_existente['id']
-        
-        # Verificar si el horario está disponible globalmente (excluyendo la cita actual)
+        cita_id = cita_existente.id
         if not Cita.es_horario_disponible(fecha, hora, excluir_cita_id=cita_id):
             flash('El horario seleccionado ya no está disponible.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
             
-        db = get_db()
-        db.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_id))
-        db.commit()
+        cita_existente.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+        cita_existente.hora = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
+        db.session.commit()
         flash('Cita actualizada exitosamente.', 'success')
     else:
-        # Verificar si el horario está disponible globalmente
         if not Cita.es_horario_disponible(fecha, hora):
             flash('El horario seleccionado ya no está disponible.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
             
-        # Crear la nueva cita
         Cita.crear(id, fecha, hora)
         flash('Nueva cita registrada exitosamente.', 'success')
         
@@ -388,31 +374,23 @@ def actualizar_cita(id, cita_id):
     fecha = request.form.get('proxima_cita_fecha')
     hora = request.form.get('proxima_cita_hora')
 
-    # Validar que la hora esté en el rango permitido
-    if not (9 <= int(hora.split(':')[0]) <= 19):  # 9 AM a 7 PM
+    if not (9 <= int(hora.split(':')[0]) <= 19):
         flash('La hora debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Verificar si la cita a actualizar no ha pasado
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT fecha, hora FROM citas WHERE id = ?', (cita_id,))
-    cita = cursor.fetchone()
-    
+    cita = Cita.query.get(cita_id)
     if cita:
-        fecha_cita, hora_cita = cita
-        if datetime.now() > datetime.combine(fecha_cita, hora_cita):
+        if datetime.now() > datetime.combine(cita.fecha, cita.hora):
             flash('No se puede actualizar una cita que ya ha pasado.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Verificar si el horario está disponible globalmente (excluyendo la cita actual)
     if not Cita.es_horario_disponible(fecha, hora, excluir_cita_id=cita_id):
         flash('El horario seleccionado ya no está disponible.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
 
-    # Si no existe, actualizar la cita
-    cursor.execute('UPDATE citas SET fecha = ?, hora = ? WHERE id = ?', (fecha, hora, cita_id))
-    db.commit()
+    cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+    cita.hora = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
+    db.session.commit()
 
     flash('Cita actualizada exitosamente.', 'success')
     return redirect(url_for('pacientes.detalle_paciente', id=id))
@@ -420,9 +398,6 @@ def actualizar_cita(id, cita_id):
 @pacientes.route('/disponibilidad_horas', methods=['GET'])
 def disponibilidad_horas():
     fecha = request.args.get('fecha')
-    db = get_db()
-    cursor = db.cursor()
-    # Obtener horas ocupadas por CUALQUIER paciente en esa fecha
-    cursor.execute('SELECT hora FROM citas WHERE fecha = ?', (fecha,))
-    horas_ocupadas = [row[0] for row in cursor.fetchall()]
+    citas_dia = Cita.query.filter_by(fecha=datetime.strptime(fecha, '%Y-%m-%d').date()).all()
+    horas_ocupadas = [str(c.hora) for c in citas_dia]
     return jsonify(horas_ocupadas)

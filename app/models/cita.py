@@ -1,74 +1,57 @@
-import sqlite3
-from app.db import get_db, query_db
+from app import db_orm as db
 from datetime import datetime
 
-class Cita:
-    def __init__(self, paciente_id, fecha, hora, estado='pendiente'):
-        self.paciente_id = paciente_id
-        self.fecha = fecha
-        self.hora = hora
-        self.estado = estado
+class Cita(db.Model):
+    __tablename__ = 'citas'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    paciente_id = db.Column(db.Integer, db.ForeignKey('pacientes.id', ondelete='CASCADE'), nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    hora = db.Column(db.Time, nullable=False)
+    estado = db.Column(db.String(20), default='pendiente')
+    
+    paciente = db.relationship('Paciente', backref=db.backref('citas', lazy=True))
 
     @staticmethod
     def crear(paciente_id, fecha, hora):
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('INSERT INTO citas (paciente_id, fecha, hora, estado) VALUES (?, ?, ?, ?)',
-                       (paciente_id, fecha, hora, 'pendiente'))
-        db.commit()
-        return cursor.lastrowid
-
-    @staticmethod
-    def existe_cita(paciente_id, fecha, hora):
-        db = get_db()
-        cursor = db.cursor()
-        if hora is not None:
-            cursor.execute('SELECT id FROM citas WHERE paciente_id = ? AND fecha = ? AND hora = ?', (paciente_id, fecha, hora))
-        else:
-            cursor.execute('SELECT id FROM citas WHERE paciente_id = ? AND fecha = ?', (paciente_id, fecha))
-        return cursor.fetchone()  # Devuelve el ID de la cita si existe, o None si no existe
-
-    @staticmethod
-    def es_horario_disponible(fecha, hora, excluir_cita_id=None):
-        db = get_db()
-        cursor = db.cursor()
-        query = 'SELECT id FROM citas WHERE fecha = ? AND hora = ?'
-        params = [fecha, hora]
-        if excluir_cita_id:
-            query += ' AND id != ?'
-            params.append(excluir_cita_id)
-        cursor.execute(query, params)
-        return cursor.fetchone() is None
-
-    @staticmethod
-    def obtener_por_id(cita_id):
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('SELECT * FROM citas WHERE id = ?', (cita_id,))
-        return cursor.fetchone()  # Devuelve la cita si existe
+        try:
+            nueva_cita = Cita(
+                paciente_id=paciente_id,
+                fecha=datetime.strptime(fecha, '%Y-%m-%d').date(),
+                hora=datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time(),
+                estado='pendiente'
+            )
+            db.session.add(nueva_cita)
+            db.session.commit()
+            return True, "Cita creada exitosamente"
+        except Exception as e:
+            db.session.rollback()
+            return False, str(e)
 
     @staticmethod
     def obtener_siguiente_cita(paciente_id):
-        # Consulta para obtener la próxima cita del paciente
-        result = query_db('''
-            SELECT id, fecha, hora FROM citas 
-            WHERE paciente_id = ? AND fecha >= ? 
-            ORDER BY fecha ASC, hora ASC LIMIT 1
-        ''', [paciente_id, datetime.now().strftime('%Y-%m-%d')], one=True)
-        return result if result else None
+        hoy = datetime.now().date()
+        return Cita.query.filter(
+            Cita.paciente_id == paciente_id,
+            Cita.fecha >= hoy
+        ).order_by(Cita.fecha.asc(), Cita.hora.asc()).first()
 
     @staticmethod
-    def obtener_citas_del_dia():
-        # Obtener citas de hoy, ordenadas por hora, excluyendo las que ya pasaron
-        hoy = datetime.now().strftime('%Y-%m-%d')
-        hora_actual = datetime.now().strftime('%H:%M')
+    def obtener_citas_del_dia(fecha=None):
+        if not fecha:
+            fecha = datetime.now().date()
+        elif isinstance(fecha, str):
+            fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+        return Cita.query.filter_by(fecha=fecha).order_by(Cita.hora.asc()).all()
+
+    @staticmethod
+    def es_horario_disponible(fecha, hora, excluir_cita_id=None):
+        fecha_dt = datetime.strptime(fecha, '%Y-%m-%d').date()
+        hora_dt = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
         
-        # Unimos con pacientes para obtener el nombre
-        query = '''
-            SELECT c.id, c.paciente_id, c.fecha, c.hora, p.nombre, p.apellido_paterno 
-            FROM citas c
-            JOIN pacientes p ON c.paciente_id = p.id
-            WHERE c.fecha = ? AND c.hora >= ?
-            ORDER BY c.hora ASC
-        '''
-        return query_db(query, [hoy, hora_actual])
+        query = Cita.query.filter_by(fecha=fecha_dt, hora=hora_dt)
+        if excluir_cita_id:
+            query = query.filter(Cita.id != excluir_cita_id)
+        
+        existente = query.first()
+        return existente is None

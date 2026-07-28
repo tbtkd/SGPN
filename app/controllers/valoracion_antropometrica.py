@@ -82,6 +82,8 @@ def lista_valoraciones(paciente_id):
     return render_template('valoraciones/lista_valoraciones.html', paciente=paciente, valoraciones=valoraciones)
 
 @valoracion.route('/')
+
+
 def todas_valoraciones():
     valoraciones = ValoracionAntropometrica.obtener_todas()
     return render_template('valoraciones/todas_valoraciones.html', valoraciones=valoraciones)
@@ -93,13 +95,13 @@ def detalle_valoracion(valoracion_id):
         flash('Valoración no encontrada', 'error')
         return redirect(url_for('valoracion.todas_valoraciones'))
     
-    paciente = Paciente.obtener_por_id(valoracion['paciente_id'])
-    historial_valoraciones = ValoracionAntropometrica.obtener_por_paciente(valoracion['paciente_id'])
+    paciente = Paciente.obtener_por_id(valoracion.paciente_id)
+    historial_valoraciones = ValoracionAntropometrica.obtener_por_paciente(valoracion.paciente_id)
     
     # Encontrar la valoración anterior
     valoracion_anterior = None
     for i, v in enumerate(historial_valoraciones):
-        if v['id'] == valoracion_id and i + 1 < len(historial_valoraciones):
+        if v.id == valoracion_id and i + 1 < len(historial_valoraciones):
             valoracion_anterior = historial_valoraciones[i + 1]
             break
     

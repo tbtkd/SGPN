@@ -1,7 +1,7 @@
 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6" 
      x-data="{ 
-        ultima_valoracion: {{ dict(valoracion)|tojson }}, 
-        valoracion_anterior: {{ dict(valoracion_anterior)|tojson if valoracion_anterior else 'null' }} 
+        ultima_valoracion: {{ valoracion.to_dict()|tojson }}, 
+        valoracion_anterior: {{ valoracion_anterior.to_dict()|tojson if valoracion_anterior else 'null' }} 
      }">
     
     <!-- Encabezado -->

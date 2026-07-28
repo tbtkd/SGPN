@@ -1,6 +1,6 @@
 from app import db_orm as db
 from datetime import datetime, timedelta
-from app.db import query_db
+from sqlalchemy import text
 
 class Paciente(db.Model):
     __tablename__ = 'pacientes'
@@ -17,14 +17,13 @@ class Paciente(db.Model):
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='activo')
     
-    # Importación diferida para evitar error de resolución de nombres
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @property
     def valoraciones(self):
-        from app.models.valoracion import Valoracion
-        return Valoracion.query.filter_by(paciente_id=self.id).all()
+        from app.models.valoracion_antropometrica import ValoracionAntropometrica
+        return ValoracionAntropometrica.query.filter_by(paciente_id=self.id).all()
 
     @staticmethod
     def crear(nombre, apellido_paterno, apellido_materno, genero, fecha_nacimiento, telefono, correo, ciudad):
@@ -52,13 +51,11 @@ class Paciente(db.Model):
 
     @staticmethod
     def calcular_crecimiento_mensual():
-        # Implementación básica: contar pacientes creados en el mes actual
         inicio_mes = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         return Paciente.query.filter(Paciente.fecha_registro >= inicio_mes).count()
 
     @staticmethod
     def contar_en_seguimiento():
-        # Asumimos que 'en seguimiento' es un estatus o lógica específica
         return Paciente.query.filter_by(status='seguimiento').count()
 
     @staticmethod
@@ -99,20 +96,12 @@ class Paciente(db.Model):
             db.session.commit()
 
     @staticmethod
-    def obtener_sin_valoracion_reciente(dias=30):
-        # Implementación placeholder
-        return []
-
-    @staticmethod
     def obtener_proximos(fecha=None):
-        # Implementación placeholder
         return []
 
     @staticmethod
     def obtener_pendientes_por_agendar():
-        # Pacientes cuya última cita haya sido anterior a su última valoración
-        # O que no tengan cita futura
-        query = '''
+        query = text('''
             SELECT p.id, p.nombre, p.apellido_paterno, p.apellido_materno,
                    MAX(c.fecha) as ultima_cita,
                    (JULIANDAY('now') - JULIANDAY(MAX(c.fecha))) as dias_transcurridos
@@ -120,25 +109,25 @@ class Paciente(db.Model):
             LEFT JOIN citas c ON p.id = c.paciente_id
             GROUP BY p.id
             HAVING MAX(c.fecha) < DATE('now', '-30 days') OR MAX(c.fecha) IS NULL
-        '''
-        return query_db(query, [])
+        ''')
+        result = db.session.execute(query)
+        return result.fetchall()
 
     @staticmethod
     def obtener_sin_valoracion_reciente(dias=30):
-        # Pacientes cuya última cita haya sido mayor a 30 días desde su última valoración
         fecha_limite = (datetime.now() - timedelta(days=dias)).strftime('%Y-%m-%d')
-        query = '''
+        query = text('''
             SELECT p.id, p.nombre, p.apellido_paterno, p.apellido_materno, 
                    MAX(v.fecha) as ultima_valoracion,
                    (JULIANDAY('now') - JULIANDAY(MAX(v.fecha))) as dias_transcurridos
             FROM pacientes p
             JOIN valoracion_antropometrica v ON p.id = v.paciente_id
             GROUP BY p.id
-            HAVING MAX(v.fecha) < ?
-        '''
-        return query_db(query, [fecha_limite])
+            HAVING MAX(v.fecha) < :fecha_limite
+        ''')
+        result = db.session.execute(query, {"fecha_limite": fecha_limite})
+        return result.fetchall()
 
     @staticmethod
     def obtener_pendientes_reagendamiento():
-        # Implementación placeholder
         return []

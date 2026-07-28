@@ -1,158 +1,165 @@
-from app.db import get_db, query_db
+from app import db_orm as db
 from datetime import datetime
 
-class ValoracionAntropometrica:
+class ValoracionAntropometrica(db.Model):
+    __tablename__ = 'valoracion_antropometrica'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    paciente_id = db.Column(db.Integer, db.ForeignKey('pacientes.id'), nullable=False)
+    numero_cita = db.Column(db.Integer, nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    estatura = db.Column(db.Float, nullable=False)
+    peso = db.Column(db.Float, nullable=False)
+    imc = db.Column(db.Float, nullable=False)
+    grasa = db.Column(db.Float, nullable=False)
+    cintura = db.Column(db.Float, nullable=False)
+    torax = db.Column(db.Float, nullable=False)
+    brazo = db.Column(db.Float, nullable=False)
+    cadera = db.Column(db.Float, nullable=False)
+    pierna = db.Column(db.Float, nullable=False)
+    pantorrilla = db.Column(db.Float, nullable=False)
+    tension_arterial = db.Column(db.String(50), nullable=False)
+    frecuencia_cardiaca = db.Column(db.Integer, nullable=False)
+    bicep = db.Column(db.Float, nullable=False)
+    tricep = db.Column(db.Float, nullable=False)
+    suprailiaco = db.Column(db.Float, nullable=False)
+    subescapular = db.Column(db.Float, nullable=False)
+    femoral = db.Column(db.Float)
+    porcentaje_grasa = db.Column(db.String(50), nullable=False)
+    ultima_dieta = db.Column(db.Text)
+    
+    paciente = db.relationship('Paciente', backref=db.backref('valoraciones_lista', cascade="all, delete-orphan", lazy=True))
+
     @staticmethod
     def crear(paciente_id, datos):
-        db = get_db()
         try:
-            # Obtener el siguiente número de cita automáticamente si no se proporciona
-            if 'numero_cita' not in datos or not datos['numero_cita']:
-                datos['numero_cita'] = ValoracionAntropometrica.obtener_ultimo_numero_cita(paciente_id)
-            
-            db.execute('''
-                INSERT INTO valoracion_antropometrica (
-                    paciente_id, numero_cita, fecha, estatura, peso, imc, grasa,
-                    cintura, torax, brazo, cadera, pierna, pantorrilla,
-                    tension_arterial, frecuencia_cardiaca,
-                    bicep, tricep, suprailiaco, subescapular, femoral, porcentaje_grasa,
-                    ultima_dieta
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                paciente_id, datos['numero_cita'], datos['fecha'], datos.get('estatura'),
-                datos.get('peso'), datos.get('imc'), datos.get('grasa'), datos.get('cintura'),
-                datos.get('torax'), datos.get('brazo'), datos.get('cadera'), datos.get('pierna'),
-                datos.get('pantorrilla'), datos.get('tension_arterial'), 
-                datos.get('frecuencia_cardiaca'),
-                datos.get('bicep'), datos.get('tricep'), datos.get('suprailiaco'),
-                datos.get('subescapular'), datos.get('femoral'),
-                datos.get('porcentaje_grasa'), datos.get('ultima_dieta')
-            ))
-            db.commit()
+            nueva_valoracion = ValoracionAntropometrica(
+                paciente_id=paciente_id,
+                numero_cita=datos.get('numero_cita', 1),
+                fecha=datetime.strptime(datos['fecha'], '%Y-%m-%d').date(),
+                estatura=datos['estatura'],
+                peso=datos['peso'],
+                imc=datos['imc'],
+                grasa=datos['grasa'],
+                cintura=datos['cintura'],
+                torax=datos['torax'],
+                brazo=datos['brazo'],
+                cadera=datos['cadera'],
+                pierna=datos['pierna'],
+                pantorrilla=datos['pantorrilla'],
+                tension_arterial=datos['tension_arterial'],
+                frecuencia_cardiaca=datos['frecuencia_cardiaca'],
+                bicep=datos['bicep'],
+                tricep=datos['tricep'],
+                suprailiaco=datos['suprailiaco'],
+                subescapular=datos['subescapular'],
+                femoral=datos.get('femoral'),
+                porcentaje_grasa=datos['porcentaje_grasa'],
+                ultima_dieta=datos.get('ultima_dieta')
+            )
+            db.session.add(nueva_valoracion)
+            db.session.commit()
             return True, "Valoración antropométrica registrada correctamente."
         except Exception as e:
-            db.rollback()
+            db.session.rollback()
             return False, f"Error al registrar la valoración antropométrica: {str(e)}"
 
     @staticmethod
     def actualizar(valoracion_id, datos):
-        db = get_db()
         try:
-            db.execute('''
-                UPDATE valoracion_antropometrica SET
-                fecha = ?, estatura = ?, peso = ?, imc = ?, grasa = ?,
-                cintura = ?, torax = ?, brazo = ?, cadera = ?, pierna = ?,
-                pantorrilla = ?, bicep = ?, tricep = ?, suprailiaco = ?,
-                subescapular = ?, femoral = ?, porcentaje_grasa = ?, ultima_dieta = ?
-                WHERE id = ?
-            ''', (
-                datos['fecha'], datos['estatura'], datos['peso'], datos['imc'],
-                datos['grasa'], datos['cintura'], datos['torax'], datos['brazo'],
-                datos['cadera'], datos['pierna'], datos['pantorrilla'],
-                datos['bicep'], datos['tricep'], datos['suprailiaco'],
-                datos['subescapular'], datos['femoral'], datos['porcentaje_grasa'],
-                datos.get('ultima_dieta', ''), valoracion_id
-            ))
-            db.commit()
+            valoracion = ValoracionAntropometrica.query.get(valoracion_id)
+            if not valoracion:
+                return False, "Valoración no encontrada."
+            
+            valoracion.fecha = datetime.strptime(datos['fecha'], '%Y-%m-%d').date()
+            valoracion.estatura = datos['estatura']
+            valoracion.peso = datos['peso']
+            valoracion.imc = datos['imc']
+            valoracion.grasa = datos['grasa']
+            valoracion.cintura = datos['cintura']
+            valoracion.torax = datos['torax']
+            valoracion.brazo = datos['brazo']
+            valoracion.cadera = datos['cadera']
+            valoracion.pierna = datos['pierna']
+            valoracion.pantorrilla = datos['pantorrilla']
+            valoracion.bicep = datos['bicep']
+            valoracion.tricep = datos['tricep']
+            valoracion.suprailiaco = datos['suprailiaco']
+            valoracion.subescapular = datos['subescapular']
+            valoracion.femoral = datos.get('femoral')
+            valoracion.porcentaje_grasa = datos['porcentaje_grasa']
+            valoracion.ultima_dieta = datos.get('ultima_dieta', '')
+            
+            db.session.commit()
             return True, "Valoración antropométrica actualizada correctamente."
         except Exception as e:
-            db.rollback()
+            db.session.rollback()
             return False, f"Error al actualizar la valoración antropométrica: {str(e)}"
 
     @staticmethod
-    def obtener_ultima_por_paciente(paciente_id):
-        return query_db('''
-            SELECT * FROM valoracion_antropometrica
-            WHERE paciente_id = ?
-            ORDER BY numero_cita DESC
-            LIMIT 1
-        ''', [paciente_id], one=True)
-        
-    @staticmethod
-    def obtener_por_paciente(paciente_id):
-        return query_db('''
-            SELECT * FROM valoracion_antropometrica
-            WHERE paciente_id = ?
-            ORDER BY fecha DESC
-        ''', [paciente_id])
-
-    @staticmethod
-    def obtener_ultima_valoracion(paciente_id):
-        return query_db('''
-            SELECT * FROM valoracion_antropometrica
-            WHERE paciente_id = ?
-            ORDER BY fecha DESC
-            LIMIT 1
-        ''', [paciente_id], one=True)
-
-    @staticmethod
-    def obtener_todas():
-        return query_db('''
-            SELECT va.*, p.nombre, p.apellido_paterno, p.apellido_materno
-            FROM valoracion_antropometrica va
-            JOIN pacientes p ON va.paciente_id = p.id
-            ORDER BY va.fecha DESC
-        ''')
-
-    @staticmethod
-    def contar_mes_vigente():
-        # Cuenta valoraciones donde el mes y año de la fecha coinciden con el mes y año actual
-        return query_db('''
-            SELECT COUNT(*) as total 
-            FROM valoracion_antropometrica 
-            WHERE strftime('%Y-%m', fecha) = strftime('%Y-%m', 'now')
-        ''', one=True)['total']
-
-    @staticmethod
-    def obtener_recientes(limite=5):
-        # Obtiene la última valoración de cada paciente, ordenadas por fecha
-        # Filtros defensivos: fecha >= 1900, imc < 100
-        return query_db('''
-            SELECT va.*, p.nombre, p.apellido_paterno 
-            FROM valoracion_antropometrica va
-            JOIN pacientes p ON va.paciente_id = p.id
-            WHERE va.id IN (
-                SELECT id FROM valoracion_antropometrica 
-                WHERE id IN (
-                    SELECT MAX(id) FROM valoracion_antropometrica GROUP BY paciente_id
-                )
-            )
-            AND strftime('%Y', va.fecha) >= '1900'
-            AND (va.imc < 100 OR va.imc IS NULL)
-            ORDER BY va.fecha DESC
-            LIMIT ?
-        ''', [limite])
-
-    @staticmethod
-    def obtener_por_rango(fecha_inicio, fecha_fin):
-        return query_db('''
-            SELECT va.*, p.nombre, p.apellido_paterno 
-            FROM valoracion_antropometrica va
-            JOIN pacientes p ON va.paciente_id = p.id
-            WHERE va.fecha BETWEEN ? AND ?
-            ORDER BY va.fecha DESC
-        ''', [fecha_inicio, fecha_fin])
-
+    def actualizar_ultima_dieta(paciente_id, ultima_dieta):
+        try:
+            valoraciones = ValoracionAntropometrica.query.filter_by(paciente_id=paciente_id).order_by(ValoracionAntropometrica.fecha.desc()).all()
+            if not valoraciones:
+                return False, "No se encontraron valoraciones para este paciente."
+            ultima = valoraciones[0]
+            ultima.ultima_dieta = ultima_dieta
+            db.session.commit()
+            return True, "Última dieta actualizada exitosamente."
+        except Exception as e:
+            db.session.rollback()
+            return False, str(e)
 
     @staticmethod
     def obtener_por_id(valoracion_id):
-        return query_db('SELECT * FROM valoracion_antropometrica WHERE id = ?', [valoracion_id], one=True)
+        return ValoracionAntropometrica.query.get(valoracion_id)
 
     @staticmethod
-    def actualizar_ultima_dieta(paciente_id, ultima_dieta):
-        db = get_db()
-        try:
-            ultima_valoracion = ValoracionAntropometrica.obtener_ultima_por_paciente(paciente_id)
-            if ultima_valoracion:
-                db.execute('''
-                    UPDATE valoracion_antropometrica
-                    SET ultima_dieta = ?
-                    WHERE id = ?
-                ''', (ultima_dieta, ultima_valoracion['id']))
-                db.commit()
-                return True, "Última dieta actualizada correctamente."
-            else:
-                return False, "No se encontró una valoración para actualizar."
-        except Exception as e:
-            db.rollback()
-            return False, f"Error al actualizar la última dieta: {str(e)}"
+    def obtener_por_paciente(paciente_id):
+        return ValoracionAntropometrica.query.filter_by(paciente_id=paciente_id).order_by(ValoracionAntropometrica.fecha.desc()).all()
+
+    @staticmethod
+    def obtener_todas():
+        return ValoracionAntropometrica.query.order_by(ValoracionAntropometrica.fecha.desc()).all()
+
+    @staticmethod
+    def contar_mes_vigente():
+        inicio_mes = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return ValoracionAntropometrica.query.filter(ValoracionAntropometrica.fecha >= inicio_mes.date()).count()
+
+    @staticmethod
+    def obtener_recientes(limite=10):
+        return ValoracionAntropometrica.query.order_by(ValoracionAntropometrica.fecha.desc()).limit(limite).all()
+
+    @staticmethod
+    def obtener_por_rango(fecha_inicio, fecha_fin):
+        fi = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+        ff = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+        return ValoracionAntropometrica.query.filter(ValoracionAntropometrica.fecha >= fi, ValoracionAntropometrica.fecha <= ff).order_by(ValoracionAntropometrica.fecha.desc()).all()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'paciente_id': self.paciente_id,
+            'numero_cita': self.numero_cita,
+            'fecha': self.fecha.strftime('%Y-%m-%d') if self.fecha else None,
+            'estatura': self.estatura,
+            'peso': self.peso,
+            'imc': self.imc,
+            'grasa': self.grasa,
+            'cintura': self.cintura,
+            'torax': self.torax,
+            'brazo': self.brazo,
+            'cadera': self.cadera,
+            'pierna': self.pierna,
+            'pantorrilla': self.pantorrilla,
+            'tension_arterial': self.tension_arterial,
+            'frecuencia_cardiaca': self.frecuencia_cardiaca,
+            'bicep': self.bicep,
+            'tricep': self.tricep,
+            'suprailiaco': self.suprailiaco,
+            'subescapular': self.subescapular,
+            'femoral': self.femoral,
+            'porcentaje_grasa': self.porcentaje_grasa,
+            'ultima_dieta': self.ultima_dieta
+        }
