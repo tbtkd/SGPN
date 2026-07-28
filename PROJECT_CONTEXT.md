@@ -10,6 +10,7 @@ Este documento registra el estado actual, historial de logros, reglas estrictas 
 
 ## 📜 Changelog / Historial de Logros
 
+- **Línea Base de Requerimientos (SRS)**: Creación e integración oficial del documento `SRS_REQUIREMENTS.md` detallando Casos de Uso (UC-01 a UC-04), requerimientos de datos de las 6 tablas principales y requerimientos no funcionales (NFRs).
 - **Módulo Dashboard**: Implementación de KPIs en tiempo real (crecimiento mensual, valoraciones del mes, promedio diario), pestañas de pacientes del día, pacientes sin valoración reciente y gráfico de actividad.
 - **Módulo Pacientes**: Registro completo, expedientes clínicos con pestañas, listados de activos/inactivos y gestión de citas asociadas.
 - **Módulo Valoraciones Antropométricas**: 
