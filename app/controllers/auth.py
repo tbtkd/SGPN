@@ -10,13 +10,13 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # El campo en la BD es 'email', pero el formulario envía 'username'
+        # El campo en la BD es 'username', autenticar usuario
         user = Usuario.find_by_username(username)
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('main.index'))
-        
-        flash('Usuario o contraseña incorrectos', 'error')
+        else:
+            flash('Usuario o contraseña incorrectos', 'error')
     return render_template('auth/login.html')
 
 @auth.route('/logout')

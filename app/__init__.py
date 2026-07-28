@@ -66,6 +66,18 @@ def create_app(config_name=None):
         from app.models.usuario import Usuario
         return Usuario.get(user_id)
     
+    # CREACIÓN AUTOMÁTICA DE TABLAS SI NO EXISTEN
+    with app.app_context():
+        # Importar todos los modelos para que SQLAlchemy registre las tablas
+        from app.models.paciente import Paciente
+        from app.models.cita import Cita
+        from app.models.pago import Pago
+        from app.models.historial_clinico import HistorialClinico
+        from app.models.valoracion_antropometrica import ValoracionAntropometrica
+        from app.models.usuario import Usuario
+        
+        db_orm.create_all()
+
     # FILTROS GLOBALES DE JINJA2
     @app.template_filter('format_date')
     def format_date(value):
