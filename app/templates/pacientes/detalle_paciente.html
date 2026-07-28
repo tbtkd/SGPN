@@ -92,9 +92,9 @@
                             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-2">
                                 <div class="flex items-center justify-between text-xs text-gray-400">
                                     <span class="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                                        <i class="fas fa-user-md mr-1"></i> {{ b.usuario.username if b.usuario else 'Sistema' }}
+                                        <i class="fas fa-user-md mr-1"></i> {{ b.usuario.nombre_completo if b.usuario and b.usuario.nombre_completo else (b.usuario.username if b.usuario else 'Sistema') }}
                                     </span>
-                                    <span><i class="far fa-clock mr-1"></i> {{ b.fecha_envio.strftime('%d/%m/%Y %H:%M') if b.fecha_envio else '' }}</span>
+                                    <span><i class="far fa-calendar-alt mr-1"></i> {{ b.fecha_envio.strftime('%d %b %Y') if b.fecha_envio else '' }}</span>
                                 </div>
                                 <p class="text-sm text-gray-700 whitespace-pre-line">{{ b.mensaje }}</p>
                             </div>
