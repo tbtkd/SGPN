@@ -1,70 +1,19 @@
-# Documento de Casos de Uso - SGPN
+# Catálogo de Casos de Uso (SGPN)
 
-## CU-01: Gestión de Pacientes
+## UC-01: Gestión de Pacientes
+* **Descripción:** Registro, consulta y actualización de datos de pacientes en la clínica.
 
-### CU-01.1: Alta de Paciente
-**Actor Principal:** Nutriólogo
-**Precondiciones:** N/A
-**Flujo Principal:**
-1. El usuario selecciona "Nuevo Paciente"
-2. El sistema muestra formulario de registro
-3. El usuario ingresa:
-   - Nombre completo
-   - Fecha nacimiento
-   - Teléfono (10 dígitos)
-   - Correo (único)
-   - Ciudad
-4. El sistema valida los datos
-5. El sistema registra al paciente como "activo"
+## UC-02: Agendamiento de Citas con Validación de Horarios
+* **Descripción:** Programación de citas verificando disponibilidad horaria en tiempo real y previniendo empalmes o sobreescritura sin confirmación.
 
-**Flujos Alternativos:**
-- 4a. Datos inválidos: Sistema muestra error
-- 4b. Correo duplicado: Sistema notifica
+## UC-03: Cierre Automático de Cita del Día
+* **Descripción:** Al capturar una valoración antropométrica o historial clínico, el sistema actualiza el estado de la cita asociada de `'pendiente'` a `'completada'`.
 
-### CU-01.2: Cambio Estado Paciente
-**Actor Principal:** Nutriólogo
-**Precondiciones:** Paciente registrado
-**Flujo Principal:**
-1. Usuario selecciona paciente
-2. Usuario cambia estado (activo/inactivo)
-3. Sistema actualiza estado
+## UC-04: Administración del Catálogo de Plantillas de WhatsApp
+* **Descripción:** Creación, edición y activación de plantillas de mensajes con la regla de **Plantilla Activa Única** (`esta_activa = True`).
 
-## CU-02: Valoraciones Antropométricas
+## UC-05: Envío de Mensaje Personalizado por WhatsApp
+* **Descripción:** Selección del paciente, inyección automática de variables (`{nombre}`, `{dias}`) sobre la plantilla activa, apertura de WhatsApp Web y registro en la bitácora de contacto.
 
-### CU-02.1: Nueva Valoración
-**Actor Principal:** Nutriólogo
-**Precondiciones:** Paciente activo
-**Flujo Principal:**
-1. Usuario selecciona "Nueva Valoración"
-2. Sistema muestra formulario
-3. Usuario ingresa:
-   - Medidas corporales
-   - Signos vitales
-   - Pliegues cutáneos
-4. Sistema calcula IMC automáticamente
-5. Sistema registra valoración
-
-### CU-02.2: Importar Excel
-**Actor Principal:** Nutriólogo
-**Precondiciones:** Archivo Excel con formato correcto
-**Flujo Principal:**
-1. Usuario selecciona "Importar Excel"
-2. Usuario carga archivo
-3. Sistema valida formato
-4. Sistema procesa datos
-5. Sistema muestra resultado
-
-## CU-03: Historial Clínico
-
-### CU-03.1: Registro Historial
-**Actor Principal:** Nutriólogo
-**Precondiciones:** Paciente registrado
-**Flujo Principal:**
-1. Usuario selecciona "Historial Clínico"
-2. Sistema muestra formulario
-3. Usuario registra:
-   - Antecedentes médicos
-   - Medicamentos
-   - Actividad física
-   - Hábitos alimenticios
-4. Sistema guarda información
+## UC-06: Valoración Antropométrica Avanzada por Pestañas
+* **Descripción:** Registro de mediciones corporales con validación defensiva en backend (Flask) y validación interactiva en frontend con cambio automático de pestaña y enfoque (`.focus()`) en caso de errores.

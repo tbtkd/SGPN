@@ -1,40 +1,28 @@
-# Documentación del Frontend
+# Documentación del Frontend (SGPN)
 
-La interfaz de usuario combina plantillas **Jinja2** con **JavaScript nativo** y **Alpine.js** para ofrecer una experiencia dinámica y responsiva.
+## 1. Arquitectura y Componentes UI/UX
+El frontend se estructura utilizando **Jinja2** para plantillas modulares, **Tailwind CSS** para diseño responsivo y **Alpine.js** para la gestión de interactividad y estado local en componentes dinámicos.
 
-## Interacción y Componentes
-*   **Plantillas (Jinja2):** Renderizan los datos del backend y estructuran el DOM.
-*   **JavaScript (Vanilla):** Utilizado para la lógica de interacción compleja, como la gestión de modales, validaciones de formularios en tiempo real y peticiones asíncronas (`fetch`).
-*   **Alpine.js:** Utilizado para componentes reactivos ligeros en la interfaz, incluyendo la gestión de pestañas en formularios.
+### Estructura de Estilos y Vistas (`app/static/`)
+- **Componentes modulares (`app/static/css/components/`):**
+  - `_buttons.css`, `_cards.css`, `_forms.css`, `_modal.css`, `_tables.css`, `_tabs.css`, `base.css`.
+- **Sidebar y Navegación:**
+  - Barra lateral con diseño colapsable, indicadores de sesión y acceso directo al nuevo ítem de navegación **"Plantillas de Mensajes"** para gestionar el catálogo de WhatsApp.
 
-## Validaciones y Navegación
-El sistema implementa validaciones robustas para asegurar la integridad de los datos antes de enviarlos al servidor:
+---
 
-1.  **Validación de Formularios (Nueva Valoración):**
-    *   Se interceptan los eventos `submit` para validar todos los campos requeridos en las 3 pestañas (Antropométrica, Plicometría, Bioimpedancia).
-    *   Se utiliza **Alpine.js** para la gestión reactiva de pestañas.
-    *   Si falta un campo, el sistema cambia automáticamente a la pestaña correspondiente, aplica estilos visuales de error, hace `.focus()` en el input afectado y muestra un banner de notificación.
+## 2. Características Interactivas Clave
 
-2.  **Gestión de Citas (Flujo de Validación):**
-    *   Al hacer clic en "Registrar Próxima Cita", el frontend verifica si el paciente ya tiene una cita activa.
-    *   Si existe, se muestra una alerta (`alert`) impidiendo la duplicación y sugiriendo la actualización.
-    *   Se utiliza `fetch` para consultar la disponibilidad de horarios en tiempo real al seleccionar una fecha.
+### 2.1. Modal de Envío de WhatsApp con Inyección de Variables
+- Permite al usuario enviar mensajes predeterminados directamente a WhatsApp Web.
+- **Inyección Automática:** Sustituye etiquetas como `{nombre}` por el nombre del paciente y `{dias}` por los días transcurridos desde su última cita.
+- Registra automáticamente la interacción en la bitácora del sistema tras el envío.
 
-## Diagrama de Flujo de Citas (Frontend)
+### 2.2. Modal de Agendamiento y Validación de Horarios en Tiempo Real
+- Al seleccionar una fecha en el calendario de citas, el sistema realiza una petición asíncrona (`/pacientes/disponibilidad_horas`) para consultar las horas ocupadas.
+- Desactiva y marca visualmente las opciones correspondientes en el `<select>` de horarios, previniendo la duplicidad de citas en el mismo bloque horario.
+- Cuenta con validación previa de citas pendientes existentes para emitir alertas o modales de confirmación al intentar reagendar.
 
-```mermaid
-graph TD
-    A[Clic en Registrar Cita] --> B{¿Tiene cita previa?}
-    B -- Sí --> C[Mostrar Alerta: Usar Actualizar]
-    B -- No --> D[Abrir Modal de Registro]
-    D --> E[Seleccionar Fecha]
-    E --> F[Consultar Disponibilidad (Fetch)]
-    F --> G{¿Horario Disponible?}
-    G -- No --> H[Deshabilitar Hora]
-    G -- Sí --> I[Habilitar Hora]
-```
-
-## Mapa Antropométrico (Interactividad)
-*   **Conexión Bidireccional:** El componente utiliza **Alpine.js** (`x-data="{ hovered: null }"`) para sincronizar la silueta SVG con las listas de datos (Perímetros y Pliegues).
-*   **Resaltado Dinámico:** Al pasar el mouse sobre una región del cuerpo (SVG) o una fila de datos, se aplica un estilo visual (`bg-teal-50`, borde lateral) en ambos elementos simultáneamente.
-*   **Comparativa:** Muestra automáticamente la diferencia respecto a la valoración anterior, con indicadores visuales de aumento (ámbar) o disminución (teal).
+### 2.3. Formulario de Valoración Antropométrica por Pestañas
+- **Intercepción de Submit:** El script de validación audita todos los campos requeridos distribuidos en las 3 pestañas (Antropométrica, Plicometría, Bioimpedancia).
+- **Navegación Automática:** Si detecta un campo vacío o inválido, cambia automáticamente a la pestaña oculta contenedora, aplica `.focus()` y `scrollIntoView()` en el input afectado, y despliega indicadores visuales de error.
