@@ -27,6 +27,8 @@ class ValoracionAntropometrica(db.Model):
     femoral = db.Column(db.Float)
     porcentaje_grasa = db.Column(db.String(50), nullable=False)
     ultima_dieta = db.Column(db.Text)
+    seguimiento_15d_enviado = db.Column(db.Boolean, default=False)
+    fecha_seguimiento_15d = db.Column(db.DateTime, nullable=True)
     
     paciente = db.relationship('Paciente', backref=db.backref('valoraciones_lista', cascade="all, delete-orphan", lazy=True))
 
@@ -136,6 +138,23 @@ class ValoracionAntropometrica(db.Model):
         fi = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         ff = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
         return ValoracionAntropometrica.query.filter(ValoracionAntropometrica.fecha >= fi, ValoracionAntropometrica.fecha <= ff).order_by(ValoracionAntropometrica.fecha.desc()).all()
+
+    @staticmethod
+    def obtener_seguimiento_14_15_dias():
+        from datetime import date, timedelta
+        from sqlalchemy.orm import joinedload
+        hoy = date.today()
+        # Rango de fechas: fecha_inicio = hoy - 15 días, fecha_fin = hoy - 14 días
+        fecha_inicio = hoy - timedelta(days=15)
+        fecha_fin = hoy - timedelta(days=14)
+        
+        # Filtramos por rango, seguimiento no enviado, y ordenamos ascendentemente por fecha
+        # (para que los de 15 días (fecha más antigua en el rango) aparezcan PRIMERO)
+        return ValoracionAntropometrica.query.options(joinedload(ValoracionAntropometrica.paciente)).filter(
+            ValoracionAntropometrica.fecha >= fecha_inicio,
+            ValoracionAntropometrica.fecha <= fecha_fin,
+            ValoracionAntropometrica.seguimiento_15d_enviado == False
+        ).order_by(ValoracionAntropometrica.fecha.asc()).all()
 
     def to_dict(self):
         return {

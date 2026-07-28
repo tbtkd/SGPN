@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from app.models.paciente import Paciente
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 from app.models.cita import Cita
-from datetime import timedelta
+from app import db_orm as db
 
 main = Blueprint('main', __name__)
 
@@ -32,6 +32,9 @@ def index():
     
     pendientes_por_agendar = Paciente.obtener_pendientes_por_agendar()
     
+    # Obtener valoraciones para seguimiento de 14-15 días
+    seguimiento_14_15 = ValoracionAntropometrica.obtener_seguimiento_14_15_dias()
+
     # Si hay filtro de fechas, obtener actividad filtrada
     if fecha_inicio and fecha_fin:
         actividad_reciente = ValoracionAntropometrica.obtener_por_rango(fecha_inicio, fecha_fin)
@@ -47,5 +50,23 @@ def index():
                            pacientes_sin_valoracion=pacientes_sin_valoracion,
                            citas_del_dia=citas_del_dia,
                            pendientes_por_agendar=pendientes_por_agendar,
-                           actividad_reciente=actividad_reciente)
+                           seguimiento_14_15=seguimiento_14_15,
+                           actividad_reciente=actividad_reciente,
+                           datetime=datetime)
+
+@main.route('/dashboard/marcar-seguimiento/<int:valoracion_id>', methods=['POST'])
+@login_required
+def marcar_seguimiento(valoracion_id):
+    try:
+        val = ValoracionAntropometrica.query.get(valoracion_id)
+        if not val:
+            return jsonify({'success': False, 'message': 'Valoración no encontrada'}), 404
+        
+        val.seguimiento_15d_enviado = True
+        val.fecha_seguimiento_15d = datetime.now()
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Seguimiento marcado como enviado correctamente'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 

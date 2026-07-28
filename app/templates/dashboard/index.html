@@ -47,4 +47,188 @@
     <!-- COLUMNA DERECHA / LATERAL -->
     {% include 'dashboard/partials/_resumen_lateral.html' %}
 </div>
+
+<!-- 2. MÓDULO DE SEGUIMIENTO INTERMEDIO (14-15 DÍAS) -->
+<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 mt-6">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-3">
+            <h3 class="text-lg font-bold text-gray-900">💬 Acompañamiento Intermedio (14-15 Días)</h3>
+            {% if seguimiento_14_15|length > 0 %}
+            <span class="bg-amber-500 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">{{ seguimiento_14_15|length }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if seguimiento_14_15|length > 0 %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-xs uppercase text-gray-400 border-b border-gray-100 tracking-wider">
+                    <th class="py-3 px-4 font-semibold">Paciente</th>
+                    <th class="py-3 px-4 font-semibold">Última Valoración</th>
+                    <th class="py-3 px-4 font-semibold">Tiempo</th>
+                    <th class="py-3 px-4 font-semibold text-right">Acción</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 text-sm">
+                {% for val in seguimiento_14_15 %}
+                {% set dias = (datetime.now().date() - val.fecha).days %}
+                <tr id="row-val-{{ val.id }}" class="hover:bg-gray-50/50 transition">
+                    <td class="py-3.5 px-4 font-medium text-gray-900">
+                        {{ val.paciente.nombre_completo if val.paciente else 'Paciente Desconocido' }}
+                    </td>
+                    <td class="py-3.5 px-4 text-gray-600">
+                        {{ val.fecha.strftime('%d %b, %Y') }}
+                    </td>
+                    <td class="py-3.5 px-4">
+                        {% if dias >= 15 %}
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-medium">15 días</span>
+                        {% else %}
+                        <span class="bg-teal-100 text-teal-800 text-xs px-2.5 py-1 rounded-full font-medium">14 días</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        {% set tel = val.paciente.telefono if val.paciente and val.paciente.telefono else '' %}
+                        {% set nombre = val.paciente.nombre if val.paciente else 'Paciente' %}
+                        <button onclick="abrirModalWhatsApp('{{ val.id }}', '{{ tel }}', '{{ nombre }}', '{{ dias }}')"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 ml-auto shadow-sm shadow-emerald-600/20 transition">
+                            <i class="fab fa-whatsapp text-sm"></i> Enviar WhatsApp
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="py-8 text-center text-gray-400 text-sm">
+        No hay pacientes pendientes de seguimiento intermedio (14-15 días) en este momento.
+    </div>
+    {% endif %}
+</div>
+
+<!-- MODAL DE EDICIÓN DE MENSAJE DE WHATSAPP -->
+<div id="modalWhatsApp" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 w-full max-w-lg p-6 space-y-5 transform transition-all">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900">Enviar Seguimiento por WhatsApp</h3>
+                    <p class="text-xs text-gray-500" id="modalPacienteSub">Paciente: --</p>
+                </div>
+            </div>
+            <button onclick="cerrarModalWhatsApp()" class="text-gray-400 hover:text-gray-600 transition p-1">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="space-y-3">
+            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Mensaje Personalizado</label>
+            <textarea id="modalMensajeTexto" rows="5" class="w-full rounded-2xl bg-gray-50 border border-gray-200 p-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition resize-none"></textarea>
+            <p class="text-[11px] text-gray-400">Puedes editar el texto antes de enviarlo. Al confirmar se abrirá WhatsApp Web/App y se marcará como contactado.</p>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="cerrarModalWhatsApp()" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100 transition">
+                Cancelar
+            </button>
+            <button type="button" onclick="confirmarEnviarWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-5 py-2.5 text-xs font-semibold shadow-sm shadow-emerald-600/20 flex items-center gap-2 transition">
+                <i class="fab fa-whatsapp text-sm"></i> Enviar por WhatsApp
+            </button>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+let currentValId = null;
+let currentTelefono = null;
+
+function formatearTelefonoMexico(telefono) {
+    if (!telefono) return '';
+    // Remover cualquier carácter no numérico
+    let telClean = telefono.replace(/[^0-9]/g, '');
+    
+    // Si tiene 10 dígitos (ej. 4451234567), anteponer 52
+    if (telClean.length === 10) {
+        telClean = '52' + telClean;
+    } 
+    // Si ya incluye lada 52 y tiene 12 dígitos (ej. 524451234567), conservar
+    else if (telClean.length === 12 && telClean.startsWith('52')) {
+        // ya está correcto
+    }
+    return telClean;
+}
+
+function abrirModalWhatsApp(valId, telefono, nombrePaciente, diasTranscurridos) {
+    if (!telefono) {
+        alert('El paciente no tiene un número de teléfono registrado.');
+        return;
+    }
+
+    currentValId = valId;
+    currentTelefono = formatearTelefonoMexico(telefono);
+
+    if (!currentTelefono) {
+        alert('El número de teléfono del paciente no es válido.');
+        return;
+    }
+
+    const mensajeBase = `¡Hola, ${nombrePaciente}! 👋 Te saluda la nutrióloga Aurora Ángeles. Han pasado ${diasTranscurridos} días desde tu última consulta y quería saber cómo te has sentido con tu plan de alimentación y si te ha surgido alguna duda. ¡Sigo al pendiente de tus avances!`;
+
+    document.getElementById('modalPacienteSub').textContent = `Paciente: ${nombrePaciente}`;
+    document.getElementById('modalMensajeTexto').value = mensajeBase;
+
+    const modal = document.getElementById('modalWhatsApp');
+    modal.classList.remove('hidden');
+}
+
+function cerrarModalWhatsApp() {
+    const modal = document.getElementById('modalWhatsApp');
+    modal.classList.add('hidden');
+    currentValId = null;
+    currentTelefono = null;
+}
+
+function confirmarEnviarWhatsApp() {
+    if (!currentValId || !currentTelefono) return;
+
+    const mensajeEditado = document.getElementById('modalMensajeTexto').value;
+    const urlWa = `https://wa.me/${currentTelefono}?text=${encodeURIComponent(mensajeEditado)}`;
+
+    // 1. Abrir WhatsApp en nueva pestaña
+    window.open(urlWa, '_blank');
+
+    // 2. Petición POST asíncrona (Fetch) para registrar estatus
+    fetch(`/dashboard/marcar-seguimiento/${currentValId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.getElementById(`row-val-${currentValId}`);
+            if (row) {
+                const actionTd = row.querySelector('td:last-child');
+                actionTd.innerHTML = `<span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-semibold flex items-center gap-1 justify-end ml-auto"><i class="fas fa-check-circle"></i> Contactado</span>`;
+                row.classList.add('opacity-75');
+            }
+            cerrarModalWhatsApp();
+        } else {
+            console.error('Error al registrar estatus:', data.message);
+            alert('Error al registrar el estatus en el sistema.');
+        }
+    })
+    .catch(error => {
+        console.error('Error en la petición AJAX:', error);
+        alert('Error de red al registrar el estatus.');
+    });
+}
+</script>
+{% endblock %}
 {% endblock %}

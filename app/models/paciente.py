@@ -21,6 +21,10 @@ class Paciente(db.Model):
         super().__init__(*args, **kwargs)
 
     @property
+    def nombre_completo(self):
+        return f"{self.nombre} {self.apellido_paterno} {self.apellido_materno}"
+
+    @property
     def valoraciones(self):
         from app.models.valoracion_antropometrica import ValoracionAntropometrica
         return ValoracionAntropometrica.query.filter_by(paciente_id=self.id).all()
