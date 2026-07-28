@@ -347,16 +347,16 @@ def registrar_proxima_cita(id):
         flash('La hora de la cita debe estar entre las 9:00 AM y las 7:00 PM.', 'error')
         return redirect(url_for('pacientes.detalle_paciente', id=id))
         
-    cita_existente = Cita.obtener_siguiente_cita(id)
+    cita_pendiente = Cita.obtener_cita_pendiente(id)
     
-    if cita_existente:
-        cita_id = cita_existente.id
+    if cita_pendiente:
+        cita_id = cita_pendiente.id
         if not Cita.es_horario_disponible(fecha, hora, excluir_cita_id=cita_id):
             flash('El horario seleccionado ya no está disponible.', 'error')
             return redirect(url_for('pacientes.detalle_paciente', id=id))
             
-        cita_existente.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-        cita_existente.hora = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
+        cita_pendiente.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+        cita_pendiente.hora = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
         db.session.commit()
         flash('Cita actualizada exitosamente.', 'success')
     else:

@@ -33,7 +33,15 @@ class Cita(db.Model):
         hoy = datetime.now().date()
         return Cita.query.filter(
             Cita.paciente_id == paciente_id,
-            Cita.fecha >= hoy
+            Cita.fecha >= hoy,
+            Cita.estado == 'pendiente'
+        ).order_by(Cita.fecha.asc(), Cita.hora.asc()).first()
+
+    @staticmethod
+    def obtener_cita_pendiente(paciente_id):
+        return Cita.query.filter_by(
+            paciente_id=paciente_id,
+            estado='pendiente'
         ).order_by(Cita.fecha.asc(), Cita.hora.asc()).first()
 
     @staticmethod
