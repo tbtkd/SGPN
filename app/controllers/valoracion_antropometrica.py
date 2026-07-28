@@ -1,7 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.models.valoracion_antropometrica import ValoracionAntropometrica
 from app.models.paciente import Paciente
+from app.models.cita import Cita
 from app.utils.helpers import safe_float, safe_int, validar_campos
+from datetime import datetime, date
+from app import db_orm as db
 
 valoracion = Blueprint('valoracion', __name__, url_prefix='/valoraciones')
 
@@ -61,6 +64,22 @@ def nueva_valoracion(paciente_id):
 
         exito, mensaje = ValoracionAntropometrica.crear(paciente_id, datos)
         if exito:
+            # Buscar cita pendiente para el paciente en la fecha actual o en la fecha de la consulta
+            try:
+                fecha_consulta = datetime.strptime(datos['fecha'], '%Y-%m-%d').date() if isinstance(datos['fecha'], str) else datos['fecha']
+            except ValueError:
+                fecha_consulta = date.today()
+
+            cita_hoy = Cita.query.filter_by(
+                paciente_id=paciente_id,
+                fecha=fecha_consulta,
+                estado='pendiente'
+            ).first()
+
+            if cita_hoy:
+                cita_hoy.estado = 'completada'
+                db.session.commit()
+
             flash(mensaje, 'success')
             return redirect(url_for('valoracion.lista_valoraciones', paciente_id=paciente_id))
         else:

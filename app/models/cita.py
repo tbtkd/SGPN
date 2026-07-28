@@ -42,7 +42,7 @@ class Cita(db.Model):
             fecha = datetime.now().date()
         elif isinstance(fecha, str):
             fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-        return Cita.query.filter_by(fecha=fecha).order_by(Cita.hora.asc()).all()
+        return Cita.query.filter_by(fecha=fecha, estado='pendiente').order_by(Cita.hora.asc()).all()
 
     @staticmethod
     def es_horario_disponible(fecha, hora, excluir_cita_id=None):

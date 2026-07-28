@@ -38,8 +38,8 @@
             <!-- Contenido de Pestañas -->
             <div class="overflow-x-auto max-h-[380px] overflow-y-auto custom-scrollbar">
                 <div x-show="tab === 'valoraciones'">{% include 'dashboard/tabs/_tab_pacientes_dia.html' %}</div>
-                <div x-show="tab === 'reagendamiento'" x-cloak>{% include 'dashboard/tabs/_tab_reagendamiento.html' %}</div>
-                <div x-show="tab === 'seguimiento'" x-cloak>{% include 'dashboard/tabs/_tab_sin_valoracion.html' %}</div>
+                <div x-show="tab === 'reagendamiento'" style="display: none;" x-cloak>{% include 'dashboard/tabs/_tab_reagendamiento.html' %}</div>
+                <div x-show="tab === 'seguimiento'" style="display: none;" x-cloak>{% include 'dashboard/tabs/_tab_sin_valoracion.html' %}</div>
             </div>
         </div>
     </div>
