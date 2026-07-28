@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | Aurora Ángeles</title>
+    <title>Iniciar Sesión</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="h-full flex items-center justify-center p-4">
@@ -18,6 +18,19 @@
             </div>
 
             <h2 class="text-2xl font-bold text-center text-slate-900 mb-8">Iniciar Sesión</h2>
+
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for category, message in messages %}
+                            <div class="p-4 rounded-xl text-sm font-medium {% if category == 'error' %}bg-red-50 text-red-700 border border-red-100{% else %}bg-teal-50 text-teal-700 border border-teal-100{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-6">
                 <!-- CSRF Token si se usa Flask-WTF, de lo contrario omitir -->
