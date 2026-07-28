@@ -121,35 +121,5 @@
     </div>
 </div>
 
-<script>
-    document.getElementById('btnOpenExcelModal').addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('open-excel-modal'));
-    });
-    document.getElementById('btnOpenModal').addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('open-cita-modal'));
-    });
-
-    function abrirBitacoraWhatsApp() {
-        const modal = document.getElementById('modal-bitacora-whatsapp');
-        if (modal) modal.classList.remove('hidden');
-    }
-
-    function cerrarBitacoraWhatsApp() {
-        const modal = document.getElementById('modal-bitacora-whatsapp');
-        if (modal) modal.classList.add('hidden');
-    }
-
-    function citaForm() {
-        return {
-            fecha: '',
-            hora: '',
-            horasOcupadas: [],
-            async actualizarDisponibilidad() {
-                if (!this.fecha) return;
-                const response = await fetch(`{{ url_for('pacientes.disponibilidad_horas') }}?fecha=${this.fecha}`);
-                this.horasOcupadas = await response.json();
-            }
-        }
-    }
-</script>
+<script src="{{ url_for('static', filename='js/detalle_paciente.js') }}"></script>
 {% endblock %}
