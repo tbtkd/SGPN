@@ -118,10 +118,11 @@
                 <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo se calcula automáticamente.</span>
             </div>
             <div class="space-y-2 form-group">
-                <label for="porcentaje_grasa" class="block text-sm font-medium text-gray-700">Grasa Total:</label>
-                <input type="text" id="porcentaje_grasa" name="porcentaje_grasa" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 20.5">
-                <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
+                <label for="porcentaje_grasa" class="block text-sm font-medium text-gray-700">Grasa Total (%):</label>
+                <input type="number" id="porcentaje_grasa" name="porcentaje_grasa" step="0.1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" placeholder="Ej: 20.5">
+                <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Debe ingresar un valor numérico positivo.</span>
             </div>
+
         </div>
     </div>
 
@@ -131,3 +132,70 @@
         <button type="submit" class="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition">Guardar Valoración</button>
     </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Restringir entrada en tiempo real según tipo de dato
+    const enterosIds = ['numero_cita', 'frecuencia_cardiaca'];
+    enterosIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keypress', function(e) {
+                // Solo permitir dígitos (0-9)
+                if (e.key < '0' || e.key > '9') {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
+    });
+
+    const decimalesIds = [
+        'estatura', 'peso', 'cintura', 'torax', 'brazo', 'cadera', 
+        'pierna', 'pantorrilla', 'bicep', 'tricep', 'suprailiaco', 
+        'subescapular', 'femoral', 'grasa', 'imc', 'porcentaje_grasa'
+    ];
+    decimalesIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keypress', function(e) {
+                // Permitir dígitos (0-9) y un punto decimal
+                if ((e.key < '0' || e.key > '9') && e.key !== '.') {
+                    e.preventDefault();
+                }
+                // Evitar múltiples puntos decimales
+                if (e.key === '.' && this.value.includes('.')) {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('input', function(e) {
+                // Limpiar caracteres inválidos manteniendo dígitos y un solo punto
+                let val = this.value;
+                let partes = val.split('.');
+                if (partes.length > 2) {
+                    this.value = partes[0] + '.' + partes.slice(1).join('');
+                }
+                this.value = this.value.replace(/[^0-9.]/g, '');
+            });
+        }
+    });
+
+    const tensionEl = document.getElementById('tension_arterial');
+    if (tensionEl) {
+        tensionEl.addEventListener('keypress', function(e) {
+            // Permitir dígitos (0-9) y barra /
+            if ((e.key < '0' || e.key > '9') && e.key !== '/') {
+                e.preventDefault();
+            }
+        });
+        tensionEl.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9/]/g, '');
+        });
+    }
+});
+</script>
+
+
+

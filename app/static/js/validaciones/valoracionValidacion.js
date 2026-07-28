@@ -74,13 +74,31 @@ export function validarFormularioValoracion(form, alpineData) {
         const el = document.getElementById(campo.id);
         if (!el) continue;
 
+        // Si es femoral y está deshabilitado u oculto (por ser hombre), se omite
+        if (campo.id === 'femoral' && el.disabled) {
+            continue;
+        }
+
         const valor = el.value.trim();
         let esInvalido = false;
 
         if (valor === "") {
             esInvalido = true;
-        } else if (el.type === "number" && (isNaN(valor) || parseFloat(valor) < 0)) {
-            esInvalido = true;
+        } else if (campo.id === 'numero_cita' || campo.id === 'frecuencia_cardiaca') {
+            // Validar entero positivo estricto
+            if (!/^\d+$/.test(valor) || parseInt(valor, 10) <= 0) {
+                esInvalido = true;
+            }
+        } else if (campo.id === 'tension_arterial') {
+            // Validar formato de presión arterial (ej. 120/80 o 120 / 80)
+            if (!/^\d{2,3}\s*\/\s*\d{2,3}$/.test(valor)) {
+                esInvalido = true;
+            }
+        } else if (el.type === "number" || !isNaN(valor)) {
+            // Validar número positivo con decimales opcionales
+            if (isNaN(valor) || parseFloat(valor) < 0) {
+                esInvalido = true;
+            }
         }
 
         if (esInvalido) {
@@ -100,8 +118,8 @@ export function validarFormularioValoracion(form, alpineData) {
             break;
         }
     }
-
     if (primerError) {
+
         const nombreTab = tabsConfig[primerError.tab];
         
         // Cambiar a la pestaña del error
