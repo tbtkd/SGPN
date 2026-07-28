@@ -5,6 +5,9 @@
 [Pacientes] 1 ----< [Valoracion_Antropometrica]
 [Pacientes] 1 ----< [Historial_Clinico]
 [Pacientes] 1 ----< [Pagos]
+[Pacientes] 1 ----< [Citas]
+[Pacientes] 1 ----< [Bitacoras_Contacto]
+[Plantillas_WhatsApp] (Catálogo para gestión de mensajes)
 
 ## Estructura Detallada
 
@@ -81,3 +84,35 @@
 │ paciente_id│ INTEGER │ FK       │       │
 │ fecha_pago │ DATE    │ NOT NULL │       │
 └────────────┴─────────┴──────────┴───────┘
+
+### Tabla: citas
+┌─────────────┬─────────┬──────────┬───────┐
+│ Campo       │ Tipo    │ Key      │ Extra │
+├─────────────┼─────────┼──────────┼───────┤
+│ id          │ INTEGER │ PK       │ AI    │
+│ paciente_id │ INTEGER │ FK       │       │
+│ fecha       │ DATE    │ NOT NULL │       │
+│ hora        │ TIME    │ NOT NULL │       │
+│ estado      │ TEXT    │ NOT NULL │       │
+└─────────────┴─────────┴──────────┴───────┘
+
+### Tabla: plantillas_whatsapp
+┌──────────────┬─────────┬──────────┬───────┐
+│ Campo        │ Tipo    │ Key      │ Extra │
+├──────────────┼─────────┼──────────┼───────┤
+│ id           │ INTEGER │ PK       │ AI    │
+│ titulo       │ TEXT    │ NOT NULL │       │
+│ contenido    │ TEXT    │ NOT NULL │       │
+│ esta_activa  │ BOOLEAN │ NOT NULL │       │
+└──────────────┴─────────┴──────────┴───────┘
+
+### Tabla: bitacoras_contacto
+┌─────────────┬───────────┬──────────┬───────┐
+│ Campo       │ Tipo      │ Key      │ Extra │
+├─────────────┼───────────┼──────────┼───────┤
+│ id          │ INTEGER   │ PK       │ AI    │
+│ paciente_id │ INTEGER   │ FK       │       │
+│ usuario_id  │ INTEGER   │ FK       │       │
+│ mensaje     │ TEXT      │ NOT NULL │       │
+│ fecha_envio │ TIMESTAMP │ DEFAULT  │ NOW   │
+└─────────────┴───────────┴──────────┴───────┘
