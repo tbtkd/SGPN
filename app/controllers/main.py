@@ -70,3 +70,19 @@ def marcar_seguimiento(valoracion_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@main.route('/dashboard/omitir-seguimiento/<int:valoracion_id>', methods=['POST'])
+@login_required
+def omitir_seguimiento(valoracion_id):
+    try:
+        val = ValoracionAntropometrica.query.get(valoracion_id)
+        if not val:
+            return jsonify({'success': False, 'message': 'Valoración no encontrada'}), 404
+        
+        val.seguimiento_15d_enviado = True
+        val.fecha_seguimiento_15d = datetime.now()
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Seguimiento omitido correctamente'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
