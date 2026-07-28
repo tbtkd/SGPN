@@ -188,9 +188,29 @@ function mostrarNotificacion(mensaje, tipo) {
     }
 }
 
+// Función para calcular IMC automáticamente
+window.calcularIMC = function() {
+    const peso = document.getElementById('peso')?.value;
+    const estatura = document.getElementById('estatura')?.value;
+    const imcInput = document.getElementById('imc');
+    
+    if (imcInput && peso && estatura) {
+        const estaturaMetros = parseFloat(estatura) / 100;
+        if (estaturaMetros > 0) {
+            const imc = parseFloat(peso) / (estaturaMetros * estaturaMetros);
+            imcInput.value = imc.toFixed(2);
+        } else {
+            imcInput.value = '';
+        }
+    } else if (imcInput) {
+        imcInput.value = '';
+    }
+};
+
 // Inicializar restricciones en tiempo real al cargar el DOM para mantener el código desacoplado del HTML
 document.addEventListener('DOMContentLoaded', function() {
     const enterosIds = ['numero_cita', 'frecuencia_cardiaca'];
+
     enterosIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) {

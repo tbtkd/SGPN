@@ -399,5 +399,5 @@ def actualizar_cita(id, cita_id):
 def disponibilidad_horas():
     fecha = request.args.get('fecha')
     citas_dia = Cita.query.filter_by(fecha=datetime.strptime(fecha, '%Y-%m-%d').date()).all()
-    horas_ocupadas = [str(c.hora) for c in citas_dia]
+    horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_dia if c.hora]
     return jsonify(horas_ocupadas)

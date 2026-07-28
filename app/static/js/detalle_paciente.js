@@ -28,15 +28,20 @@ function cerrarBitacoraWhatsApp() {
     if (modal) modal.classList.add('hidden');
 }
 
-function citaForm() {
+function citaForm(fechaInicial = '') {
     return {
-        fecha: '',
+        fecha: fechaInicial,
         hora: '',
         horasOcupadas: [],
+        init() {
+            if (this.fecha) {
+                this.actualizarDisponibilidad();
+            }
+        },
         async actualizarDisponibilidad() {
             if (!this.fecha) return;
             try {
-                const response = await fetch(`/pacientes/disponibilidad-horas?fecha=${this.fecha}`);
+                const response = await fetch(`/pacientes/disponibilidad_horas?fecha=${this.fecha}`);
                 this.horasOcupadas = await response.json();
             } catch (err) {
                 console.error('Error al obtener disponibilidad:', err);
@@ -44,3 +49,5 @@ function citaForm() {
         }
     }
 }
+
+

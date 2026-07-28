@@ -39,7 +39,7 @@
     <div x-show="modalCitaOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
         <div @click.away="modalCitaOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
             <h3 class="text-xl font-bold text-gray-900 mb-6">Agendar Próxima Cita</h3>
-            <form action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST" class="space-y-4" x-data="citaForm()">
+            <form action="{{ url_for('pacientes.registrar_proxima_cita', id=paciente['id']) }}" method="POST" class="space-y-4" x-data="citaForm('{{ siguiente_cita.strftime('%Y-%m-%d') if siguiente_cita else '' }}')">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Fecha:</label>
                     <input type="date" name="proxima_cita_fecha" x-model="fecha" @change="actualizarDisponibilidad()" class="w-full border-gray-200 rounded-lg focus:ring-teal-500 focus:border-teal-500">
@@ -50,8 +50,10 @@
                         <option value="">Seleccionar hora</option>
                         {% for h in range(9, 20) %}
                             {% set hora_str = '%02d:00' % h %}
-                            <option value="{{ hora_str }}" :disabled="horasOcupadas.includes('{{ hora_str }}')">
-                                {{ hora_str }} <template x-if="horasOcupadas.includes('{{ hora_str }}')">(Ocupado)</template>
+                            <option value="{{ hora_str }}" 
+                                    :disabled="horasOcupadas.includes('{{ hora_str }}')"
+                                    :class="horasOcupadas.includes('{{ hora_str }}') ? 'bg-gray-100 text-gray-400' : ''"
+                                    x-text="'{{ hora_str }}' + (horasOcupadas.includes('{{ hora_str }}') ? ' (Ocupada)' : '')">
                             </option>
                         {% endfor %}
                     </select>
