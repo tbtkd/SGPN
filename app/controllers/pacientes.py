@@ -198,7 +198,7 @@ def cambiar_estado(id):
 
 def extraer_valor(texto, clave):
     try:
-        partes = texto.lower().split(clave)
+        partes = texto.lower().split(clave) 
         if len(partes) > 1:
             for item in partes[1].split():
                 try:
@@ -231,10 +231,13 @@ def existe_registro(paciente_id, numero_cita, fecha):
 
 @pacientes.route('/<int:id>/cargar-excel', methods=['POST'])
 def cargar_excel(id):
-    if 'excel_file' not in request.files:
+    # El input en el formulario HTML se llama 'file', no 'excel_file'
+    file_key = 'excel_file' if 'excel_file' in request.files else ('file' if 'file' in request.files else None)
+    
+    if not file_key or file_key not in request.files:
         return jsonify({'success': False, 'message': 'No se seleccionó ningún archivo'})
     
-    file = request.files['excel_file']
+    file = request.files[file_key]
     if file.filename == '' or not file.filename.endswith(('.xls', '.xlsx')):
         return jsonify({'success': False, 'message': 'El archivo debe ser un Excel (.xls o .xlsx)'})
 

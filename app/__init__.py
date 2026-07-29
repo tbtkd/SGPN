@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -123,6 +123,21 @@ def create_app(config_name=None):
         from app.models.bitacora import BitacoraContacto
         
         db_orm.create_all()
+
+    # RUTA PARA FAVICON
+    @app.route('/favicon.ico')
+    def favicon():
+        if getattr(sys, 'frozen', False):
+            base_dir = sys._MEIPASS
+        else:
+            base_dir = app.root_path
+
+        icons_dir = os.path.join(base_dir, 'static', 'img', 'icons')
+        return send_from_directory(
+            icons_dir,
+            'logo.ico',
+            mimetype='image/vnd.microsoft.icon'
+        )
 
     # FILTROS GLOBALES DE JINJA2
     @app.template_filter('format_date')
