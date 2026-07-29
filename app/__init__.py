@@ -14,8 +14,10 @@ login_manager = LoginManager()
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
+        # Si corre como ejecutable empaquetado por PyInstaller
         return sys._MEIPASS
-    return os.path.abspath(os.path.dirname(__file__))
+    # Si corre en modo desarrollo
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def create_app(config_name=None):
     """
@@ -30,8 +32,15 @@ def create_app(config_name=None):
         config_name = os.environ.get('FLASK_ENV', 'default')
     
     base_path = get_base_path()
-    template_dir = os.path.join(base_path, 'templates') if getattr(sys, 'frozen', False) else 'templates'
-    static_dir = os.path.join(base_path, 'static') if getattr(sys, 'frozen', False) else 'static'
+    
+    if getattr(sys, 'frozen', False):
+        # En ejecutable PyInstaller, las carpetas se añadieron como app/templates y app/static
+        template_dir = os.path.join(base_path, 'app', 'templates')
+        static_dir = os.path.join(base_path, 'app', 'static')
+    else:
+        # En desarrollo
+        template_dir = os.path.join(base_path, 'app', 'templates')
+        static_dir = os.path.join(base_path, 'app', 'static')
 
     # Inicialización de la aplicación Flask
     app = Flask(__name__,
@@ -52,10 +61,9 @@ def create_app(config_name=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
     else:
         # En desarrollo, usar la ruta estándar dentro del proyecto
-        instance_dir = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'instance')
+        instance_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
         os.makedirs(instance_dir, exist_ok=True)
         db_path = os.path.join(instance_dir, 'sgpn_nutricion.db')
-        # Si no se ha configurado previamente en config.py, aseguramos SQLite URI
         if 'SQLALCHEMY_DATABASE_URI' not in app.config:
             app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 
@@ -93,14 +101,13 @@ def create_app(config_name=None):
     
     # CREACIÓN AUTOMÁTICA DE TABLAS SI NO EXISTEN
     with app.app_context():
-        # Importar todos los modelos para que SQLAlchemy registre las tablas
         from app.models.paciente import Paciente
         from app.models.cita import Cita
         from app.models.pago import Pago
         from app.models.historial_clinico import HistorialClinico
         from app.models.valoracion_antropometrica import ValoracionAntropometrica
         from app.models.usuario import Usuario
-        from app.models.plantilla import PlantillaMensaje as PlantillaWhatsApp
+        from app.models.plantilla import PlantillaMensaje
         from app.models.bitacora import BitacoraContacto
         
         db_orm.create_all()
