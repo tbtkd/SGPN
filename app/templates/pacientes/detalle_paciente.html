@@ -43,17 +43,69 @@
 
     <!-- Modal Excel -->
     <div x-show="modalExcelOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" style="display: none;" x-cloak>
-        <div @click.away="modalExcelOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
+        <div @click.away="modalExcelOpen = false" class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl transform transition-all">
             <h3 class="text-xl font-bold text-gray-900 mb-6">Importar desde Excel</h3>
-            <form action="{{ url_for('pacientes.cargar_excel', id=paciente['id']) }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ error: '' }">
+            <form id="formCargarExcel" action="{{ url_for('pacientes.cargar_excel', id=paciente['id']) }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ error: '' }" @submit.prevent="enviarExcel(event)">
                 <input type="file" name="file" accept=".xlsx, .xls" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" @change="error = ''">
                 <p x-show="error" class="text-sm text-red-600 bg-red-50 p-2 rounded-lg" x-text="error" x-cloak></p>
                 <div class="flex gap-4 mt-6">
                     <button type="button" @click="modalExcelOpen = false; error = ''" class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">Cancelar</button>
-                    <button type="button" @click="if(!document.querySelector('input[name=file]').value) { error = 'Por favor, selecciona un archivo Excel antes de cargar.'; } else { $el.form.submit(); }" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700">Cargar</button>
+                    <button type="submit" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 flex items-center justify-center gap-2">
+                        <span>Cargar</span>
+                    </button>
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- Modal de Resumen de Carga de Excel -->
+    <div id="modalResultadoCarga" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300" x-cloak>
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all">
+        
+        <!-- Encabezado Dinámico -->
+        <div id="modalResultadoHeader" class="px-6 py-4 flex justify-between items-center bg-emerald-600 text-white">
+          <h3 id="modalResultadoTitulo" class="text-lg font-bold flex items-center gap-2">
+            <i id="modalResultadoIcono" class="fas fa-check-circle"></i>
+            <span>Resultado del Procesamiento</span>
+          </h3>
+          <button type="button" onclick="cerrarModalResultadoCarga()" class="text-white hover:text-gray-200 text-2xl font-bold leading-none focus:outline-none">&times;</button>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div class="p-6 space-y-5">
+          
+          <!-- Mensaje General de la API -->
+          <p id="modalResultadoMensaje" class="text-gray-700 text-sm font-medium leading-relaxed"></p>
+
+          <!-- Tarjetas Indicadoras / Estadísticas -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+              <span id="statProcesados" class="block text-3xl font-black text-emerald-600">0</span>
+              <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Nuevos Registrados</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+              <span id="statDuplicados" class="block text-3xl font-black text-amber-600">0</span>
+              <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Duplicados Omitidos</span>
+            </div>
+          </div>
+
+          <!-- Detalle de Errores u Observaciones (Condicional) -->
+          <div id="contenedorErroresModal" class="hidden">
+            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Detalle de observaciones:</h4>
+            <div id="listaErroresModal" class="bg-rose-50 border border-rose-200 rounded-lg p-3 max-h-36 overflow-y-auto text-xs text-rose-700 space-y-1">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Pie del Modal -->
+        <div class="bg-gray-50 px-6 py-3 flex justify-end">
+          <button type="button" onclick="cerrarModalResultadoCarga()" class="px-5 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-lg shadow transition-colors focus:outline-none">
+            Aceptar
+          </button>
+        </div>
+
+      </div>
     </div>
 
     <!-- Modal Advertencia Cita Existente -->
@@ -159,4 +211,96 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/detalle_paciente.js') }}"></script>
+<script>
+function enviarExcel(event) {
+    const form = event.target;
+    const fileInput = form.querySelector('input[name="file"]');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        // Alpine component error handling
+        form.__x.$data.error = 'Por favor, selecciona un archivo Excel antes de cargar.';
+        return;
+    }
+
+    const formData = new FormData(form);
+    
+    // Ocultar modal de carga actual
+    // Buscamos Alpine data para cerrar el modal Excel
+    const modalContainer = document.getElementById('formCargarExcel').closest('[x-data]');
+    if (modalContainer && modalContainer.__x) {
+        modalContainer.__x.$data.modalExcelOpen = false;
+    }
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        mostrarModalResultadoCarga(data);
+    })
+    .catch(error => {
+        mostrarModalResultadoCarga({
+            success: false,
+            message: 'Ocurrió un error al procesar la solicitud: ' + error,
+            registros_procesados: 0,
+            registros_duplicados: 0,
+            errores: [error.toString()]
+        });
+    });
+}
+
+function mostrarModalResultadoCarga(data) {
+    const modal = document.getElementById('modalResultadoCarga');
+    const mensajeEl = document.getElementById('modalResultadoMensaje');
+    const statProcesados = document.getElementById('statProcesados');
+    const statDuplicados = document.getElementById('statDuplicados');
+    const contenedorErrores = document.getElementById('contenedorErroresModal');
+    const listaErrores = document.getElementById('listaErroresModal');
+    const header = document.getElementById('modalResultadoHeader');
+    const titulo = document.getElementById('modalResultadoTitulo');
+    const icono = document.getElementById('modalResultadoIcono');
+
+    mensajeEl.textContent = data.message || '';
+    statProcesados.textContent = data.registros_procesados || 0;
+    statDuplicados.textContent = data.registros_duplicados || 0;
+
+    // Manejo de errores u observaciones
+    listaErrores.innerHTML = '';
+    if (data.errores && Array.isArray(data.errores) && data.errores.length > 0) {
+        contenedorErrores.classList.remove('hidden');
+        data.errores.forEach(err => {
+            const div = document.createElement('div');
+            div.textContent = err;
+            listaErrores.appendChild(div);
+        });
+    } else if (typeof data.errores === 'string' && data.errores !== 'No se encontraron errores.' && data.errores.trim() !== '') {
+        contenedorErrores.classList.remove('hidden');
+        const div = document.createElement('div');
+        div.textContent = data.errores;
+        listaErrores.appendChild(div);
+    } else {
+        contenedorErrores.classList.add('hidden');
+    }
+
+    // Estilos según éxito o fallo
+    if (data.success) {
+        header.className = 'px-6 py-4 flex justify-between items-center bg-emerald-600 text-white';
+        icono.className = 'fas fa-check-circle';
+        titulo.querySelector('span').textContent = 'Procesamiento Exitoso';
+    } else {
+        header.className = 'px-6 py-4 flex justify-between items-center bg-rose-600 text-white';
+        icono.className = 'fas fa-exclamation-triangle';
+        titulo.querySelector('span').textContent = 'Aviso / Error en Carga';
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function cerrarModalResultadoCarga() {
+    const modal = document.getElementById('modalResultadoCarga');
+    modal.classList.add('hidden');
+    // Recargar página para reflejar las nuevas valoraciones antropométricas añadidas
+    window.location.reload();
+}
+</script>
 {% endblock %}
