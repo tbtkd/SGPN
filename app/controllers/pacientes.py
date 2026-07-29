@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.utils import secure_filename
 import os
 import openpyxl
-from datetime import datetime
+from datetime import datetime, date
+import pandas as pd
 from app import db_orm as db
 from app.models.paciente import Paciente
 from app.models.pago import Pago
@@ -196,30 +197,66 @@ def cambiar_estado(id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+import re
+
 def extraer_valor(texto, clave):
     try:
-        partes = texto.lower().split(clave) 
+        if not texto:
+            return None
+        texto_lower = str(texto).lower()
+        
+        # Mapeo de claves a posibles prefijos de 1 o 2 letras (ej: 'tc' o 't', 'bc' o 'b', etc.)
+        prefijos = {
+            'tc': r'(?:tc|t)\s*(\d+(?:\.\d+)?)',
+            'bc': r'(?:bc|b)\s*(\d+(?:\.\d+)?)',
+            'si': r'(?:si|i)\s*(\d+(?:\.\d+)?)',
+            'se': r'(?:se|e)\s*(\d+(?:\.\d+)?)',
+            'fem': r'(?:fem|f)\s*(\d+(?:\.\d+)?)'
+        }
+        
+        if clave in prefijos:
+            match = re.search(prefijos[clave], texto_lower)
+            if match:
+                return float(match.group(1))
+        
+        partes = texto_lower.split(clave) 
         if len(partes) > 1:
             for item in partes[1].split():
                 try:
-                    return float(item)
+                    limpio = item.strip(';,:/()[]{}')
+                    return float(limpio)
                 except ValueError:
                     continue
     except Exception as e:
         print(f"Error extrayendo {clave}: {e}")
     return None
 
-def convertir_fecha(fecha_valor):
-    if isinstance(fecha_valor, datetime):
-        return fecha_valor.date()
-    elif isinstance(fecha_valor, str):
-        try:
-            partes = fecha_valor.split()
-            fecha_limpia = partes[0] if len(partes) > 0 else fecha_valor
-            return datetime.strptime(fecha_limpia, '%Y-%m-%d').date()
-        except ValueError:
-            return None
-    return None
+def asegurar_objeto_date(valor, default=None):
+    """
+    Convierte cualquier tipo de dato (str, datetime, date, Timestamp, None) 
+    en un objeto datetime.date nativo sin lanzar excepciones de strptime.
+    """
+    if pd.isna(valor) or valor is None or valor == '':
+        return default
+
+    # Si ya es date (pero no datetime, ya que datetime hereda de date)
+    if isinstance(valor, date) and not isinstance(valor, datetime):
+        return valor
+
+    # Si es datetime o pd.Timestamp
+    if isinstance(valor, (datetime, pd.Timestamp)):
+        return valor.date()
+
+    # Si es un string, lo convertimos de forma segura
+    if isinstance(valor, str):
+        valor = valor.strip()
+        for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%Y-%m-%d %H:%M:%S', '%d/%m/%Y %H:%M:%S'):
+            try:
+                return datetime.strptime(valor, fmt).date()
+            except ValueError:
+                continue
+
+    return default
 
 def existe_registro(paciente_id, numero_cita, fecha):
     existente = ValoracionAntropometrica.query.filter_by(
@@ -252,17 +289,36 @@ def cargar_excel(id):
         errores = []
         
         while True:
-            if not sheet.cell(row=row, column=12).value:
-                break
+            cita_raw = sheet.cell(row=row, column=12).value
+            fecha_raw = sheet.cell(row=row, column=13).value
+            peso_raw = sheet.cell(row=row, column=14).value
+            
+            # Si la celda de cita está vacía, terminamos o saltamos
+            if not cita_raw and not fecha_raw and not peso_raw:
+                # Verificar si las siguientes filas también están vacías para decidir terminar
+                vacio = True
+                for r_check in range(row, min(row + 5, sheet.max_row + 1)):
+                    if sheet.cell(row=r_check, column=12).value or sheet.cell(row=r_check, column=14).value:
+                        vacio = False
+                        break
+                if vacio:
+                    break
+                row += 1
+                continue
+            
+            # Si falta cita, fecha o peso, saltar al registro inmediato siguiente
+            if pd.isna(cita_raw) or pd.isna(fecha_raw) or pd.isna(peso_raw) or str(fecha_raw).strip() == '':
+                row += 1
+                continue
             
             try:
-                fecha = convertir_fecha(sheet.cell(row=row, column=13).value)
+                fecha = asegurar_objeto_date(fecha_raw)
                 if not fecha:
                     errores.append(f"Error en fila {row}: Formato de fecha inválido")
                     row += 1
                     continue
                 
-                numero_cita = sheet.cell(row=row, column=12).value
+                numero_cita = cita_raw
                 if existe_registro(id, numero_cita, fecha):
                     registros_duplicados += 1
                     row += 1
@@ -274,21 +330,21 @@ def cargar_excel(id):
                     'fecha': fecha,
                     'estatura': estatura,
                     'peso': sheet.cell(row=row, column=14).value,
-                    'imc': extraer_valor(str(sheet.cell(row=row, column=15).value or ''), 'imc'),
-                    'grasa': extraer_valor(str(sheet.cell(row=row, column=15).value or ''), 'grasa'),
-                    'cintura': sheet.cell(row=row, column=16).value,
-                    'torax': sheet.cell(row=row, column=17).value,
-                    'brazo': sheet.cell(row=row, column=18).value,
-                    'cadera': sheet.cell(row=row, column=19).value,
-                    'pierna': sheet.cell(row=row, column=20).value,
-                    'pantorrilla': sheet.cell(row=row, column=21).value,
-                    'tension_arterial': sheet.cell(row=row, column=24).value,
-                    'frecuencia_cardiaca': sheet.cell(row=row, column=25).value,
-                    'bicep': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'bc'),
-                    'tricep': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'tc'),
-                    'suprailiaco': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'si'),
-                    'subescapular': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'se'),
-                    'femoral': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'fem'),
+                    'imc': extraer_valor(str(sheet.cell(row=row, column=15).value or ''), 'imc') or 0.0,
+                    'grasa': extraer_valor(str(sheet.cell(row=row, column=15).value or ''), 'grasa') or 0.0,
+                    'cintura': sheet.cell(row=row, column=16).value or 0.0,
+                    'torax': sheet.cell(row=row, column=17).value or 0.0,
+                    'brazo': sheet.cell(row=row, column=18).value or 0.0,
+                    'cadera': sheet.cell(row=row, column=19).value or 0.0,
+                    'pierna': sheet.cell(row=row, column=20).value or 0.0,
+                    'pantorrilla': sheet.cell(row=row, column=21).value or 0.0,
+                    'tension_arterial': sheet.cell(row=row, column=24).value or '120/80',
+                    'frecuencia_cardiaca': sheet.cell(row=row, column=25).value or 80,
+                    'bicep': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'bc') or 0.0,
+                    'tricep': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'tc') or 0.0,
+                    'suprailiaco': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'si') or 0.0,
+                    'subescapular': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'se') or 0.0,
+                    'femoral': extraer_valor(str(sheet.cell(row=row, column=22).value or ''), 'fem') or 0.0,
                     'porcentaje_grasa': sheet.cell(row=row, column=23).value,
                     'ultima_dieta': None
                 }

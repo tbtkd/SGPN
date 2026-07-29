@@ -35,10 +35,20 @@ class ValoracionAntropometrica(db.Model):
     @staticmethod
     def crear(paciente_id, datos):
         try:
+            fecha_val = datos['fecha']
+            if isinstance(fecha_val, str):
+                fecha_obj = datetime.strptime(fecha_val, '%Y-%m-%d').date()
+            elif isinstance(fecha_val, datetime):
+                fecha_obj = fecha_val.date()
+            elif isinstance(fecha_val, date):
+                fecha_obj = fecha_val
+            else:
+                fecha_obj = datetime.strptime(str(fecha_val), '%Y-%m-%d').date()
+
             nueva_valoracion = ValoracionAntropometrica(
                 paciente_id=paciente_id,
                 numero_cita=datos.get('numero_cita', 1),
-                fecha=datetime.strptime(datos['fecha'], '%Y-%m-%d').date(),
+                fecha=fecha_obj,
                 estatura=datos['estatura'],
                 peso=datos['peso'],
                 imc=datos['imc'],
@@ -73,7 +83,15 @@ class ValoracionAntropometrica(db.Model):
             if not valoracion:
                 return False, "Valoración no encontrada."
             
-            valoracion.fecha = datetime.strptime(datos['fecha'], '%Y-%m-%d').date()
+            fecha_val = datos['fecha']
+            if isinstance(fecha_val, str):
+                valoracion.fecha = datetime.strptime(fecha_val, '%Y-%m-%d').date()
+            elif isinstance(fecha_val, datetime):
+                valoracion.fecha = fecha_val.date()
+            elif isinstance(fecha_val, date):
+                valoracion.fecha = fecha_val
+            else:
+                valoracion.fecha = datetime.strptime(str(fecha_val), '%Y-%m-%d').date()
             valoracion.estatura = datos['estatura']
             valoracion.peso = datos['peso']
             valoracion.imc = datos['imc']
