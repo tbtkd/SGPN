@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -19,6 +20,31 @@ def get_base_path():
     # Si corre en modo desarrollo
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
+def get_database_path():
+    if getattr(sys, 'frozen', False):
+        # Ruta en la carpeta de datos de usuario de Windows (%LOCALAPPDATA%/SistemaPacientes)
+        app_data_dir = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'SistemaPacientes')
+        os.makedirs(app_data_dir, exist_ok=True)
+        db_path = os.path.join(app_data_dir, 'sgpn_nutricion.db')
+        
+        # Si la base de datos no existe en AppData, la inicializamos copiando la plantilla base empaquetada
+        if not os.path.exists(db_path):
+            base_resource_dir = sys._MEIPASS
+            packed_db_path = os.path.join(base_resource_dir, 'instance', 'sgpn_nutricion.db')
+            if os.path.exists(packed_db_path):
+                shutil.copy2(packed_db_path, db_path)
+            else:
+                # Si por alguna razón no está en sys._MEIPASS, intentar ruta alternativa
+                alt_packed = os.path.join(os.path.dirname(sys.executable), 'instance', 'sgpn_nutricion.db')
+                if os.path.exists(alt_packed):
+                    shutil.copy2(alt_packed, db_path)
+        return db_path
+    else:
+        # Entorno de desarrollo local
+        instance_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'instance')
+        os.makedirs(instance_dir, exist_ok=True)
+        return os.path.join(instance_dir, 'sgpn_nutricion.db')
+
 def create_app(config_name=None):
     """
     Función factory para crear y configurar la aplicación Flask
@@ -34,11 +60,9 @@ def create_app(config_name=None):
     base_path = get_base_path()
     
     if getattr(sys, 'frozen', False):
-        # En ejecutable PyInstaller, las carpetas se añadieron como app/templates y app/static
         template_dir = os.path.join(base_path, 'app', 'templates')
         static_dir = os.path.join(base_path, 'app', 'static')
     else:
-        # En desarrollo
         template_dir = os.path.join(base_path, 'app', 'templates')
         static_dir = os.path.join(base_path, 'app', 'static')
 
@@ -51,21 +75,9 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # Configuración de base de datos persistente para ejecutable o desarrollo
-    if getattr(sys, 'frozen', False):
-        # Si corre como ejecutable, la BD se guarda en la carpeta donde está el .exe
-        exe_dir = os.path.dirname(sys.executable)
-        instance_dir = os.path.join(exe_dir, 'instance')
-        os.makedirs(instance_dir, exist_ok=True)
-        db_path = os.path.join(instance_dir, 'sgpn_nutricion.db')
-        app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
-    else:
-        # En desarrollo, usar la ruta estándar dentro del proyecto
-        instance_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
-        os.makedirs(instance_dir, exist_ok=True)
-        db_path = os.path.join(instance_dir, 'sgpn_nutricion.db')
-        if 'SQLALCHEMY_DATABASE_URI' not in app.config:
-            app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+    # Configuración de base de datos persistente en LOCALAPPDATA
+    db_path = get_database_path()
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 
     # Inicialización de la base de datos
     db_orm.init_app(app)
