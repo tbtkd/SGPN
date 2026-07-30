@@ -57,7 +57,7 @@ def registrar_usuario():
 
         if Usuario.create(username, password, nombre, apellido_paterno, apellido_materno, email, rol, cedula_profesional):
             flash('Usuario registrado exitosamente.', 'success')
-            return redirect(url_for('main.index'))
+            return redirect(url_for('auth.lista_usuarios'))
         else:
             flash('Error al registrar el usuario. Asegúrate de que el usuario o correo no estén duplicados.', 'error')
 
@@ -116,7 +116,14 @@ def cambiar_estatus_usuario(id):
     try:
         exito, resultado = Usuario.cambiar_estatus(id)
         if exito:
-            return {'success': True, 'nuevo_estado': resultado}
+            total_activos = Usuario.query.filter((Usuario.status == 'activo') | (Usuario.status.is_(None))).count()
+            total_usuarios = Usuario.query.count()
+            return {
+                'success': True, 
+                'nuevo_estado': resultado,
+                'usuarios_activos': total_activos,
+                'total_usuarios': total_usuarios
+            }
         return {'success': False, 'error': resultado}, 400
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
