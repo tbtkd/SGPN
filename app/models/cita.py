@@ -8,7 +8,9 @@ class Cita(db.Model):
     paciente_id = db.Column(db.Integer, db.ForeignKey('pacientes.id', ondelete='CASCADE'), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     hora = db.Column(db.Time, nullable=False)
-    estado = db.Column(db.String(20), default='pendiente')
+    estado = db.Column(db.String(20), default='pendiente') # Mantener compatibilidad
+    estatus = db.Column(db.String(30), default='Programada') # 'Programada', 'Atendida', 'No Asistió', 'Cancelada'
+    motivo_cancelacion = db.Column(db.Text, nullable=True)
     
     paciente = db.relationship('Paciente', backref=db.backref('citas', lazy=True))
 
@@ -19,7 +21,8 @@ class Cita(db.Model):
                 paciente_id=paciente_id,
                 fecha=datetime.strptime(fecha, '%Y-%m-%d').date(),
                 hora=datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time(),
-                estado='pendiente'
+                estado='pendiente',
+                estatus='Programada'
             )
             db.session.add(nueva_cita)
             db.session.commit()
@@ -34,14 +37,14 @@ class Cita(db.Model):
         return Cita.query.filter(
             Cita.paciente_id == paciente_id,
             Cita.fecha >= hoy,
-            Cita.estado == 'pendiente'
+            Cita.estatus == 'Programada'
         ).order_by(Cita.fecha.asc(), Cita.hora.asc()).first()
 
     @staticmethod
     def obtener_cita_pendiente(paciente_id):
         return Cita.query.filter_by(
             paciente_id=paciente_id,
-            estado='pendiente'
+            estatus='Programada'
         ).order_by(Cita.fecha.asc(), Cita.hora.asc()).first()
 
     @staticmethod
@@ -50,14 +53,21 @@ class Cita(db.Model):
             fecha = datetime.now().date()
         elif isinstance(fecha, str):
             fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-        return Cita.query.filter_by(fecha=fecha, estado='pendiente').order_by(Cita.hora.asc()).all()
+        from sqlalchemy import or_
+        return Cita.query.filter_by(fecha=fecha).filter(
+            or_(
+                Cita.estatus.in_(['Programada', 'No Asistió', 'Cancelada']),
+                Cita.estatus.is_(None),
+                Cita.estatus == 'pendiente'
+            )
+        ).order_by(Cita.hora.asc()).all()
 
     @staticmethod
     def es_horario_disponible(fecha, hora, excluir_cita_id=None):
         fecha_dt = datetime.strptime(fecha, '%Y-%m-%d').date()
         hora_dt = datetime.strptime(hora, '%H:%M').time() if len(hora) == 5 else datetime.strptime(hora, '%H:%M:%S').time()
         
-        query = Cita.query.filter_by(fecha=fecha_dt, hora=hora_dt)
+        query = Cita.query.filter_by(fecha=fecha_dt, hora=hora_dt).filter(Cita.estatus == 'Programada')
         if excluir_cita_id:
             query = query.filter(Cita.id != excluir_cita_id)
         

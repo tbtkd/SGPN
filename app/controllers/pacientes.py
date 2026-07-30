@@ -468,3 +468,28 @@ def disponibilidad_horas():
     citas_dia = Cita.query.filter_by(fecha=datetime.strptime(fecha, '%Y-%m-%d').date()).all()
     horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_dia if c.hora]
     return jsonify(horas_ocupadas)
+
+@pacientes.route('/citas/<int:id>/cambiar-estatus', methods=['POST'])
+def cambiar_estatus_cita(id):
+    try:
+        data = request.get_json() or {}
+        nuevo_estatus = data.get('estatus')
+        motivo = data.get('motivo', '')
+
+        if nuevo_estatus not in ['Programada', 'Atendida', 'No Asistió', 'Cancelada']:
+            return jsonify({'success': False, 'error': 'Estatus inválido'}), 400
+
+        cita = Cita.query.get(id)
+        if not cita:
+            return jsonify({'success': False, 'error': 'Cita no encontrada'}), 404
+
+        cita.estatus = nuevo_estatus
+        if motivo:
+            cita.motivo_cancelacion = motivo
+        db.session.commit()
+
+        return jsonify({'success': True, 'nuevo_estatus': nuevo_estatus})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
