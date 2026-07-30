@@ -19,6 +19,24 @@ def open_browser(port):
     except Exception as e:
         print(f"[ADVERTENCIA] No se pudo abrir el navegador automáticamente: {e}")
 
+def show_stylized_error_window():
+    """Abre la plantilla HTML estilizada de error de inicio en el navegador o mediante archivo local."""
+    try:
+        if getattr(sys, 'frozen', False):
+            base_dir = sys._MEIPASS
+        else:
+            base_dir = os.path.abspath(os.path.dirname(__file__))
+        
+        html_path = os.path.join(base_dir, 'app', 'templates', 'errors', 'error_inicio.html')
+        if not os.path.exists(html_path):
+            # Ruta alternativa si se ejecuta desde la raíz
+            html_path = os.path.abspath('app/templates/errors/error_inicio.html')
+        
+        if os.path.exists(html_path):
+            webbrowser.open(f'file:///{os.path.abspath(html_path)}')
+    except Exception as e:
+        print(f"[ADVERTENCIA] No se pudo abrir la ventana estilizada de error: {e}")
+
 def show_error_dialog(title, message):
     """Muestra una ventana emergente de error en Windows si la consola está oculta o falla stdin."""
     try:
@@ -50,9 +68,9 @@ if __name__ == '__main__':
 
         # 1. Validacion de Puerto Ocupado
         if is_port_in_use(port):
-            error_msg = f"El puerto {port} ya se encuentra ocupado.\nEs posible que la aplicación ya esté ejecutándose en segundo plano."
+            error_msg = f"El puerto {port} ya se encuentra ocupado. Es posible que la aplicación ya esté ejecutándose en segundo plano."
             print(f"\n[ERROR CRITICO] {error_msg}")
-            show_error_dialog("Error de Inicio - Sistema Pacientes", error_msg)
+            show_stylized_error_window()
             safe_input()
             sys.exit(1)
 
@@ -93,7 +111,8 @@ if __name__ == '__main__':
         print(error_details)
         print("\n")
 
-        # Notificar mediante cuadro de diálogo emergente nativo
+        # Notificar mediante plantilla estilizada y diálogo de respaldo
+        show_stylized_error_window()
         show_error_dialog("Error Crítico de Ejecución", f"Ocurrió un error al iniciar la aplicación:\n\n{e}\n\nRevisa el archivo crash_log.txt para más detalles.")
 
         safe_input()
