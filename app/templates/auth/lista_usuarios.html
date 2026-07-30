@@ -118,42 +118,50 @@
 
 <script>
 function cambiarEstatus(id) {
-    if (!confirm('¿Estás seguro de cambiar el estatus de este usuario?')) return;
-    
-    fetch(`/usuarios/${id}/cambiar-estatus`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const badge = document.getElementById(`status-badge-${id}`);
-            const btn = document.getElementById(`btn-status-${id}`);
-            
-            if (data.nuevo_estado === 'activo') {
-                badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize';
-                badge.textContent = 'activo';
-                if (btn) {
-                    btn.className = 'inline-flex items-center px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-xs font-medium transition';
-                    btn.textContent = 'Inhabilitar';
+    confirmarAccion({
+        titulo: '¿Cambiar estatus de usuario?',
+        mensaje: '¿Estás seguro de que deseas modificar el estatus de este usuario en el sistema?',
+        textoConfirmar: 'Sí, cambiar',
+        textoCancelar: 'Cancelar',
+        icono: 'question'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        
+        fetch(`/usuarios/${id}/cambiar-estatus`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.getElementById(`status-badge-${id}`);
+                const btn = document.getElementById(`btn-status-${id}`);
+                
+                if (data.nuevo_estado === 'activo') {
+                    badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize';
+                    badge.textContent = 'activo';
+                    if (btn) {
+                        btn.className = 'inline-flex items-center px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-xs font-medium transition';
+                        btn.textContent = 'Inhabilitar';
+                    }
+                } else {
+                    badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 capitalize';
+                    badge.textContent = 'inactivo';
+                    if (btn) {
+                        btn.className = 'inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition';
+                        btn.textContent = 'Habilitar';
+                    }
                 }
             } else {
-                badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 capitalize';
-                badge.textContent = 'inactivo';
-                if (btn) {
-                    btn.className = 'inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition';
-                    btn.textContent = 'Habilitar';
-                }
+                alert(data.error || 'Error al cambiar el estatus');
             }
-        } else {
-            alert(data.error || 'Error al cambiar el estatus');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error de conexión al cambiar el estatus.');
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error de conexión al cambiar el estatus.');
+        });
     });
 }
 </script>
