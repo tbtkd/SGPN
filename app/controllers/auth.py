@@ -53,8 +53,9 @@ def registrar_usuario():
         apellido_materno = request.form.get('apellido_materno')
         email = request.form.get('email')
         rol = request.form.get('rol')
+        cedula_profesional = request.form.get('cedula_profesional')
 
-        if Usuario.create(username, password, nombre, apellido_paterno, apellido_materno, email, rol):
+        if Usuario.create(username, password, nombre, apellido_paterno, apellido_materno, email, rol, cedula_profesional):
             flash('Usuario registrado exitosamente.', 'success')
             return redirect(url_for('main.index'))
         else:

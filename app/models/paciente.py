@@ -63,13 +63,10 @@ class Paciente(db.Model):
         return Paciente.query.filter_by(status='seguimiento').count()
 
     @staticmethod
-    def buscar(busqueda, status='activo'):
+    def buscar(busqueda, status='activo', ordenar_por='id', orden='desc'):
         from app.models.valoracion_antropometrica import ValoracionAntropometrica
-        from app.models.cita import Cita
-        from sqlalchemy import func
+        from sqlalchemy import func, desc, asc
 
-        # Subquery para obtener la fecha de la última valoración (o última cita si aplica)
-        # Usaremos la fecha de la última valoración antropométrica como referencia de consulta/cita
         subq_val = db.session.query(
             ValoracionAntropometrica.paciente_id,
             func.max(ValoracionAntropometrica.fecha).label('ultima_val')
@@ -89,12 +86,25 @@ class Paciente(db.Model):
                 (Paciente.apellido_materno.contains(busqueda))
             )
 
+        # Ordenamiento
+        if ordenar_por == 'nombre':
+            columna = Paciente.nombre
+        elif ordenar_por == 'apellidos':
+            columna = Paciente.apellido_paterno
+        elif ordenar_por == 'ultima_consulta':
+            columna = subq_val.c.ultima_val
+        else:
+            columna = Paciente.id
+
+        if orden == 'asc':
+            query = query.order_by(asc(columna))
+        else:
+            query = query.order_by(desc(columna))
+
         resultados = query.all()
         
-        # Mapear los resultados a un formato que el template espera (dict o objeto con atributo/clave ultima_consulta)
         pacientes_con_consulta = []
         for pac, ultima_val in resultados:
-            # Adjuntamos dinámicamente la propiedad ultima_consulta al objeto Paciente
             pac.ultima_consulta = ultima_val
             pacientes_con_consulta.append(pac)
 

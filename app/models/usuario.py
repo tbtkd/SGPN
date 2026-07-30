@@ -14,6 +14,7 @@ class Usuario(db_orm.Model, UserMixin):
     rol = db_orm.Column(db_orm.String(20), default='nutriologa')
     apellido_paterno = db_orm.Column(db_orm.String(50), nullable=True)
     apellido_materno = db_orm.Column(db_orm.String(50), nullable=True)
+    status = db_orm.Column(db_orm.String(20), default='activo')
 
     @property
     def nombre_completo(self):
@@ -30,3 +31,25 @@ class Usuario(db_orm.Model, UserMixin):
     def check_password(self, password):
         from werkzeug.security import check_password_hash
         return check_password_hash(self.password_hash, password)
+
+    @staticmethod
+    def create(username, password, nombre, apellido_paterno, apellido_materno, email, rol, cedula_profesional=None):
+        try:
+            from werkzeug.security import generate_password_hash
+            nuevo_usuario = Usuario(
+                username=username,
+                password_hash=generate_password_hash(password),
+                nombre=nombre,
+                apellido_paterno=apellido_paterno,
+                apellido_materno=apellido_materno,
+                email=email,
+                rol=rol,
+                cedula_profesional=cedula_profesional if cedula_profesional else None
+            )
+            db_orm.session.add(nuevo_usuario)
+            db_orm.session.commit()
+            return True
+        except Exception as e:
+            db_orm.session.rollback()
+            print(f"Error al crear usuario: {e}")
+            return False

@@ -50,10 +50,14 @@ def nuevo_paciente():
 def lista_pacientes_activos():
     try:
         busqueda = request.args.get('busqueda', '')
-        pacientes_list = Paciente.buscar(busqueda, status='activo')
+        ordenar_por = request.args.get('ordenar_por', 'id')
+        orden = request.args.get('orden', 'desc')
+        pacientes_list = Paciente.buscar(busqueda, status='activo', ordenar_por=ordenar_por, orden=orden)
         return render_template('pacientes/lista_pacientes.html', 
                             pacientes=pacientes_list,
                             busqueda=busqueda,
+                            ordenar_por=ordenar_por,
+                            orden=orden,
                             tipo_lista="activos")
     except Exception as e:
         flash(f'Error al obtener la lista de pacientes: {str(e)}', 'error')
@@ -63,10 +67,14 @@ def lista_pacientes_activos():
 def lista_pacientes_inactivos():
     try:
         busqueda = request.args.get('busqueda', '')
-        pacientes_list = Paciente.buscar(busqueda, status='inactivo')
+        ordenar_por = request.args.get('ordenar_por', 'id')
+        orden = request.args.get('orden', 'desc')
+        pacientes_list = Paciente.buscar(busqueda, status='inactivo', ordenar_por=ordenar_por, orden=orden)
         return render_template('pacientes/lista_pacientes.html', 
                             pacientes=pacientes_list,
                             busqueda=busqueda,
+                            ordenar_por=ordenar_por,
+                            orden=orden,
                             tipo_lista="inactivos")
     except Exception as e:
         flash(f'Error al obtener la lista de pacientes: {str(e)}', 'error')
