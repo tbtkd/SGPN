@@ -1,0 +1,11 @@
+
+=== FALLO CRITICO [nt.times_result(user=0.15625, system=0.109375, children_user=0.0, children_system=0.0, elapsed=0.0)] ===
+Traceback (most recent call last):
+  File "c:\test\py\SistemaPacientes\run.py", line 60, in <module>
+    app = create_app()
+  File "c:\test\py\SistemaPacientes\app\__init__.py", line 88, in create_app
+    from app.controllers.pacientes import pacientes as pacientes_blueprint
+  File "c:\test\py\SistemaPacientes\app\controllers\pacientes.py", line 6, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+

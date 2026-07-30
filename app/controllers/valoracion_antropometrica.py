@@ -72,12 +72,14 @@ def nueva_valoracion(paciente_id):
 
             cita_hoy = Cita.query.filter_by(
                 paciente_id=paciente_id,
-                fecha=fecha_consulta,
-                estado='pendiente'
+                fecha=fecha_consulta
+            ).filter(
+                (Cita.estado == 'pendiente') | (Cita.estatus == 'Programada') | (Cita.estatus.is_(None))
             ).first()
 
             if cita_hoy:
                 cita_hoy.estado = 'completada'
+                cita_hoy.estatus = 'Atendida'
                 db.session.commit()
 
             flash(mensaje, 'success')
@@ -101,8 +103,6 @@ def lista_valoraciones(paciente_id):
     return render_template('valoraciones/lista_valoraciones.html', paciente=paciente, valoraciones=valoraciones)
 
 @valoracion.route('/')
-
-
 def todas_valoraciones():
     valoraciones = ValoracionAntropometrica.obtener_todas()
     return render_template('valoraciones/todas_valoraciones.html', valoraciones=valoraciones)

@@ -40,8 +40,9 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
 
-                            <div x-show="open" @click.away="open = false" x-cloak class="origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-20 py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                            <div x-show="open" @click.away="open = false" x-cloak class="origin-top-right absolute right-0 {% if loop.last %}bottom-full mb-2 origin-bottom-right{% else %}top-full mt-2 origin-top-right{% endif %} w-56 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-50 py-1 text-sm text-gray-700 divide-y divide-gray-100">
                                 <div class="py-1">
+
                                     <button type="button" onclick="marcarEstatusCita('{{ c.id }}', 'No Asistió', 'Paciente')" class="w-full text-left px-4 py-2 hover:bg-rose-50 hover:text-rose-700 flex items-center gap-2 font-medium">
                                         <i class="fas fa-user-times text-rose-500"></i>
                                         <span>Marcar No Asistió</span>
