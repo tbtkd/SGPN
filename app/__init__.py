@@ -111,8 +111,16 @@ def create_app(config_name=None):
         from app.models.usuario import Usuario
         return Usuario.get(user_id)
     
-    # CREACIÓN AUTOMÁTICA DE TABLAS SI NO EXISTEN
+    # RESPALDO PREVENTIVO Y MIGRACIÓN AUTOMÁTICA DE ESQUEMA
     with app.app_context():
+        # 1. Copia de respaldo automática de la base de datos si existe
+        if os.path.exists(db_path):
+            try:
+                backup_path = db_path.replace('.db', '_backup.db')
+                shutil.copy2(db_path, backup_path)
+            except Exception as e:
+                print(f"[ADVERTENCIA] No se pudo crear el respaldo preventivo de la BD: {e}")
+
         from app.models.paciente import Paciente
         from app.models.cita import Cita
         from app.models.pago import Pago
@@ -123,6 +131,30 @@ def create_app(config_name=None):
         from app.models.bitacora import BitacoraContacto
         
         db_orm.create_all()
+
+        # 2. Inspección y migración automática de columnas faltantes en tablas existentes
+        try:
+            inspector = db_orm.inspect(db_orm.engine)
+            metadata = db_orm.metadata
+            
+            with db_orm.engine.begin() as connection:
+                for table_name, table in metadata.tables.items():
+                    if inspector.has_table(table_name):
+                        existing_columns = [col['name'] for col in inspector.get_columns(table_name)]
+                        for column in table.columns:
+                            col_name = column.name
+                            if col_name not in existing_columns:
+                                # Determinar tipo SQL y valor por defecto seguro
+                                col_type = str(column.type)
+                                default_val = "''" if 'CHAR' in col_type or 'TEXT' in col_type or 'STR' in col_type else "0"
+                                if 'BOOL' in col_type:
+                                    default_val = "0"
+                                
+                                alter_sql = f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {default_val}"
+                                connection.execute(db_orm.text(alter_sql))
+                                print(f"[MIGRACIÓN] Columna agregada automáticamente: {table_name}.{col_name}")
+        except Exception as e:
+            print(f"[ADVERTENCIA] Error durante la migración automática de esquema: {e}")
 
     # RUTA PARA FAVICON
     @app.route('/favicon.ico')
