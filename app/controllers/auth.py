@@ -62,3 +62,61 @@ def registrar_usuario():
             flash('Error al registrar el usuario. Asegúrate de que el usuario o correo no estén duplicados.', 'error')
 
     return render_template('auth/registrar_usuario.html')
+
+@auth.route('/usuarios')
+@login_required
+def lista_usuarios():
+    if current_user.rol != 'nutriologa':
+        flash('No tienes permiso para realizar esta acción.', 'error')
+        return redirect(url_for('main.index'))
+    try:
+        usuarios = Usuario.obtener_todos()
+        return render_template('auth/lista_usuarios.html', usuarios=usuarios)
+    except Exception as e:
+        flash(f'Error al obtener la lista de usuarios: {str(e)}', 'error')
+        return redirect(url_for('main.index'))
+
+@auth.route('/usuarios/<int:id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_usuario(id):
+    if current_user.rol != 'nutriologa':
+        flash('No tienes permiso para realizar esta acción.', 'error')
+        return redirect(url_for('main.index'))
+
+    usuario = Usuario.query.get(id)
+    if not usuario:
+        flash('Usuario no encontrado.', 'error')
+        return redirect(url_for('auth.lista_usuarios'))
+
+    if request.method == 'POST':
+        try:
+            nombre = request.form.get('nombre')
+            apellido_paterno = request.form.get('apellido_paterno')
+            apellido_materno = request.form.get('apellido_materno')
+            email = request.form.get('email')
+            rol = request.form.get('rol')
+            cedula_profesional = request.form.get('cedula_profesional')
+            status = request.form.get('status', 'activo')
+
+            if Usuario.actualizar(id, nombre, apellido_paterno, apellido_materno, email, rol, cedula_profesional, status):
+                flash('Usuario actualizado exitosamente.', 'success')
+                return redirect(url_for('auth.lista_usuarios'))
+            else:
+                flash('Error al actualizar el usuario.', 'error')
+        except Exception as e:
+            flash(f'Error al actualizar el usuario: {str(e)}', 'error')
+
+    return render_template('auth/editar_usuario.html', usuario=usuario)
+
+@auth.route('/usuarios/<int:id>/cambiar-estatus', methods=['POST'])
+@login_required
+def cambiar_estatus_usuario(id):
+    if current_user.rol != 'nutriologa':
+        return {'success': False, 'error': 'No autorizado'}, 403
+    try:
+        exito, resultado = Usuario.cambiar_estatus(id)
+        if exito:
+            return {'success': True, 'nuevo_estado': resultado}
+        return {'success': False, 'error': resultado}, 400
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500
