@@ -43,13 +43,14 @@ def ver_crear_historial(paciente_id):
             HistorialClinico.actualizar(paciente_id, datos)
             flash('Historial clínico actualizado exitosamente', 'success')
         else:
-            HistorialClinico.crear(paciente_id, datos)
+            HistorialClinico.actualizar(paciente_id, datos)
             flash('Historial clínico creado exitosamente', 'success')
 
         return redirect(url_for('historial_clinico.ver_crear_historial', paciente_id=paciente_id))
 
     padecimientos_opciones = [
         'Gastritis', 'Colitis', 'Reflujo', 'Estreñimiento', 'Diarrea',
+
         'Hemorroides', 'Intolerancias', 'Alergias', 'Diabetes',
         'Dislipidemias', 'Presión arterial', 'Otro descontrol metabólico'
     ]
