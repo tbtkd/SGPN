@@ -12,6 +12,24 @@
                     <p class="text-sm text-gray-500">Padecimientos</p>
                     <p class="font-medium text-gray-900">{{ historial['padecimientos'] or 'No registrado' }}</p>
                 </div>
+                {% if historial['detalle_alergias'] %}
+                <div>
+                    <p class="text-sm text-gray-500">Detalle de Alergias</p>
+                    <p class="font-medium text-gray-900">{{ historial['detalle_alergias'] }}</p>
+                </div>
+                {% endif %}
+                {% if historial['detalle_intolerancias'] %}
+                <div>
+                    <p class="text-sm text-gray-500">Detalle de Intolerancias</p>
+                    <p class="font-medium text-gray-900">{{ historial['detalle_intolerancias'] }}</p>
+                </div>
+                {% endif %}
+                {% if historial['detalle_otro_descontrol_metabolico'] %}
+                <div>
+                    <p class="text-sm text-gray-500">Detalle de Otro Descontrol Metabólico</p>
+                    <p class="font-medium text-gray-900">{{ historial['detalle_otro_descontrol_metabolico'] }}</p>
+                </div>
+                {% endif %}
                 <div>
                     <p class="text-sm text-gray-500">Medicamentos</p>
                     <p class="font-medium text-gray-900">{{ historial['medicamentos'] or 'No registrado' }}</p>
