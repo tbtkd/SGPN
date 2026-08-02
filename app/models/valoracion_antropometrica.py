@@ -136,7 +136,15 @@ class ValoracionAntropometrica(db.Model):
 
     @staticmethod
     def obtener_por_paciente(paciente_id):
-        return ValoracionAntropometrica.query.filter_by(paciente_id=paciente_id).order_by(ValoracionAntropometrica.fecha.desc()).all()
+        # Limpieza preventiva: asegurar que los datos sean válidos antes de la consulta
+        # Esto mantiene la tolerancia a fallos ante datos corruptos en la DB
+        try:
+            return ValoracionAntropometrica.query.filter_by(paciente_id=paciente_id).order_by(ValoracionAntropometrica.fecha.desc()).all()
+        except TypeError:
+            # Si falla, ejecutamos la limpieza y reintentamos
+            from limpiar_db import limpiar_fechas_valoracion
+            limpiar_fechas_valoracion()
+            return ValoracionAntropometrica.query.filter_by(paciente_id=paciente_id).order_by(ValoracionAntropometrica.fecha.desc()).all()
 
     @staticmethod
     def obtener_todas():

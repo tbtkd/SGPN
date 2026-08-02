@@ -6,6 +6,7 @@ import webbrowser
 from threading import Timer
 from app import create_app
 from app.__init__ import get_database_path
+from seed_admin import seed_admin
 
 def is_port_in_use(port, host='127.0.0.1'):
     """Verifica si el puerto especificado ya se encuentra en uso por otro proceso."""
@@ -76,6 +77,9 @@ if __name__ == '__main__':
 
         # 2. Inicializar la app de Flask
         app = create_app()
+        
+        # 2.1 Ejecutar seed_admin
+        seed_admin()
         
         # 3. Programa la apertura del navegador (usando hilos daemon)
         timer = Timer(1.5, open_browser, args=[port])

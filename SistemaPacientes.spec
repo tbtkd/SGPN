@@ -5,7 +5,7 @@ a = Analysis(
     ['run.py'],
     pathex=[],
     binaries=[],
-    datas=[('app/templates', 'app/templates'), ('app/static', 'app/static'), ('instance/sgpn_nutricion.db', 'instance')],
+    datas=[('app/templates', 'app/templates'), ('app/static', 'app/static')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
