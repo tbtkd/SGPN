@@ -27,6 +27,9 @@ def ver_crear_historial(paciente_id):
         datos = {
             'cirugias': request.form.get('cirugias', ''),
             'padecimientos': ','.join(request.form.getlist('padecimientos')),
+            'detalle_alergias': request.form.get('detalle_alergias', ''),
+            'detalle_intolerancias': request.form.get('detalle_intolerancias', ''),
+            'detalle_otro_descontrol_metabolico': request.form.get('detalle_otro_descontrol_metabolico', ''),
             'medicamentos': request.form.get('medicamentos', ''),
             'suplementos': request.form.get('suplementos', ''),
             'enfermedades_previas': request.form.get('enfermedades_previas', ''),
@@ -50,7 +53,6 @@ def ver_crear_historial(paciente_id):
 
     padecimientos_opciones = [
         'Gastritis', 'Colitis', 'Reflujo', 'Estreñimiento', 'Diarrea',
-
         'Hemorroides', 'Intolerancias', 'Alergias', 'Diabetes',
         'Dislipidemias', 'Presión arterial', 'Otro descontrol metabólico'
     ]
