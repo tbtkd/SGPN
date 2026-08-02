@@ -15,7 +15,7 @@
     <div x-show="activeTab === 'alimentacion'" class="space-y-4">
         <div class="space-y-2 form-group">
             <label for="numero_comidas_diarias" class="block text-sm font-medium text-gray-700">Número de veces que come al día:</label>
-            <input type="number" id="numero_comidas_diarias" name="numero_comidas_diarias" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['numero_comidas_diarias'] if historial else '' }}" step="1" min="0" max="99" maxlength="2" autofocus>
+            <input type="text" id="numero_comidas_diarias" name="numero_comidas_diarias" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['numero_comidas_diarias'] if historial else '' }}" autofocus>
             <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
         </div>
         <div class="space-y-2">
@@ -31,13 +31,13 @@
     <div x-show="activeTab === 'actividad-fisica'" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2 form-group">
-                <label for="tiempo_actividad_fisica" class="block text-sm font-medium text-gray-700">Tiempo (minutos):</label>
-                <input type="number" id="tiempo_actividad_fisica" name="tiempo_actividad_fisica" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['tiempo_actividad_fisica'] if historial else '' }}" step="1" min="0">
+                <label for="tiempo_actividad_fisica" class="block text-sm font-medium text-gray-700">Tiempo:</label>
+                <input type="text" id="tiempo_actividad_fisica" name="tiempo_actividad_fisica" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['tiempo_actividad_fisica'] if historial else '' }}">
                 <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
             </div>
             <div class="space-y-2 form-group">
                 <label for="frecuencia_actividad_fisica" class="block text-sm font-medium text-gray-700">Frecuencia:</label>
-                <input type="text" id="frecuencia_actividad_fisica" name="frecuencia_actividad_fisica" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['frecuencia_actividad_fisica'] if historial else '' }}" maxlength="30">
+                <input type="text" id="frecuencia_actividad_fisica" name="frecuencia_actividad_fisica" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" value="{{ historial['frecuencia_actividad_fisica'] if historial else '' }}">
                 <span class="error-message" style="display: none; color: #dc3545; font-size: 0.85em; margin-top: 4px;">Este campo es obligatorio.</span>
             </div>
             <div class="space-y-2 md:col-span-2 form-group">
