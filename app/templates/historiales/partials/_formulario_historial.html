@@ -6,6 +6,11 @@
         <button type="button" @click="activeTab = 'actividad-fisica'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'actividad-fisica' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Actividad Física</button>
     </div>
 
+    <!-- Campos ocultos para detalles -->
+    <input type="hidden" id="hidden_detalle_alergias" name="detalle_alergias" value="{{ historial['detalle_alergias'] if historial else '' }}">
+    <input type="hidden" id="hidden_detalle_intolerancias" name="detalle_intolerancias" value="{{ historial['detalle_intolerancias'] if historial else '' }}">
+    <input type="hidden" id="hidden_detalle_otro_descontrol_metabolico" name="detalle_otro_descontrol_metabolico" value="{{ historial['detalle_otro_descontrol_metabolico'] if historial else '' }}">
+
     <!-- Contenido de Tabs -->
     <div x-show="activeTab === 'actividad-fisica'" class="space-y-4">
 
@@ -76,18 +81,27 @@
             <div @click.away="document.getElementById('modal-{{ opcion|replace(' ', '-')|lower }}').classList.add('hidden')" class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all">
                 <h3 class="text-xl font-bold text-gray-900 mb-4">Detalle de {{ opcion }}</h3>
                 <div class="space-y-2">
-                    <textarea name="detalle_{{ opcion|replace(' ', '_')|lower|replace('ó', 'o') }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" rows="4" placeholder="Describe el detalle...">{{ historial['detalle_' + opcion|replace(' ', '_')|lower|replace('ó', 'o')] if historial else '' }}</textarea>
+                    <textarea id="textarea_{{ opcion|replace(' ', '_')|lower|replace('ó', 'o') }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition" rows="4" placeholder="Describe el detalle...">{{ historial['detalle_' + opcion|replace(' ', '_')|lower|replace('ó', 'o')] if historial else '' }}</textarea>
                 </div>
                 <div class="flex gap-4 mt-6">
                     <button type="button" onclick="
-                        const modal = document.getElementById('modal-{{ opcion|replace(' ', '-')|lower }}');
-                        modal.querySelector('textarea').value = modal.dataset.originalValue;
-                        modal.classList.add('hidden');
-                        if (!modal.dataset.originalValue) {
-                            document.querySelector('input[value=\'{{ opcion }}\']').checked = false;
-                        }
+                        (function(modalId, optName) {
+                            const modal = document.getElementById(modalId);
+                            modal.querySelector('textarea').value = modal.dataset.originalValue;
+                            modal.classList.add('hidden');
+                            if (!modal.dataset.originalValue) {
+                                document.querySelector('input[value=\'' + optName + '\']').checked = false;
+                            }
+                        })('modal-{{ opcion|replace(' ', '-')|lower }}', '{{ opcion }}');
                     " class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">Cancelar</button>
-                    <button type="button" onclick="document.getElementById('modal-{{ opcion|replace(' ', '-')|lower }}').classList.add('hidden')" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700">Aceptar</button>
+                    <button type="button" onclick="
+                        (function(modalId, hiddenId) {
+                            const modal = document.getElementById(modalId);
+                            const hiddenInput = document.getElementById(hiddenId);
+                            hiddenInput.value = modal.querySelector('textarea').value;
+                            modal.classList.add('hidden');
+                        })('modal-{{ opcion|replace(' ', '-')|lower }}', 'hidden_detalle_{{ opcion|replace(' ', '_')|lower|replace('ó', 'o') }}');
+                    " class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700">Aceptar</button>
                 </div>
             </div>
         </div>
