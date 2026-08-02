@@ -17,7 +17,7 @@ class HistorialClinico(db.Model):
     tipo_actividad_fisica = db.Column(db.Text)
     frecuencia_actividad_fisica = db.Column(db.Text)
     tiempo_actividad_fisica = db.Column(db.Text)
-    numero_comidas_diarias = db.Column(db.Integer)
+    numero_comidas_diarias = db.Column(db.Text)
     alimentos_normales = db.Column(db.Text)
     alimentos_no_gustados = db.Column(db.Text)
     
@@ -49,7 +49,7 @@ class HistorialClinico(db.Model):
             historial.tiempo_actividad_fisica = datos.get('tiempo_actividad_fisica')
             
             comidas = datos.get('numero_comidas_diarias')
-            historial.numero_comidas_diarias = int(comidas) if comidas and str(comidas).isdigit() else None
+            historial.numero_comidas_diarias = comidas if comidas else None
             
             historial.alimentos_normales = datos.get('alimentos_normales')
             historial.alimentos_no_gustados = datos.get('alimentos_no_gustados')
