@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 cls
 
 echo ========================================================
-echo   COMPILANDO SISTEMA PACIENTES (ONEFILE + CONSOLE)
+echo   COMPILANDO SISTEMA PACIENTES (ONEFILE + BD EXTERNA)
 echo ========================================================
 echo.
 
@@ -17,7 +17,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: 2. Validar que todos los archivos y carpetas --add-data y el icono existan obligatoriamente
+:: 2. Validar que todos los archivos y carpetas obligatorios existan
 echo [--] Validando integridad de recursos y dependencias...
 
 if not exist "app\templates" (
@@ -38,22 +38,22 @@ if not exist "app\static\img\icons\logo.ico" (
     exit /b 1
 )
 
-:: Validar si la base de datos existe en instance; si no, crear la carpeta vacía o advertir/crearla
+:: Validar si la base de datos base existe en instance local
 if not exist "instance" mkdir instance
 if not exist "instance\sgpn_nutricion.db" (
-    echo [ADVERTENCIA] No se encontro 'instance\sgpn_nutricion.db'. Se creara un archivo base vacio para empaquetar.
+    echo [ADVERTENCIA] No se encontro 'instance\sgpn_nutricion.db'. Se creara un archivo base vacio.
     type nul > "instance\sgpn_nutricion.db"
 )
 
 :: 3. Limpieza de carpetas y archivos temporales previos
 echo [--] Limpiando compilaciones anteriores...
 if exist build rmdir /s /q build
-if exist dist rmdir /s /q dist
+if exist dist\SistemaPacientes.exe del /f /q dist\SistemaPacientes.exe
 if exist *.spec del /f /q *.spec
 
-if exist dist (
+if exist dist\SistemaPacientes.exe (
     echo.
-    echo [ERROR] No se pudo eliminar la carpeta 'dist'. 
+    echo [ERROR] No se pudo eliminar el ejecutable en 'dist'. 
     echo Asegurate de cerrar 'SistemaPacientes.exe' si esta ejecutandose.
     echo.
     pause
@@ -63,22 +63,40 @@ if exist dist (
 echo [--] Iniciando empaquetado con PyInstaller...
 echo.
 
-:: 4. Ejecutar PyInstaller con separador Windows (;) y todas las validaciones
+:: 4. Ejecutar PyInstaller 
+:: =========================================================================================
+:: OPCION A (EMPAQUETADO INTERNO TOTAL): Usa la siguiente linea si deseas incrustar la BD dentro del .exe
+:: pyinstaller --noconfirm --onefile --console --add-data "app/templates;app/templates" --add-data "app/static;app/static" --add-data "instance/sgpn_nutricion.db;instance" --icon="app/static/img/icons/logo.ico" --name "SistemaPacientes" run.py
+
+:: OPCION B (ACTIVA - BD EXTERNA): La BD se mantiene fuera en la carpeta dist\instance\ para ser visible/reemplazable
 pyinstaller --noconfirm --onefile --console ^
   --add-data "app/templates;app/templates" ^
   --add-data "app/static;app/static" ^
-  --add-data "instance/sgpn_nutricion.db;instance" ^
   --icon="app/static/img/icons/logo.ico" ^
   --name "SistemaPacientes" run.py
+:: =========================================================================================
 
-:: 5. Evaluacion de Errores
+:: 5. Evaluacion y Despliegue de Base de Datos externa en dist\instance\
 if %errorlevel% equ 0 (
     if exist "dist\SistemaPacientes.exe" (
+        echo [--] Configurando directorio de base de datos externa en 'dist\instance\'...
+        if not exist "dist\instance" mkdir "dist\instance"
+        
+        :: Copiar la BD a dist\instance SOLO si no existe previa (para NO sobreescribir datos reales)
+        if not exist "dist\instance\sgpn_nutricion.db" (
+            echo [--] Copiando base de datos inicial a 'dist\instance\sgpn_nutricion.db'...
+            copy "instance\sgpn_nutricion.db" "dist\instance\sgpn_nutricion.db" >nul
+        ) else (
+            echo [NOTA] Se detecto una base de datos existente en 'dist\instance\sgpn_nutricion.db'.
+            echo        NO se sobreescribio para preservar la informacion existente.
+        )
+
         echo.
         echo ========================================================
-        echo   ¡COMPILACION EXITOSA!
+        echo   ¡COMPILACION Y CONFIGURACION EXITOSA!
         echo ========================================================
-        echo Archivo generado en: dist\SistemaPacientes.exe
+        echo Ejecutable generado en : dist\SistemaPacientes.exe
+        echo Base de datos visible en: dist\instance\sgpn_nutricion.db
         echo.
     ) else (
         echo.
