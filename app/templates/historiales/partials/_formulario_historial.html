@@ -1,8 +1,8 @@
 <form id="formHistorialClinico" method="POST" class="space-y-6" x-data="{ activeTab: 'historial-medico' }">
     <!-- Tabs -->
     <div class="flex border-b border-gray-200 mb-6">
-        <button type="button" @click="activeTab = 'alimentacion'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'alimentacion' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Alimentación</button>
         <button type="button" @click="activeTab = 'historial-medico'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'historial-medico' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Historial Médico</button>
+        <button type="button" @click="activeTab = 'alimentacion'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'alimentacion' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Alimentación</button>
         <button type="button" @click="activeTab = 'actividad-fisica'" :class="{ 'border-teal-600 text-teal-600': activeTab === 'actividad-fisica' }" class="form-tab px-6 py-3 border-b-2 font-medium transition">Actividad Física</button>
     </div>
 
