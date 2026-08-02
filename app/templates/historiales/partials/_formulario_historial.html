@@ -58,19 +58,24 @@
             <label class="block text-sm font-medium text-gray-700">Padecimientos:</label>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {% for opcion in padecimientos_opciones %}
-                    <label class="flex items-center space-x-2 text-sm text-gray-700">
-                        <input type="checkbox" name="padecimientos" value="{{ opcion }}" 
-                               class="rounded text-teal-600 focus:ring-teal-500" 
-                               {% if historial and opcion in historial['padecimientos'].split(',') %}checked{% endif %}
-                               {% if opcion in ['Alergias', 'Intolerancias', 'Otro descontrol metabólico'] %}
-                               @change="if($event.target.checked) { 
-                                   const modal = document.getElementById('modal-{{ opcion|replace(' ', '-')|lower }}');
-                                   modal.dataset.originalValue = modal.querySelector('textarea').value;
-                                   modal.classList.remove('hidden'); 
-                               }"
-                               {% endif %}>
-                        <span>{{ opcion }}</span>
-                    </label>
+                    <div class="flex items-center space-x-2 text-sm text-gray-700" x-data="{ isChecked: {% if historial and opcion in historial['padecimientos'].split(',') %}true{% else %}false{% endif %} }">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="padecimientos" value="{{ opcion }}" 
+                                   class="rounded text-teal-600 focus:ring-teal-500" 
+                                   x-model="isChecked"
+                                   {% if historial and opcion in historial['padecimientos'].split(',') %}checked{% endif %}>
+                            <span>{{ opcion }}</span>
+                        </label>
+                        {% if opcion in ['Alergias', 'Intolerancias', 'Otro descontrol metabólico'] %}
+                        <button type="button" 
+                                x-show="isChecked"
+                                @click.stop="document.getElementById('modal-{{ opcion|replace(' ', '-')|lower }}').classList.remove('hidden')"
+                                class="text-teal-600 hover:text-teal-800 transition"
+                                title="Clic para agregar detalles de la selección">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         </div>
